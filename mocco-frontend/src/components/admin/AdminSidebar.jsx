@@ -13,7 +13,7 @@ const AdminSidebar = ({
       {/* === Mobile Toggle Button === */}
       {!sidebarOpen && (
         <button
-          className="md:hidden fixed top-20 left-0 z-[9999] bg-gray-900 text-white p-2 rounde"
+          className="md:hidden fixed top-20 left-0 z-9999 bg-gray-900 text-white p-2 rounde"
           onClick={() => setSidebarOpen(true)}
         >
           <Menu size={24} />

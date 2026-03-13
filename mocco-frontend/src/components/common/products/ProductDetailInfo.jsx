@@ -62,7 +62,7 @@ const ProductDetailInfo = ({
         <div className="w-full min-w-12 max-w-14">
           <CustomFormInput
             type="text"
-            className="text-black !px-2 !text-center"
+            className="text-black px-2! text-center!"
             value={quantity}
             onChange={(e) =>
               setQuantity(+e.target.value > 0 ? +e.target.value : 1)

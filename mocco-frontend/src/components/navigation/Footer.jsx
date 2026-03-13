@@ -106,6 +106,11 @@ const Footer = () => {
             </span>
             All Rights Reserved.
           </p>
+          {/* made with */}
+          <p className="text-center text-gray-500 mt-2 text-sm">
+            Made with <span className="text-red-500">♥</span> by{" "}
+            <span className="font-medium">Masab Ashraf</span>
+          </p>
         </div>
       </div>
     </footer>
