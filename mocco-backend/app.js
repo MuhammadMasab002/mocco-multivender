@@ -27,7 +27,7 @@ app.use(express.json());
 
 // greeting route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to Mocco Mart Backend!" });
+  res.json("Welcome to Mocco Mart Backend!");
 });
 
 export default app;
