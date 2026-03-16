@@ -643,3 +643,37 @@ export const footerSupportLinks = [
     name: "Live chat",
   },
 ];
+
+// hero slider data also add some pretty multiple dark theme background color for better ui
+export const heroSliderData = [
+  {
+    id: 1,
+    subtitle: "iPhone 14 Series",
+    title: "Up to 10% off Voucher",
+    buttonText: "Shop Now →",
+    image_url:
+      "https://images.unsplash.com/photo-1758578938566-c986f710feb6?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    bgColor: "#1F2A30",
+    bgGradient: "linear-gradient(135deg, #081C15, #1B4332)",
+  },
+  {
+    id: 2,
+    subtitle: "Smart Electronics",
+    title: "Latest Gadgets Collection",
+    buttonText: "Shop Deals →",
+    image_url:
+      "https://images.unsplash.com/photo-1713056878930-c5604da9acfd?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    bgColor: "#3B4252",
+    bgGradient: "linear-gradient(135deg, #121212, #202124)",
+  },
+  {
+    id: 3,
+    subtitle: "Exclusive Sale",
+    title: "Up to 50% OFF on Accessories",
+    buttonText: "Explore →",
+    image_url:
+      "https://images.unsplash.com/photo-1760901627502-4969155b3330?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    bgColor: "#2C3E50",
+    bgGradient: "linear-gradient(135deg, #2B1B3F, #3C096C)",
+  },
+];
