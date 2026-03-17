@@ -16,9 +16,21 @@ export const navItems = [
     title: "Events",
     url: "/events",
   },
+  // {
+  //   title: "FAQ",
+  //   url: "/faq",
+  // },
+  // {
+  //   title: "About",
+  //   url: "/about",
+  // },
+  // {
+  //   title: "Contact",
+  //   url: "/contact",
+  // },
   {
-    title: "FAQ",
-    url: "/faq",
+    title: "SignUp",
+    url: "/signup",
   },
 ];
 

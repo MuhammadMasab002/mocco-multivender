@@ -101,7 +101,7 @@ const Footer = () => {
         <div className="container mx-auto px-4 text-center">
           <p className="text-center text-gray-500 mt-10 pt-5 border-t border-gray-700 text-sm">
             © {new Date().getFullYear()}
-            <span className="font-medium">
+            <span className="font-medium hover:text-white/70 transition-colors duration-200">
               <Link to="/"> Mocco Mart. </Link>
             </span>
             All Rights Reserved.
@@ -109,7 +109,14 @@ const Footer = () => {
           {/* made with */}
           <p className="text-center text-gray-500 mt-2 text-sm">
             Made with <span className="text-red-500">♥</span> by{" "}
-            <span className="font-medium">Masab Ashraf</span>
+            <a
+              href="https://github.com/MuhammadMasab002"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline"
+            >
+              Masab Ashraf
+            </a>
           </p>
         </div>
       </div>
