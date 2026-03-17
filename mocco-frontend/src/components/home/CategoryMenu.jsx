@@ -11,7 +11,7 @@ const CategoryMenu = ({ categories = [], handleCategoryClick }) => {
         <button
           key={item.title}
           title={item.title}
-          onClick={(e) => handleCategoryClick(e)}
+          onClick={() => handleCategoryClick(item.title)}
           className="group flex items-center justify-between w-full text-left my-0.5 py-1 px-1 cursor-pointer rounded hover:bg-red-100 transition-colors duration-200"
         >
           <span className="text-gray-700 truncate">{item.title}</span>

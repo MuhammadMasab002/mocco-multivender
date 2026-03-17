@@ -15,6 +15,7 @@ import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import { useCallback, useEffect } from "react";
 import axios from "axios";
+import Products from "./pages/Products";
 
 function App() {
   const fetchData = useCallback(async () => {
@@ -39,6 +40,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/cart" element={<Cart />} />
+
+          <Route path="/products" element={<Products />} />
           <Route
             path="/product-detail/:productId"
             element={<ProductDetail />}

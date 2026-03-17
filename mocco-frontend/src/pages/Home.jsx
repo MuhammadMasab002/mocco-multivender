@@ -7,6 +7,7 @@ import MusicExperienceBanner from "../components/home/MusicExperienceBanner";
 import FeatureSection from "../components/home/FeatureSection";
 import NewArrivalProducts from "../components/home/NewArrivalProducts";
 import { useNavigate } from "react-router-dom";
+import CategoriesGrid from "../components/home/CategoriesGrid";
 
 const sampleProducts = [
   {
@@ -66,6 +67,11 @@ function Home() {
     }
   };
 
+  // handle category click and navigate
+  const handleCategoryClick = (category) => {
+    navigate(`products?category=${category.toLowerCase()}`);
+  };
+
   const handleClick = (productId) => {
     navigate(`/product-detail/${productId}`);
   };
@@ -73,7 +79,8 @@ function Home() {
   return (
     <div className="w-full h-full justify-center items-center flex flex-col gap-4 my-4">
       {/* <h1 className="text-3xl font-bold text-red-500">Welcome to Mocco Mart</h1> */}
-      <HeroSection />
+      <HeroSection handleCategoryClick={handleCategoryClick} />
+      <CategoriesGrid handleCategoryClick={handleCategoryClick} />
       <section className="w-full max-w-7xl px-5 py-8 space-y-8 sm:space-y-12">
         <FlashSales
           featureProducts={sampleProducts}
