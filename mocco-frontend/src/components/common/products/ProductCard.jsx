@@ -4,27 +4,16 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import CustomButton from "../CustomButton";
 
-const ProductCard = ({
-  _id,
-  name,
-  image,
-  price,
-  oldPrice = 0,
-  discount = 10,
-  onAddToCart,
-  onClick,
-  isWishlisted = false,
-  toggleWishlist,
-}) => {
+const ProductCard = ({ product }) => {
   return (
     <div
       className="relative bg-white shadow-sm hover:shadow-lg hover:shadow-red-100 rounded-lg overflow-hidden cursor-pointer group transition"
-      onClick={() => onClick(_id)}
+      onClick={() => alert("Navigate to product details")}
     >
       {/* Discount Badge */}
-      {discount && (
+      {product?.discount && (
         <span className="absolute top-3 left-3 z-20 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
-          -{discount}%
+          -{product.discount}%
         </span>
       )}
 
@@ -35,14 +24,15 @@ const ProductCard = ({
           className="bg-white w-8 h-8 rounded-full shadow flex items-center justify-center hover:bg-gray-200"
           onClick={(e) => {
             e.stopPropagation();
-            toggleWishlist();
+            alert("Added to wishlist");
           }}
         >
-          {isWishlisted ? (
+          <FavoriteIcon className="text-red-500 text-lg" />
+          {/* {isWishlisted ? (
             <FavoriteIcon className="text-red-500 text-lg" />
           ) : (
             <FavoriteBorderIcon className="text-gray-500 text-lg" />
-          )}
+          )} */}
         </button>
 
         {/* View */}
@@ -55,10 +45,10 @@ const ProductCard = ({
       </div>
 
       {/* Product Image */}
-      <div className="relative w-full h-52 flex justify-center items-center overflow-hidden">
+      <div className="relative w-full h-52 flex justify-center items-center overflow-hidden bg-gray-100">
         <img
-          src={image}
-          alt={name}
+          src={product?.image_Url[0].url}
+          alt={product?.name}
           className="object-cover object-center w-full h-full transition-transform duration-300 group-hover:scale-105"
         />
         {/* Add to Cart (Hover Button) */}
@@ -72,7 +62,7 @@ const ProductCard = ({
             className="rounded-none"
             onClick={(e) => {
               e.stopPropagation();
-              onAddToCart();
+              alert("Added to cart");
             }}
           />
         </div>
@@ -80,16 +70,27 @@ const ProductCard = ({
 
       {/* Product Info */}
       <div className="px-3 py-4 mb-2">
-        <h3 className="text-sm md:text-base font-medium text-gray-800 line-clamp-2 truncate max-w-72">
-          {name}
+        {/* brand -> shop */}
+        <p className="text-sm text-blue-500 mb-1 truncate">
+          {product?.shop.name}
+        </p>
+        <h3 className="text-sm md:text-base font-medium text-gray-800 line-clamp-2 leading-6 min-h-12 overflow-hidden">
+          {product?.name}
         </h3>
-
-        {/* Price */}
-        <div className="flex items-center gap-2 mt-2">
-          <span className="text-red-500 font-bold">${price}</span>
-          <span className="text-gray-400 line-through text-sm">
-            ${oldPrice}
-          </span>
+        <div className="flex justify-between items-center gap-1 mt-2">
+          {/* Price */}
+          <div className="flex items-center gap-2">
+            <span className="text-red-500 font-bold">${product?.price}</span>
+            {product?.discount_price && (
+              <span className="text-gray-400 line-through text-sm">
+                ${product.discount_price}
+              </span>
+            )}
+          </div>
+          {/* sold */}
+          <div className="text-green-500 text-sm">
+            {product?.total_sell} sold
+          </div>
         </div>
       </div>
     </div>

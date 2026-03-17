@@ -13,7 +13,11 @@ const getTimeParts = (sec) => {
 
 const FLASH_SALES_DURATION = 3 * 24 * 3600 + 5 * 3600;
 
-const FlashSales = ({ featureProducts, handleFetchCategories, handleClick }) => {
+const FlashSales = ({
+  featureProducts,
+  handleFetchCategories,
+  handleClick,
+}) => {
   const [remaining, setRemaining] = useState(FLASH_SALES_DURATION);
   const targetRef = useRef(null);
   useEffect(() => {
@@ -39,7 +43,9 @@ const FlashSales = ({ featureProducts, handleFetchCategories, handleClick }) => 
     <div>
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <div>
-          <h3 className="text-2xl font-bold text-gray-800">Flash Sales</h3>
+          <h3 className="text-2xl font-bold text-gray-800 border-l-4 border-red-500 pl-4 pr-4 bg-linear-to-r from-red-100 to-white">
+            Flash Sales
+          </h3>
         </div>
 
         <div className="flex justify-center items-center gap-4">

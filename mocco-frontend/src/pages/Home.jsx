@@ -8,6 +8,7 @@ import FeatureSection from "../components/home/FeatureSection";
 import NewArrivalProducts from "../components/home/NewArrivalProducts";
 import { useNavigate } from "react-router-dom";
 import CategoriesGrid from "../components/home/CategoriesGrid";
+import { productData } from "../static/data.jsx";
 
 const sampleProducts = [
   {
@@ -59,6 +60,7 @@ const sampleProducts = [
 function Home() {
   const navigate = useNavigate();
 
+
   const handleFetchCategories = async () => {
     try {
       console.log("Categories data");
@@ -87,14 +89,14 @@ function Home() {
           handleFetchCategories={handleFetchCategories}
           handleClick={handleClick}
         />
-        <BestSelling featureProducts={sampleProducts} />
+        <BestSelling productData={productData} />
       </section>
       <section className="w-full max-w-7xl my-10 bg-black text-white rounded-lg overflow-hidden">
         {/* Music Experience / banner */}
         <MusicExperienceBanner />
       </section>
       <section className="w-full max-w-7xl px-5 py-8 space-y-8 sm:space-y-12">
-        <BestSelling featureProducts={sampleProducts} />
+        <BestSelling productData={productData} />
       </section>
       <section className="w-full max-w-7xl py-10 space-y-8">
         <NewArrivalProducts featureProducts={sampleProducts} />
