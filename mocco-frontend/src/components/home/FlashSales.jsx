@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import ProductCard from "../common/products/ProductCard";
 import CustomButton from "../common/CustomButton";
+import { useNavigate } from "react-router-dom";
 
 const getTimeParts = (sec) => {
   const days = Math.floor(sec / (3600 * 24));
@@ -13,11 +14,9 @@ const getTimeParts = (sec) => {
 
 const FLASH_SALES_DURATION = 3 * 24 * 3600 + 5 * 3600;
 
-const FlashSales = ({
-  featureProducts,
-  handleFetchCategories,
-  handleClick,
-}) => {
+const FlashSales = ({ productData = [], limit = 4, handleClick }) => {
+  const navigate = useNavigate();
+
   const [remaining, setRemaining] = useState(FLASH_SALES_DURATION);
   const targetRef = useRef(null);
   useEffect(() => {
@@ -41,12 +40,13 @@ const FlashSales = ({
 
   return (
     <div>
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        <div>
-          <h3 className="text-2xl font-bold text-gray-800 border-l-4 border-red-500 pl-4 pr-4 bg-linear-to-r from-red-100 to-white">
-            Flash Sales
-          </h3>
-        </div>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-10">
+        <h3
+          className="inline-block 
+        text-2xl font-bold text-gray-800 border-l-4 border-red-500 pl-4 pr-4 bg-linear-to-r from-red-100 to-white"
+        >
+          Flash Sales
+        </h3>
 
         <div className="flex justify-center items-center gap-4">
           <div className="flex gap-3 text-center">
@@ -71,21 +71,27 @@ const FlashSales = ({
             buttonText={"View all"}
             variant={"textDanger"}
             className="hidden md:block"
-            onClick={handleFetchCategories}
+            onClick={() => navigate("/flash-sales")}
           />
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        {featureProducts?.map((p) => (
+      <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {productData?.slice(0, limit)?.map((product) => (
           <ProductCard
-            key={p._id}
-            {...p}
-            toggleWishlist={() => alert("Addedd to wishlist")}
-            onAddToCart={() => alert("Added to cart")}
-            onClick={handleClick}
+            key={product.id}
+            product={product}
+            handleClick={handleClick}
           />
         ))}
+      </div>
+
+      <div className="flex justify-center mt-10 md:hidden">
+        <CustomButton
+          buttonText={"View all"}
+          variant={"textDanger"}
+          onClick={() => navigate("/flash-sales")}
+        />
       </div>
     </div>
   );

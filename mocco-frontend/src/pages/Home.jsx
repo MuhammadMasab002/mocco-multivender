@@ -60,15 +60,6 @@ const sampleProducts = [
 function Home() {
   const navigate = useNavigate();
 
-
-  const handleFetchCategories = async () => {
-    try {
-      console.log("Categories data");
-    } catch (err) {
-      console.error("Categories error--->", err);
-    }
-  };
-
   // handle category click and navigate
   const handleCategoryClick = (category) => {
     navigate(`products?category=${category.toLowerCase()}`);
@@ -83,24 +74,36 @@ function Home() {
       {/* <h1 className="text-3xl font-bold text-red-500">Welcome to Mocco Mart</h1> */}
       <HeroSection handleCategoryClick={handleCategoryClick} />
       <CategoriesGrid handleCategoryClick={handleCategoryClick} />
-      <section className="w-full max-w-7xl px-5 py-8 space-y-8 sm:space-y-12">
+
+      <section className="w-full max-w-7xl px-5 py-8 space-y-20">
         <FlashSales
-          featureProducts={sampleProducts}
-          handleFetchCategories={handleFetchCategories}
+          productData={productData}
+          limit={8}
           handleClick={handleClick}
         />
-        <BestSelling productData={productData} />
+        <BestSelling
+          productData={productData}
+          limit={8}
+          handleClick={handleClick}
+        />
       </section>
+
       <section className="w-full max-w-7xl my-10 bg-black text-white rounded-lg overflow-hidden">
-        {/* Music Experience / banner */}
         <MusicExperienceBanner />
       </section>
+
       <section className="w-full max-w-7xl px-5 py-8 space-y-8 sm:space-y-12">
-        <BestSelling productData={productData} />
+        <BestSelling
+          productData={productData}
+          limit={8}
+          handleClick={handleClick}
+        />
       </section>
+
       <section className="w-full max-w-7xl py-10 space-y-8">
         <NewArrivalProducts featureProducts={sampleProducts} />
       </section>
+
       <section className="w-full max-w-7xl py-4 sm:py-10 md:py-20">
         <FeatureSection />
       </section>

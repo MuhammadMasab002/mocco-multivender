@@ -8,7 +8,7 @@ const NewArrivalProducts = ({ featureProducts }) => {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h3 className="text-2xl font-bold text-gray-800 border-l-4 border-red-500 pl-4 pr-4 bg-linear-to-r from-red-100 to-white">
             New Arrival Products
@@ -16,7 +16,11 @@ const NewArrivalProducts = ({ featureProducts }) => {
         </div>
 
         <div className="flex justify-center items-center gap-4">
-          <CustomButton buttonText={"View all"} variant={"textDanger"} />
+          <CustomButton
+            buttonText={"View all"}
+            variant={"textDanger"}
+            className="hidden md:block"
+          />
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

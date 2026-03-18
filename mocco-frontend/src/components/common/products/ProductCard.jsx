@@ -4,11 +4,11 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import CustomButton from "../CustomButton";
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, handleClick }) => {
   return (
     <div
       className="relative bg-white shadow-sm hover:shadow-lg hover:shadow-red-100 rounded-lg overflow-hidden cursor-pointer group transition"
-      onClick={() => alert("Navigate to product details")}
+      onClick={() => handleClick(product?.id)}
     >
       {/* Discount Badge */}
       {product?.discount && (

@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import { useCallback, useEffect } from "react";
 import axios from "axios";
 import Products from "./pages/Products";
+import BestSellingPage from "./pages/BestSellingPage";
 
 function App() {
   const fetchData = useCallback(async () => {
@@ -46,6 +47,8 @@ function App() {
             path="/product-detail/:productId"
             element={<ProductDetail />}
           />
+          <Route path="/best-selling" element={<BestSellingPage />} />
+
           <Route path="/wishlist" element={<Wishlist />} />
 
           <Route path="/contact" element={<Contact />} />
