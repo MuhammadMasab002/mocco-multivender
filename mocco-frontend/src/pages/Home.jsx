@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import CategoriesGrid from "../components/home/CategoriesGrid";
 import { productData } from "../static/data.jsx";
 import FeatureProducts from "../components/home/FeatureProducts.jsx";
+import SponsoredBrands from "../components/home/SponsoredBrands.jsx";
 
 const sampleProducts = [
   {
@@ -108,6 +109,8 @@ function Home() {
       <section className="w-full max-w-7xl py-4 sm:py-10 md:py-20">
         <FeatureSection />
       </section>
+
+      <SponsoredBrands />
     </div>
   );
 }

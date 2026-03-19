@@ -38,3 +38,29 @@ body {
   background-size: cover;
   background-position: center;
 }
+
+/* Sponsored brands infinite marquee */
+.sponsored-marquee {
+  overflow: hidden;
+}
+
+.sponsored-track {
+  display: flex;
+  width: max-content;
+  animation: sponsored-scroll 24s linear infinite;
+  will-change: transform;
+}
+
+.sponsored-marquee:hover .sponsored-track {
+  animation-play-state: paused;
+}
+
+@keyframes sponsored-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}

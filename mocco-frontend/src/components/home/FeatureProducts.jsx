@@ -19,11 +19,11 @@ const FeatureProducts = ({ productData = [], limit = 4, handleClick }) => {
         <p className="text-xs text-gray-500 uppercase tracking-wide mb-3">
           Handpicked Selection
         </p>
-        <h1 className="text-2xl font-semibold text-gray-900 mb-4">
+        <h1 className="text-3xl font-semibold text-gray-900 mb-4">
           Feature Products
         </h1>
         <div className="w-16 h-1 bg-red-500 mx-auto mb-6"></div>
-        <p className="text-gray-600 font-light">
+        <p className="text-gray-600 text-lg font-light">
           Discover the most loved products from our curated selection of trusted brands
         </p>
       </div>

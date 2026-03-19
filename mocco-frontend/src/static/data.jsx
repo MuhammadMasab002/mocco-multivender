@@ -16,10 +16,10 @@ export const navItems = [
     title: "Events",
     url: "/events",
   },
-  // {
-  //   title: "FAQ",
-  //   url: "/faq",
-  // },
+  {
+    title: "FAQ",
+    url: "/faq",
+  },
   // {
   //   title: "About",
   //   url: "/about",
@@ -690,4 +690,13 @@ export const heroSliderData = [
     bgColor: "#2C3E50",
     bgGradient: "linear-gradient(135deg, #2B1B3F, #3C096C)",
   },
+];
+
+// brand logos data
+export const brandLogosList = [
+  "https://logos-world.net/wp-content/uploads/2020/04/Sony-Logo.png",
+  "https://logos-world.net/wp-content/uploads/2020/08/Dell-Logo-1989-2016.png",
+  "https://s.yimg.com/fz/api/res/1.2/.9XQiCV77OrqWsquSzVjCA--~C/YXBwaWQ9c3JjaGRkO2ZpPWZpbGw7aD00MTI7cHhvZmY9NTA7cHlvZmY9MTAwO3E9ODA7c3M9MTt3PTM4OA--/https://i.pinimg.com/736x/a8/5d/91/a85d91d6c7be00d65712fc20f1a479e6.jpg",
+  "https://tse1.mm.bing.net/th/id/OIP.L1qMVdbzQJT-RLfZEl7gdAHaD6?pid=Api&P=0&h=220",
+  "https://tse4.mm.bing.net/th/id/OIP.qbsTDbB9qKP6pBQ0Rl9bpQHaEK?pid=Api&P=0&h=220"
 ];
