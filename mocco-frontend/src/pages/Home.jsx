@@ -3,7 +3,6 @@ import ProductCard from "../components/common/products/ProductCard";
 import HeroSection from "../components/home/HeroSection";
 import FlashSales from "../components/home/FlashSales";
 import BestSelling from "../components/home/BestSelling";
-import MusicExperienceBanner from "../components/home/MusicExperienceBanner";
 import FeatureSection from "../components/home/FeatureSection";
 import NewArrivalProducts from "../components/home/NewArrivalProducts";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +10,8 @@ import CategoriesGrid from "../components/home/CategoriesGrid";
 import { productData } from "../static/data.jsx";
 import FeatureProducts from "../components/home/FeatureProducts.jsx";
 import SponsoredBrands from "../components/home/SponsoredBrands.jsx";
+import EventCard from "../components/home/EventCard.jsx";
+import CustomButton from "../components/common/CustomButton.jsx";
 
 const sampleProducts = [
   {
@@ -90,8 +91,26 @@ function Home() {
         />
       </section>
 
-      <section className="w-full max-w-7xl my-10 bg-black text-white rounded-lg overflow-hidden">
-        <MusicExperienceBanner />
+      <section className="w-full py-12 px-5">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+            <div className="space-y-4">
+              <h3 className="text-2xl font-bold text-gray-800 border-l-4 border-red-500 pl-4 pr-4 bg-linear-to-r from-red-100 to-white">
+                Limited Time Event
+              </h3>
+            </div>
+
+            <div className="flex justify-center items-center gap-4">
+              <CustomButton
+                buttonText={"View all"}
+                variant={"textDanger"}
+                className="hidden md:block"
+                onClick={() => navigate("/events")}
+              />
+            </div>
+          </div>
+          <EventCard eventProduct={productData?.[1] || productData?.[0]} />
+        </div>
       </section>
 
       <section className="w-full max-w-7xl px-5 py-8 space-y-8 sm:space-y-12">

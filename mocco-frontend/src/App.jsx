@@ -18,6 +18,7 @@ import axios from "axios";
 import Products from "./pages/Products";
 import BestSellingPage from "./pages/BestSellingPage";
 import FAQ from "./pages/FAQ";
+import Events from "./pages/Events";
 
 function App() {
   const fetchData = useCallback(async () => {
@@ -49,6 +50,7 @@ function App() {
             element={<ProductDetail />}
           />
           <Route path="/best-selling" element={<BestSellingPage />} />
+          <Route path="/events" element={<Events />} />
 
           <Route path="/wishlist" element={<Wishlist />} />
 
