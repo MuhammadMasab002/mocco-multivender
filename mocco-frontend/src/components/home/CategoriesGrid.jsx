@@ -10,7 +10,7 @@ const CategoriesGrid = ({ handleCategoryClick }) => {
             key={brand.id}
             className="bg-white rounded-lg p-5 text-center"
           >
-            <div className="w-14 h-14 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-amber-400">
+            <div className="w-14 h-14 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-red-500!">
               {brand.icon}
             </div>
             <h3 className="mt-4 text-lg font-semibold text-slate-900">
@@ -37,7 +37,7 @@ const CategoriesGrid = ({ handleCategoryClick }) => {
             onClick={() => handleCategoryClick(category.title)}
             className="rounded-lg p-4 sm:p-5 bg-white text-center cursor-pointer hover:shadow-sm transition-shadow duration-200"
           >
-            <div className="w-16 h-16 mx-auto rounded-full bg-slate-100 flex items-center justify-center overflow-hidden">
+            <div className="w-16 h-16 mx-auto rounded-full bg-slate-100 text-black flex items-center justify-center overflow-hidden">
               <img
                 src={category.image_Url}
                 alt={category.title}

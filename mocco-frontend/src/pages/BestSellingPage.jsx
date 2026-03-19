@@ -1,8 +1,15 @@
 import React from "react";
 import { productData } from "../static/data";
 import BestSelling from "../components/home/BestSelling";
+import { useNavigate } from "react-router-dom";
 
 const BestSellingPage = () => {
+  const navigate = useNavigate();
+
+  const handleClick = (productId) => {
+    navigate(`/product-detail/${productId}`);
+  };
+
   return (
     <section className="w-full max-w-7xl px-5 py-8 sm:py-12 mx-auto">
       {/* page header */}
@@ -20,7 +27,12 @@ const BestSellingPage = () => {
         </p>
       </div>
 
-      <BestSelling productData={productData} limit={null} isFullPage={true} />
+      <BestSelling
+        productData={productData}
+        handleClick={handleClick}
+        limit={null}
+        isFullPage={true}
+      />
     </section>
   );
 };
