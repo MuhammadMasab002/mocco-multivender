@@ -4,6 +4,7 @@ import ProductCard from "../common/products/ProductCard";
 import CustomButton from "../common/CustomButton";
 import { useNavigate } from "react-router-dom";
 
+// helper to convert seconds to time parts
 const getTimeParts = (sec) => {
   const days = Math.floor(sec / (3600 * 24));
   const hours = Math.floor((sec % (3600 * 24)) / 3600);
@@ -19,15 +20,20 @@ const FlashSales = ({ productData = [], limit = 4, handleClick }) => {
 
   const [remaining, setRemaining] = useState(FLASH_SALES_DURATION);
   const targetRef = useRef(null);
+
   useEffect(() => {
     const now = Math.floor(Date.now() / 1000);
     targetRef.current = now + FLASH_SALES_DURATION;
+
     setRemaining(Math.max(0, targetRef.current - now));
 
+    // update every second
     const id = setInterval(() => {
       const nowSec = Math.floor(Date.now() / 1000);
       const newRemaining = Math.max(0, targetRef.current - nowSec);
+
       setRemaining(newRemaining);
+
       if (newRemaining <= 0) {
         clearInterval(id);
       }
@@ -36,7 +42,15 @@ const FlashSales = ({ productData = [], limit = 4, handleClick }) => {
     return () => clearInterval(id);
   }, []);
 
+  // calculate time parts
   const { days, hours, minutes, seconds } = getTimeParts(remaining);
+
+  const timeParts = [
+    { label: "Days", value: days },
+    { label: "Hours", value: hours },
+    { label: "Minutes", value: minutes },
+    { label: "Seconds", value: seconds },
+  ];
 
   return (
     <div>
@@ -50,12 +64,7 @@ const FlashSales = ({ productData = [], limit = 4, handleClick }) => {
 
         <div className="flex justify-center items-center gap-4">
           <div className="flex gap-3 text-center">
-            {[
-              { label: "Days", value: days },
-              { label: "Hours", value: hours },
-              { label: "Minutes", value: minutes },
-              { label: "Seconds", value: seconds },
-            ].map((t) => (
+            {timeParts.map((t) => (
               <div
                 key={t.label}
                 className="bg-white p-3 rounded-md shadow w-18 sm:w-20"

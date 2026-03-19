@@ -4,6 +4,7 @@ import { brandingData, categoriesData } from "../../static/data";
 const CategoriesGrid = ({ handleCategoryClick }) => {
   return (
     <section className="w-full max-w-7xl px-5 py-8 sm:py-12">
+      {/* Branding */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10 sm:mb-14">
         {brandingData?.map((brand) => (
           <article

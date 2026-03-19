@@ -9,6 +9,7 @@ import NewArrivalProducts from "../components/home/NewArrivalProducts";
 import { useNavigate } from "react-router-dom";
 import CategoriesGrid from "../components/home/CategoriesGrid";
 import { productData } from "../static/data.jsx";
+import FeatureProducts from "../components/home/FeatureProducts.jsx";
 
 const sampleProducts = [
   {
@@ -93,7 +94,7 @@ function Home() {
       </section>
 
       <section className="w-full max-w-7xl px-5 py-8 space-y-8 sm:space-y-12">
-        <BestSelling
+        <FeatureProducts
           productData={productData}
           limit={8}
           handleClick={handleClick}
