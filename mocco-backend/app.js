@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import userRouter from "./src/routes/user.route.js";
 import errorMiddleware from "./src/middlewares/error.middleware.js";
+import connectDB from "./src/db/index.js";
 
 const app = express();
 
@@ -40,6 +41,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // greeting route
 app.get("/", (req, res) => {
   res.json("Welcome to Mocco Mart Backend!");
+});
+
+// Ensure DB is connected in serverless environments (e.g. Vercel app.js entrypoint)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.use("/api/v1/user", userRouter);
