@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
+import userRouter from "./src/routes/user.route.js";
 
 const app = express();
 
@@ -39,5 +40,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.json("Welcome to Mocco Mart Backend!");
 });
+
+app.use("/api/v1/user", userRouter);
 
 export default app;
