@@ -19,25 +19,31 @@ const registerUser = async (req, res, next) => {
     }
 
     const fileName = req.file ? req.file.filename : null;
-    const fileUrl = fileName ? `/uploads/${fileName}` : null;
+    const avatar = fileName
+      ? {
+          public_id: fileName,
+          url: `/uploads/${fileName}`,
+        }
+      : {
+          public_id: "default_avatar",
+          url: "https://dummyimage.com/200x200/e2e8f0/64748b.png&text=User",
+        };
 
     const user = {
       name,
       email,
       password,
-      avatar: fileUrl,
+      avatar,
     };
 
     // Create new user
     const newUser = await User.create(user);
 
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "User registered successfully!",
-        user: newUser,
-      });
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully!",
+      user: newUser,
+    });
   } catch (error) {
     console.error("Error in registerUser:", error);
     return next(
