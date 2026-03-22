@@ -2,7 +2,7 @@
 import User from "../models/user.model.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 
-const registerUser = async (req, res) => {
+const registerUser = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
@@ -19,8 +19,7 @@ const registerUser = async (req, res) => {
     }
 
     const fileName = req.file ? req.file.filename : null;
-    // const fileUrl = path.join("/uploads", fileName);
-    const fileUrl = path.join(fileName);
+    const fileUrl = fileName ? `/uploads/${fileName}` : null;
 
     const user = {
       name,
@@ -42,7 +41,7 @@ const registerUser = async (req, res) => {
   } catch (error) {
     console.error("Error in registerUser:", error);
     return next(
-      new ErrorHandler("Failed to register user!" + error.message, 500),
+      new ErrorHandler("Failed to register user! " + error.message, 500),
     );
   }
 };
