@@ -1,9 +1,15 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import bodyParser from "body-parser";
 
-dotenv.config({ path: "./src/config/.env" });
 const app = express();
+
+// config
+if (process.env.NODE_ENV !== "PRODUCTION") {
+  dotenv.config({ path: "./src/config/.env" });
+}
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -24,6 +30,10 @@ app.use(
 );
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use("/uploads", express.static("uploads"));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // greeting route
 app.get("/", (req, res) => {
