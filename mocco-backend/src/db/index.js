@@ -9,15 +9,34 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
 const DB_NAME = process.env.DB_NAME || "moco-mart";
 const DATABASE_URL = process.env.DATABASE_URL;
 
+let cachedConnectionPromise = null;
+
 const connectDB = async () => {
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+
+  if (cachedConnectionPromise) {
+    await cachedConnectionPromise;
+    return mongoose.connection;
+  }
+
+  if (!DATABASE_URL) {
+    throw new Error("DATABASE_URL is not set");
+  }
+
   try {
-    await mongoose.connect(`${DATABASE_URL}/${DB_NAME}`, {
+    cachedConnectionPromise = mongoose.connect(DATABASE_URL, {
+      dbName: DB_NAME,
       serverSelectionTimeoutMS: 10000,
     });
+    await cachedConnectionPromise;
     console.log("MongoDB connected successfully");
+    return mongoose.connection;
   } catch (error) {
+    cachedConnectionPromise = null;
     console.error("MongoDB connection error:", error);
-    process.exit(1);
+    throw error;
   }
 };
 
