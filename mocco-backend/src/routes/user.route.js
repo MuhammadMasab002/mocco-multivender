@@ -1,6 +1,6 @@
 // user routes
 import express from "express";
-import upload from "../../multer";
+import upload from "../../multer.js";
 import { registerUser } from "../controllers/user.controller.js";
 
 const userRouter = express.Router();
