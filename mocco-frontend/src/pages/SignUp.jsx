@@ -9,7 +9,7 @@ const SignUp = () => {
 
   // VITE_BACKEND_URL from .env file
   const backendUrl =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+    import.meta.env.VITE_BACKEND_URL || "https://mocco-mart-backend.vercel.app/api/v1";
 
   const [formData, setFormData] = useState({
     name: "",
@@ -36,7 +36,9 @@ const SignUp = () => {
       formDataToSend.append("name", formData.name);
       formDataToSend.append("email", formData.email);
       formDataToSend.append("password", formData.password);
-      formDataToSend.append("file", formData.file);
+      if (formData.file) {
+        formDataToSend.append("file", formData.file);
+      }
       const { data } = await axios.post(
         `${backendUrl}/user/register`,
         formDataToSend,
@@ -53,14 +55,17 @@ const SignUp = () => {
         });
         navigate("/login");
       } else {
+        console.error("Registration failed:", data);
         alert("Registration failed: " + data.message);
       }
     } catch (err) {
       console.error("Registration failed:", err);
-      alert(
-        "Registration failed: " + err.response?.data?.message ||
-          "An error occurred",
-      );
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "An unexpected error occurred";
+
+      alert(`Registration failed: ${errorMessage}`);
     }
   };
   return (

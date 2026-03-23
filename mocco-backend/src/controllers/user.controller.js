@@ -19,9 +19,7 @@ const registerUser = async (req, res, next) => {
     }
 
     // Handle avatar upload
-    const fileName = req.file
-      ? req.file.filename
-      : "https://dummyimage.com/200x200/e2e8f0/64748b.png&text=User";
+    const fileName = req.file?.filename;
 
     // Create user object
     const user = {
@@ -29,13 +27,16 @@ const registerUser = async (req, res, next) => {
       email,
       password,
       avatar: {
-        public_id: fileName,
-        url: `/uploads/${fileName}`,
+        public_id: fileName || "default-avatar",
+        url: fileName
+          ? `/uploads/${fileName}`
+          : "https://dummyimage.com/200x200/e2e8f0/64748b.png&text=User",
       },
     };
 
     // Create new user
-    const newUser = await User.create(user).select("-password");
+    const createdUser = await User.create(user);
+    const newUser = await User.findById(createdUser._id).select("-password");
 
     res.status(201).json({
       success: true,
