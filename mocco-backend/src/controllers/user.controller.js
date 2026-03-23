@@ -18,26 +18,24 @@ const registerUser = async (req, res, next) => {
       return next(new ErrorHandler("User already exists!", 400));
     }
 
-    const fileName = req.file ? req.file.filename : null;
-    const avatar = fileName
-      ? {
-          public_id: fileName,
-          url: `/uploads/${fileName}`,
-        }
-      : {
-          public_id: "default_avatar",
-          url: "https://dummyimage.com/200x200/e2e8f0/64748b.png&text=User",
-        };
+    // Handle avatar upload
+    const fileName = req.file
+      ? req.file.filename
+      : "https://dummyimage.com/200x200/e2e8f0/64748b.png&text=User";
 
+    // Create user object
     const user = {
       name,
       email,
       password,
-      avatar,
+      avatar: {
+        public_id: fileName,
+        url: `/uploads/${fileName}`,
+      },
     };
 
     // Create new user
-    const newUser = await User.create(user);
+    const newUser = await User.create(user).select("-password");
 
     res.status(201).json({
       success: true,

@@ -2,19 +2,27 @@ import React, { useState } from "react";
 import CustomButton from "../components/common/CustomButton";
 import CustomFormInput from "../components/common/inputs/CustomFormInput";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const SignUp = () => {
   const navigate = useNavigate();
+
+  // VITE_BACKEND_URL from .env file
+  const backendUrl =
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
+    file: null,
   });
 
   const handleChange = (e) => {
+    const { name, value, files } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: name === "file" ? files?.[0] || null : value,
     });
   };
 
@@ -23,17 +31,36 @@ const SignUp = () => {
 
     if (!formData) return;
     try {
-      alert("Signup successfully");
-      console.log("Signup successfully:", formData);
-      // Reset form
-      setFormData({
-        name: "",
-        email: "",
-        password: "",
-      });
-      navigate("/login");
+      // Make API call to register user using axios
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("password", formData.password);
+      formDataToSend.append("file", formData.file);
+      const { data } = await axios.post(
+        `${backendUrl}/user/register`,
+        formDataToSend,
+      );
+
+      if (data.success) {
+        alert(data.message);
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          password: "",
+          file: null,
+        });
+        navigate("/login");
+      } else {
+        alert("Registration failed: " + data.message);
+      }
     } catch (err) {
       console.error("Registration failed:", err);
+      alert(
+        "Registration failed: " + err.response?.data?.message ||
+          "An error occurred",
+      );
     }
   };
   return (
@@ -93,6 +120,43 @@ const SignUp = () => {
                 onChange={handleChange}
                 required
               />
+
+              {/* create file upload input with preview */}
+              <div className="flex items-center gap-x-4">
+                <img
+                  src={
+                    formData.file
+                      ? URL.createObjectURL(formData.file)
+                      : "https://dummyimage.com/200x200/e2e8f0/64748b.png&text=User"
+                  }
+                  alt="Profile Preview"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <label
+                  htmlFor="file"
+                  className="text-left text-gray-700 border border-gray-300 py-1 px-4 cursor-pointer rounded-md"
+                >
+                  Upload a file
+                </label>
+                {/* <CustomFormInput
+                  type="file"
+                  placeholder="Profile Picture"
+                  name="file"
+                  icon={false}
+                  value={formData.file}
+                  onChange={handleChange}
+                  required
+                  accept="image/*"
+                /> */}
+                <input
+                  type="file"
+                  id="file"
+                  name="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleChange}
+                />
+              </div>
 
               <CustomButton
                 buttonText={"Create Account"}
