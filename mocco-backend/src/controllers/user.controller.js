@@ -1,6 +1,9 @@
 // register user controller
+import jwt from "jsonwebtoken";
+import sendMail from "../utils/sendMail.js";
 import User from "../models/user.model.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
+import sendToken from "../utils/jwtToken.js";
 
 const registerUser = async (req, res, next) => {
   try {
@@ -34,15 +37,33 @@ const registerUser = async (req, res, next) => {
       },
     };
 
-    // Create new user
-    const createdUser = await User.create(user);
-    const newUser = await User.findById(createdUser._id).select("-password");
+    // create activation token
+    const activationToken = createActivationToken(user);
+    const activationUrl = `${process.env.FRONTEND_URL}/activate/${activationToken}`;
 
-    res.status(201).json({
-      success: true,
-      message: "User registered successfully!",
-      user: newUser,
-    });
+    // Send activation email
+    try {
+      await sendMail({
+        email: user.email,
+        subject: "Activate Your Mocco Account",
+        message: `Hello ${user.name},\n\nPlease click the following link to activate your account:\n\n${activationUrl}\n\nIf you did not create this account, please ignore this email.\n\nBest regards,\nMocco Team`,
+      });
+      // response to frontend
+      res.status(201).json({
+        success: true,
+        message: `Registration successful! Please check your email:- ${user.email} first, to activate your account.`,
+      });
+    } catch (error) {
+      console.error("Error sending activation email:", error);
+      return next(
+        new ErrorHandler(
+          "Failed to send activation email! " + error.message,
+          500,
+        ),
+      );
+    }
+
+    // Create new user
   } catch (error) {
     console.error("Error in registerUser:", error);
     return next(
@@ -51,4 +72,45 @@ const registerUser = async (req, res, next) => {
   }
 };
 
-export { registerUser };
+// create activation token
+const createActivationToken = (user) => {
+  return jwt.sign(user.email, process.env.ACTIVATION_TOKEN_SECRET_KEY, {
+    expiresIn: process.env.EXPIRES_ACTIVATION_TOKEN,
+  });
+};
+
+// activate user account
+const activateUserEmail = async (req, res, next) => {
+  try {
+    const { token } = req.body;
+
+    const decodedToken = jwt.verify(
+      token,
+      process.env.ACTIVATION_TOKEN_SECRET_KEY,
+    );
+
+    const user = await User.findOne({ email: decodedToken.email });
+
+    if (!user) {
+      return next(new ErrorHandler("Invalid activation token!", 400));
+    }
+
+    // user.isActivated = true;
+    // await user.save();
+
+    // Create new user
+    const createdUser = await User.create(user);
+
+    sendToken(createdUser, 201, res);
+  } catch (error) {
+    console.error("Error in activateUserEmail:", error);
+    return next(
+      new ErrorHandler(
+        "Failed to activate user account! " + error.message,
+        500,
+      ),
+    );
+  }
+};
+
+export { registerUser, activateUserEmail };
