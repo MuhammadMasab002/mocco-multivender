@@ -17,6 +17,7 @@ import Products from "./pages/Products";
 import BestSellingPage from "./pages/BestSellingPage";
 import FAQ from "./pages/FAQ";
 import Events from "./pages/Events";
+import EmailActivation from "./pages/EmailActivation";
 
 function App() {
   return (
@@ -44,6 +45,8 @@ function App() {
 
           <Route path="/login" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/activate/:token" element={<EmailActivation />} />
+          <Route path="/activate" element={<EmailActivation />} />
 
           {/* Catch-all route for 404 */}
           <Route path="*" element={<NotFound />} />
