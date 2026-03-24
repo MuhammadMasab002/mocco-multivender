@@ -13,29 +13,12 @@ import AdminLayout from "./layouts/AdminLayout";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
-import { useCallback, useEffect } from "react";
-import axios from "axios";
 import Products from "./pages/Products";
 import BestSellingPage from "./pages/BestSellingPage";
 import FAQ from "./pages/FAQ";
 import Events from "./pages/Events";
 
 function App() {
-  const fetchData = useCallback(async () => {
-    try {
-      const result = await axios.get(
-        import.meta.env.VITE_BACKEND_URL.replace(/\/$/, ""),
-      );
-      console.log(result.data);
-    } catch (error) {
-      console.error("Error connecting to backend:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
   return (
     <BrowserRouter>
       <Routes>

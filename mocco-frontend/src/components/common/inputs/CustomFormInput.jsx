@@ -9,6 +9,7 @@ const CustomFormInput = ({
   value,
   onChange,
   required = false,
+  autoComplete = "off",
   icon = false,
   className = "",
 }) => {
@@ -43,6 +44,7 @@ const CustomFormInput = ({
           value={value}
           onChange={onChange}
           required={required}
+          autoComplete={autoComplete}
           className={`${inputStyle}`}
         />
 

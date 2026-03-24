@@ -73,6 +73,7 @@ const SignIn = () => {
                 type={"email"}
                 placeholder={"Email or Phone Number"}
                 name="email"
+                autoComplete="email"
                 icon={false}
                 value={formData.email}
                 onChange={handleChange}
@@ -82,6 +83,7 @@ const SignIn = () => {
                 type="password"
                 placeholder="Password"
                 name="password"
+                autoComplete="current-password"
                 icon={false}
                 value={formData.password}
                 onChange={handleChange}

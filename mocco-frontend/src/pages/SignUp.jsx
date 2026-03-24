@@ -9,7 +9,8 @@ const SignUp = () => {
 
   // VITE_BACKEND_URL from .env file
   const backendUrl =
-    import.meta.env.VITE_BACKEND_URL || "https://mocco-mart-backend.vercel.app/api/v1";
+    import.meta.env.VITE_BACKEND_URL ||
+    "https://mocco-mart-backend.vercel.app/api/v1";
 
   const [formData, setFormData] = useState({
     name: "",
@@ -36,12 +37,19 @@ const SignUp = () => {
       formDataToSend.append("name", formData.name);
       formDataToSend.append("email", formData.email);
       formDataToSend.append("password", formData.password);
+
       if (formData.file) {
         formDataToSend.append("file", formData.file);
       }
+
       const { data } = await axios.post(
         `${backendUrl}/user/register`,
         formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
       );
 
       if (data.success) {
@@ -102,6 +110,7 @@ const SignUp = () => {
                 type={"text"}
                 placeholder={"Name"}
                 name="name"
+                autoComplete="name"
                 icon={false}
                 value={formData.name}
                 onChange={handleChange}
@@ -111,6 +120,7 @@ const SignUp = () => {
                 type={"email"}
                 placeholder={"Email or Phone Number"}
                 name="email"
+                autoComplete="email"
                 icon={false}
                 value={formData.email}
                 onChange={handleChange}
@@ -120,6 +130,7 @@ const SignUp = () => {
                 type="password"
                 placeholder="Password"
                 name="password"
+                autoComplete="new-password"
                 icon={false}
                 value={formData.password}
                 onChange={handleChange}
