@@ -74,7 +74,7 @@ const registerUser = async (req, res, next) => {
 
 // create activation token
 const createActivationToken = (user) => {
-  return jwt.sign(user.email, process.env.ACTIVATION_TOKEN_SECRET_KEY, {
+  return jwt.sign(user, process.env.ACTIVATION_TOKEN_SECRET_KEY, {
     expiresIn: process.env.EXPIRES_ACTIVATION_TOKEN,
   });
 };
@@ -101,7 +101,7 @@ const activateUserEmail = async (req, res, next) => {
     // Create new user
     const createdUser = await User.create(user);
 
-    sendToken(createdUser, 201, res);
+    sendToken({ user: createdUser }, 201, res);
   } catch (error) {
     console.error("Error in activateUserEmail:", error);
     return next(

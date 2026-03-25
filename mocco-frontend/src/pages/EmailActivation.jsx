@@ -1,8 +1,9 @@
 import axios from "axios";
 import React, { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 const EmailActivation = () => {
+  const navigate = useNavigate();
   const { activation_token } = useParams();
   const [status, setStatus] = useState(activation_token ? "idle" : "missing");
 
@@ -74,6 +75,8 @@ const EmailActivation = () => {
 
     if (data.success) {
       setStatus("success");
+      //   navigate("/login");
+      navigate("/login", { replace: true });
     } else {
       setStatus("error");
     }
