@@ -122,4 +122,37 @@ const activateUserEmail = async (req, res, next) => {
   }
 };
 
-export { registerUser, activateUserEmail };
+// login user controller is handled in auth.controller.js
+const loginUser = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return next(new ErrorHandler("Please enter all fields!", 400));
+    }
+
+    const user = await User.findOne({ email }).select("+password");
+
+    if (!user) {
+      return next(new ErrorHandler("Invalid email or password!", 401));
+    }
+
+    const isPasswordMatched = await user.comparePassword(password);
+
+    if (!isPasswordMatched) {
+      return next(new ErrorHandler("Invalid email or password!", 401));
+    }
+
+    sendToken(user, 200, res);
+
+  } catch (error) {
+    console.error("Error in loginUser:", error);
+    return next(
+      new ErrorHandler(
+        "Failed to login user! " + error.message,
+        500,
+      ),
+    );
+  }
+}
+
+export { registerUser, activateUserEmail, loginUser };
