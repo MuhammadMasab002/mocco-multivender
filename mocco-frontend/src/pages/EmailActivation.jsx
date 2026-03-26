@@ -1,21 +1,21 @@
 import axios from "axios";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 const EmailActivation = () => {
   const navigate = useNavigate();
-  const { activation_token } = useParams();
-  const [status, setStatus] = useState(activation_token ? "idle" : "missing");
+  const { token } = useParams();
+  const [status, setStatus] = useState(token ? "idle" : "missing");
 
   const VITE_BACKEND_URL =
     import.meta.env.VITE_BACKEND_URL ||
     "https://mocco-mart-backend.vercel.app/api/v1";
 
   const maskedToken = useMemo(() => {
-    if (!activation_token) return "No token found";
-    if (activation_token.length <= 14) return activation_token;
-    return `${activation_token.slice(0, 8)}...${activation_token.slice(-6)}`;
-  }, [activation_token]);
+    if (!token) return "No token found";
+    if (token.length <= 14) return token;
+    return `${token.slice(0, 8)}...${token.slice(-6)}`;
+  }, [token]);
 
   const statusStyles = {
     idle: {
@@ -62,35 +62,42 @@ const EmailActivation = () => {
   const currentState = statusStyles[status];
 
   const handleActivate = async () => {
-    if (!activation_token || status === "processing") return;
-    // activation api call will go here, for now we simulate with timeout
-    if (!activation_token) {
+    if (!token || status === "processing") return;
+
+    if (!token) {
       setStatus("missing");
       return;
     }
 
-    const { data } = await axios.post(`${VITE_BACKEND_URL}/user/activate`, {
-      token: activation_token,
-    });
-
-    if (data.success) {
-      setStatus("success");
-      //   navigate("/login");
-      navigate("/login", { replace: true });
-    } else {
-      setStatus("error");
-    }
-
     setStatus("processing");
 
-    // Temporary UI behavior until activation API wiring is added.
-    setTimeout(() => {
-      setStatus(activation_token.length > 20 ? "success" : "error");
-    }, 1200);
+    try {
+      const { data } = await axios.post(`${VITE_BACKEND_URL}/user/activate`, {
+        token,
+      });
+
+      if (data?.success) {
+        setStatus("success");
+        setTimeout(() => {
+          navigate("/login", { replace: true });
+        }, 900);
+        return;
+      }
+
+      setStatus("error");
+    } catch (error) {
+      setStatus("error");
+      console.error("Activation error:", error);
+    }
   };
 
-  const canActivate =
-    activation_token && status !== "processing" && status !== "success";
+  useEffect(() => {
+    if (token && status === "idle") {
+      handleActivate();
+    }
+  }, [token]);
+
+  const canActivate = token && status !== "processing" && status !== "success";
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_10%_10%,#fde68a_0%,#fff7ed_32%,#fff_70%)] px-5 py-10 text-slate-900 sm:px-8 lg:px-14">

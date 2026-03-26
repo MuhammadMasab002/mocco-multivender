@@ -74,8 +74,12 @@ const registerUser = async (req, res, next) => {
 
 // create activation token
 const createActivationToken = (user) => {
-  return jwt.sign(user, process.env.ACTIVATION_TOKEN_SECRET_KEY, {
-    expiresIn: process.env.EXPIRES_ACTIVATION_TOKEN,
+  const activationSecret =
+    process.env.ACTIVATION_TOKEN_SECRET_KEY || process.env.JWT_SECRET_KEY;
+  const activationExpiry = process.env.EXPIRES_ACTIVATION_TOKEN || "5m";
+
+  return jwt.sign(user, activationSecret, {
+    expiresIn: activationExpiry,
   });
 };
 
@@ -84,24 +88,29 @@ const activateUserEmail = async (req, res, next) => {
   try {
     const { token } = req.body;
 
-    const decodedToken = jwt.verify(
-      token,
-      process.env.ACTIVATION_TOKEN_SECRET_KEY,
-    );
-
-    const user = await User.findOne({ email: decodedToken.email });
-
-    if (!user) {
-      return next(new ErrorHandler("Invalid activation token!", 400));
+    if (!token) {
+      return next(new ErrorHandler("Activation token is required!", 400));
     }
 
-    // user.isActivated = true;
-    // await user.save();
+    const activationSecret =
+      process.env.ACTIVATION_TOKEN_SECRET_KEY || process.env.JWT_SECRET_KEY;
 
-    // Create new user
-    const createdUser = await User.create(user);
+    const decodedToken = jwt.verify(token, activationSecret);
 
-    sendToken({ user: createdUser }, 201, res);
+    const existingUser = await User.findOne({ email: decodedToken.email });
+
+    if (existingUser) {
+      return next(new ErrorHandler("User already activated!", 400));
+    }
+
+    const createdUser = await User.create({
+      name: decodedToken.name,
+      email: decodedToken.email,
+      password: decodedToken.password,
+      avatar: decodedToken.avatar,
+    });
+
+    sendToken(createdUser, 201, res);
   } catch (error) {
     console.error("Error in activateUserEmail:", error);
     return next(

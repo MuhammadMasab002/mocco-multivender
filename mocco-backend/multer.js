@@ -1,28 +1,21 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import os from "os";
-
-// Ensure uploads directory exists
-const uploadsBaseDir = process.env.VERCEL
-  ? path.join(os.tmpdir(), "uploads")
-  : path.join(process.cwd(), "uploads");
-
-const uploadsDir = uploadsBaseDir;
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadsDir);
+  destination: (req, file, cb) => {
+    const dir = "uploads";
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+    cb(null, dir);
   },
-  filename: function (req, file, cb) {
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const name = path.basename(file.originalname, ext);
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + "-" + uniqueSuffix + ".png");
+    cb(null, `${name}-${uniqueSuffix}${ext}`);
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
 export default upload;
