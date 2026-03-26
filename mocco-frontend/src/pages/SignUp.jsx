@@ -8,9 +8,7 @@ const SignUp = () => {
   const navigate = useNavigate();
 
   // VITE_BACKEND_URL from .env file
-  const backendUrl =
-    import.meta.env.VITE_BACKEND_URL ||
-    "https://mocco-mart-backend.vercel.app/api/v1";
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [formData, setFormData] = useState({
     name: "",

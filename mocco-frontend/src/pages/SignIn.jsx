@@ -2,8 +2,12 @@ import React, { useState } from "react";
 import CustomButton from "../components/common/CustomButton";
 import CustomFormInput from "../components/common/inputs/CustomFormInput";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 const SignIn = () => {
   const navigate = useNavigate();
+
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -24,16 +28,22 @@ const SignIn = () => {
       return;
     }
     try {
-      alert("Login successfully");
-      console.log("Login successfully:", formData);
-
-      // Reset form
-      setFormData({
-        email: "",
-        password: "",
+      // Make API call to login user using axios
+      const { data } = await axios.post(`${backendUrl}/user/login`, formData, {
+        withCredentials: true,
       });
 
-      navigate("/");
+      if (data.success) {
+        // Store token in localStorage or context
+        // localStorage.setItem("token", data.token);
+        // Reset form
+        setFormData({
+          email: "",
+          password: "",
+        });
+
+        navigate("/");
+      }
     } catch (err) {
       console.error("Login failed:", err);
     }
