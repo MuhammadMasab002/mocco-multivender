@@ -31,6 +31,9 @@ const SignIn = () => {
       // Make API call to login user using axios
       const { data } = await axios.post(`${backendUrl}/user/login`, formData, {
         withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
       if (data.success) {

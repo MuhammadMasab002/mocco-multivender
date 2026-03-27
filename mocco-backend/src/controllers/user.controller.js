@@ -136,6 +136,10 @@ const loginUser = async (req, res, next) => {
       return next(new ErrorHandler("Invalid email or password!", 401));
     }
 
+    if (!user.password) {
+      return next(new ErrorHandler("Invalid email or password!", 401));
+    }
+
     const isPasswordMatched = await user.comparePassword(password);
 
     if (!isPasswordMatched) {
@@ -155,4 +159,29 @@ const loginUser = async (req, res, next) => {
   }
 }
 
-export { registerUser, activateUserEmail, loginUser };
+// get user profile/data
+const getUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    // error 
+    if (!user) {
+      return next(new ErrorHandler("User not found!", 404));
+    }
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.error("Error in getUser:", error);
+    return next(
+      new ErrorHandler(
+        "Failed to fetch user profile! " + error.message,
+        500,
+      ),
+    );
+  }
+};
+
+export { registerUser, activateUserEmail, loginUser, getUser };

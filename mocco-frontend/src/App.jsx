@@ -18,8 +18,29 @@ import BestSellingPage from "./pages/BestSellingPage";
 import FAQ from "./pages/FAQ";
 import Events from "./pages/Events";
 import EmailActivation from "./pages/EmailActivation";
+import { useEffect } from "react";
+import axios from "axios";
 
 function App() {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  // get user
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const { data } = await axios.get(`${backendUrl}/user/get-user`, {
+          withCredentials: true,
+        });
+        if (data.success) {
+          console.log("User data:", data.user);
+        }
+      } catch (err) {
+        console.error("Failed to get user:", err);
+      }
+    };
+
+    getUser();
+  }, [backendUrl]);
+
   return (
     <BrowserRouter>
       <Routes>
