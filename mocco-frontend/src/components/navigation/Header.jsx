@@ -12,10 +12,13 @@ import { Menu } from "lucide-react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import CustomButton from "../common/CustomButton";
 import { navItems, productData } from "../../static/data.jsx";
+import { useSelector } from "react-redux";
 
 const Header = () => {
   const navigate = useNavigate();
-  const isLoggedInUser = localStorage.getItem("isLoggedInUser");
+  // const isLoggedInUser = localStorage.getItem("isLoggedInUser");
+
+  const { isAuthenticated } = useSelector((state) => state.user);
 
   const [search, setSearch] = useState("");
   const [searchData, setSearchData] = useState(null);
@@ -122,27 +125,31 @@ const Header = () => {
 
               <div className="flex-1 overflow-y-auto px-4 py-5">
                 <nav className="space-y-2">
-                  {navItems?.map((item) => (
-                    <NavLink
-                      key={item.title}
-                      to={item.url}
-                      onClick={handleMenuClose}
-                      className={({ isActive }) =>
-                        `block rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                          isActive
-                            ? "bg-red-50 text-red-600"
-                            : "text-gray-700 hover:bg-gray-100 hover:text-red-600"
-                        }`
-                      }
-                    >
-                      {item.title}
-                    </NavLink>
-                  ))}
+                  {navItems?.map(
+                    (item) =>
+                      item.title == "SignUp" ||
+                      (isAuthenticated && (
+                        <NavLink
+                          key={item.title}
+                          to={item.url}
+                          onClick={handleMenuClose}
+                          className={({ isActive }) =>
+                            `block rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                              isActive
+                                ? "bg-red-50 text-red-600"
+                                : "text-gray-700 hover:bg-gray-100 hover:text-red-600"
+                            }`
+                          }
+                        >
+                          {item.title}
+                        </NavLink>
+                      )),
+                  )}
                 </nav>
               </div>
 
               <div className="border-t border-gray-200 px-4 py-4 space-y-3">
-                {!isLoggedInUser && (
+                {!isAuthenticated && (
                   <CustomButton
                     buttonText="Start Selling"
                     variant="secondary"
@@ -174,25 +181,28 @@ const Header = () => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <Link
-                    to="/my-profile"
-                    onClick={handleMenuClose}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
-                  >
-                    <PersonOutlineIcon fontSize="small" />
-                    Profile
-                  </Link>
-                  <Link
-                    to="/login"
-                    onClick={() => {
-                      handleMenuClose();
-                      handleLogout();
-                    }}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
-                  >
-                    <LogoutRoundedIcon fontSize="small" />
-                    Logout
-                  </Link>
+                  {isAuthenticated ? (
+                    <Link
+                      to="/my-profile"
+                      onClick={handleMenuClose}
+                      className="flex items-center justify-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
+                    >
+                      <PersonOutlineIcon fontSize="small" />
+                      Profile
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/login"
+                      onClick={() => {
+                        handleMenuClose();
+                        handleLogout();
+                      }}
+                      className="flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                    >
+                      <LogoutRoundedIcon fontSize="small" />
+                      Logout
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
@@ -214,15 +224,19 @@ const Header = () => {
 
         <div className="flex justify-between items-center gap-4 sm:gap-10 text-black">
           <nav className="space-x-6 text-gray-700 font-medium hidden xl:block">
-            {navItems?.map((item) => (
-              <NavLink
-                key={item.title}
-                to={item.url}
-                className={getNavLinkClass}
-              >
-                {item.title}
-              </NavLink>
-            ))}
+            {navItems?.map(
+              (item) =>
+                item.title == "SignUp" ||
+                (isAuthenticated && (
+                  <NavLink
+                    key={item.title}
+                    to={item.url}
+                    className={getNavLinkClass}
+                  >
+                    {item.title}
+                  </NavLink>
+                )),
+            )}
           </nav>
           <div className="hidden lg:block w-80 2xl:w-100 relative">
             <CustomFormInput
@@ -349,7 +363,7 @@ const Header = () => {
             </div>
           </div>
           <div className="flex justify-between items-center gap-3 pl-4 text-black">
-            {!isLoggedInUser && (
+            {!isAuthenticated && (
               <CustomButton
                 buttonText="Start Selling"
                 variant="secondary"
@@ -370,23 +384,21 @@ const Header = () => {
               />
             </Link>
 
-            {!isLoggedInUser && (
-              <>
-                <Link to="/my-profile">
-                  <PersonOutlineIcon
-                    className="rounded-full bg-red-100 text-red-600 cursor-pointer p-1"
-                    fontSize="large"
-                  />
-                </Link>
-
-                <Link to="/login">
-                  <LogoutRoundedIcon
-                    className="rounded-full bg-red-100 text-red-600 cursor-pointer p-1"
-                    fontSize="large"
-                    onClick={handleLogout}
-                  />
-                </Link>
-              </>
+            {isAuthenticated ? (
+              <Link to="/my-profile">
+                <PersonOutlineIcon
+                  className="rounded-full bg-red-100 text-red-600 cursor-pointer p-1"
+                  fontSize="large"
+                />
+              </Link>
+            ) : (
+              <Link to="/login">
+                <LogoutRoundedIcon
+                  className="rounded-full bg-red-100 text-red-600 cursor-pointer p-1"
+                  fontSize="large"
+                  onClick={handleLogout}
+                />
+              </Link>
             )}
           </div>
         </div>

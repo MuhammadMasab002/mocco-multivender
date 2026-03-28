@@ -1,7 +1,10 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
+  const { isAuthenticated } = useSelector((state) => state.user);
+
   return (
     <footer className="bg-black text-white pt-10 pb-6">
       <div className="max-w-7xl mx-auto px-5">
@@ -30,12 +33,15 @@ const Footer = () => {
           <div>
             <h5 className="text-lg font-semibold mb-4">Account</h5>
             <ul className="space-y-2 text-gray-400 text-sm">
-              <li>
-                <Link to="/my-profile">My Account</Link>
-              </li>
-              <li>
-                <Link to="/login">Login / Register</Link>
-              </li>
+              {isAuthenticated ? (
+                <li>
+                  <Link to="/my-profile">My Account</Link>
+                </li>
+              ) : (
+                <li>
+                  <Link to="/login">Login / Register</Link>
+                </li>
+              )}
               <li>
                 <Link to="/cart">Cart</Link>
               </li>
