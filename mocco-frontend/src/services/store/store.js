@@ -1,11 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { MoccoMartApi } from "../api";
-import authReducer from "./slices/authSlice.js";
+import userReducer from "./slices/userAuthSlice";
 
 export const store = configureStore({
   reducer: {
     [MoccoMartApi.reducerPath]: MoccoMartApi.reducer,
-    auth: authReducer,
+    user: userReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(MoccoMartApi.middleware),

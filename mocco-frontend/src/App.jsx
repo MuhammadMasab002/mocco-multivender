@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import MainLayout from "./layouts/MainLayout";
 import Checkout from "./pages/CheckOut";
@@ -9,7 +9,7 @@ import SignUp from "./pages/SignUp";
 import Wishlist from "./pages/WishList";
 import MyProfile from "./pages/MyProfile";
 import AdminLayout from "./layouts/AdminLayout";
-// import AdminPanel from "./pages/AdminPanel";
+import AdminPanel from "./pages/AdminPanel";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
@@ -19,35 +19,71 @@ import FAQ from "./pages/FAQ";
 import Events from "./pages/Events";
 import EmailActivation from "./pages/EmailActivation";
 import { useEffect } from "react";
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { loadUser } from "./services/store/actions/user";
+
+function ProtectedRoute({ isAuthenticated, children }) {
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
+function AuthRoute({ isAuthenticated, children }) {
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
+
+function AdminRoute({ isAuthenticated, user, children }) {
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (user?.role !== "admin") {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
 
 function App() {
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  // get user
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data } = await axios.get(`${backendUrl}/user/get-user`, {
-          withCredentials: true,
-        });
-        if (data.success) {
-          console.log("User data:", data.user);
-        }
-      } catch (err) {
-        console.error("Failed to get user:", err);
-      }
-    };
+  const dispatch = useDispatch();
 
-    getUser();
-  }, [backendUrl]);
+  const { user, loading, isAuthenticated } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    dispatch(loadUser());
+  }, [dispatch]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/cart" element={<Cart />} />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Checkout />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cart"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Cart />
+              </ProtectedRoute>
+            }
+          />
 
           <Route path="/products" element={<Products />} />
           <Route
@@ -57,15 +93,43 @@ function App() {
           <Route path="/best-selling" element={<BestSellingPage />} />
           <Route path="/events" element={<Events />} />
 
-          <Route path="/wishlist" element={<Wishlist />} />
+          <Route
+            path="/wishlist"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Wishlist />
+              </ProtectedRoute>
+            }
+          />
 
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/faq" element={<FAQ />} />
-          <Route path="/my-profile" element={<MyProfile />} />
+          <Route
+            path="/my-profile"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <MyProfile />
+              </ProtectedRoute>
+            }
+          />
 
-          <Route path="/login" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
+          <Route
+            path="/login"
+            element={
+              <AuthRoute isAuthenticated={isAuthenticated}>
+                <SignIn />
+              </AuthRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <AuthRoute isAuthenticated={isAuthenticated}>
+                <SignUp />
+              </AuthRoute>
+            }
+          />
           <Route path="/activate/:token" element={<EmailActivation />} />
           <Route path="/activate" element={<EmailActivation />} />
 
@@ -77,12 +141,11 @@ function App() {
         <Route
           path="/admin"
           element={
-            //  <AdminRoute user={user}>
-            <AdminLayout>
-              {/* <AdminPanel /> */}
-              <> </>
-            </AdminLayout>
-            // </AdminRoute>
+            <AdminRoute isAuthenticated={isAuthenticated} user={user}>
+              <AdminLayout>
+                <AdminPanel />
+              </AdminLayout>
+            </AdminRoute>
           }
         />
       </Routes>
