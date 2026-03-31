@@ -72,9 +72,15 @@ const EmailActivation = () => {
     setStatus("processing");
 
     try {
-      const { data } = await axios.post(`${VITE_BACKEND_URL}/user/activate`, {
-        token,
-      });
+      const { data } = await axios.post(
+        `${VITE_BACKEND_URL}/user/activate`,
+        {
+          token,
+        },
+        {
+          withCredentials: true,
+        },
+      );
 
       if (data?.success) {
         setStatus("success");

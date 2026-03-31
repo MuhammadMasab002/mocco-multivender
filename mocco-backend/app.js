@@ -8,21 +8,32 @@ import errorMiddleware from "./src/middlewares/error.middleware.js";
 import connectDB from "./src/db/index.js";
 
 const app = express();
+const isProduction =
+  process.env.VERCEL === "1" ||
+  String(process.env.NODE_ENV || "").toLowerCase() === "production";
 
 // config
-if (process.env.NODE_ENV !== "PRODUCTION") {
+if (!isProduction) {
   dotenv.config({ path: "./src/config/.env" });
 }
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  process.env.FRONTEND_URL,
-].filter(Boolean);
+const normalizeOrigin = (origin) =>
+  typeof origin === "string" ? origin.replace(/\/+$/, "") : origin;
+
+const allowedOrigins = new Set(
+  [
+    "http://localhost:5173",
+    "https://mocco-mart.vercel.app",
+    process.env.FRONTEND_URL,
+  ]
+    .filter(Boolean)
+    .map(normalizeOrigin),
+);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.has(normalizeOrigin(origin))) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));

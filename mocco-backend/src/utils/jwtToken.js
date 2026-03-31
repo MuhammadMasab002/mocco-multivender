@@ -1,13 +1,16 @@
 // create token and saving that in cookies
 const sendToken = (user, statusCode, res) => {
   const token = user.getJwtToken();
+  const isProduction =
+    process.env.VERCEL === "1" ||
+    String(process.env.NODE_ENV || "").toLowerCase() === "production";
 
   // Options for cookies
   const options = {
     expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === "PRODUCTION" ? "none" : "lax",
-    secure: process.env.NODE_ENV === "PRODUCTION",
+    sameSite: isProduction ? "none" : "lax",
+    secure: isProduction,
   };
 
   res.status(statusCode).cookie("token", token, options).json({
