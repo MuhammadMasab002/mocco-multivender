@@ -6,7 +6,11 @@ import fs from "fs";
 // For local dev, use disk storage.
 let storage;
 
-if (process.env.NODE_ENV === "PRODUCTION") {
+const isServerlessRuntime =
+  process.env.VERCEL === "1" ||
+  String(process.env.NODE_ENV || "").toLowerCase() === "production";
+
+if (isServerlessRuntime) {
   // Memory storage for serverless (no filesystem writes).
   storage = multer.memoryStorage();
 } else {
@@ -18,10 +22,7 @@ if (process.env.NODE_ENV === "PRODUCTION") {
         try {
           fs.mkdirSync(dir, { recursive: true });
         } catch (err) {
-          console.warn(
-            "Cannot create uploads directory (read-only filesystem). Falling back to memory storage.",
-          );
-          cb(new Error("SKIP_DISK_STORAGE"));
+          cb(err);
           return;
         }
       }
