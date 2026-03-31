@@ -17,6 +17,11 @@ export const loadUser = () => async (dispatch) => {
 
         dispatch(loadUserSuccess(data.user)); // Passing data to slice
     } catch (error) {
-        dispatch(loadUserFail(error.response.data.message));
+        const message =
+            error?.response?.data?.message ||
+            error?.message ||
+            "Failed to load user";
+
+        dispatch(loadUserFail(message));
     }
 };
