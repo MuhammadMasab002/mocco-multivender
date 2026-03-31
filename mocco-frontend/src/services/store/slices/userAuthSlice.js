@@ -36,8 +36,7 @@ export const {
   loadUserRequest,
   loadUserSuccess,
   loadUserFail,
-  updateUserInfoRequest,
-  updateUserInfoSuccess
+  clearErrors
 } = userSlice.actions;
 
 export default userSlice.reducer;

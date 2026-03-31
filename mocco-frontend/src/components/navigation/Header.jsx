@@ -14,11 +14,12 @@ import CustomButton from "../common/CustomButton";
 import { navItems, productData } from "../../static/data.jsx";
 import { useSelector } from "react-redux";
 
+// const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 const Header = () => {
   const navigate = useNavigate();
-  // const isLoggedInUser = localStorage.getItem("isLoggedInUser");
 
-  const { isAuthenticated } = useSelector((state) => state.user);
+  const { user, isAuthenticated } = useSelector((state) => state.user);
 
   const [search, setSearch] = useState("");
   const [searchData, setSearchData] = useState(null);
@@ -125,26 +126,25 @@ const Header = () => {
 
               <div className="flex-1 overflow-y-auto px-4 py-5">
                 <nav className="space-y-2">
-                  {navItems?.map(
-                    (item) =>
-                      item.title == "SignUp" ||
-                      (isAuthenticated && (
-                        <NavLink
-                          key={item.title}
-                          to={item.url}
-                          onClick={handleMenuClose}
-                          className={({ isActive }) =>
-                            `block rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                              isActive
-                                ? "bg-red-50 text-red-600"
-                                : "text-gray-700 hover:bg-gray-100 hover:text-red-600"
-                            }`
-                          }
-                        >
-                          {item.title}
-                        </NavLink>
-                      )),
-                  )}
+                  {navItems?.map((item) => {
+                    if (item.title === "SignUp" && isAuthenticated) return null;
+                    return (
+                      <NavLink
+                        key={item.title}
+                        to={item.url}
+                        onClick={handleMenuClose}
+                        className={({ isActive }) =>
+                          `block rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                            isActive
+                              ? "bg-red-50 text-red-600"
+                              : "text-gray-700 hover:bg-gray-100 hover:text-red-600"
+                          }`
+                        }
+                      >
+                        {item.title}
+                      </NavLink>
+                    );
+                  })}
                 </nav>
               </div>
 
@@ -161,47 +161,50 @@ const Header = () => {
                   />
                 )}
 
-                <div className="grid grid-cols-2 gap-3">
-                  <Link
-                    to="/wishlist"
-                    onClick={handleMenuClose}
-                    className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
-                  >
-                    <FavoriteBorderIcon fontSize="small" />
-                    Wishlist
-                  </Link>
-                  <Link
-                    to="/cart"
-                    onClick={handleMenuClose}
-                    className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
-                  >
-                    <ShoppingCartIcon fontSize="small" />
-                    Cart
-                  </Link>
-                </div>
+                {!isAuthenticated && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <Link
+                      to="/wishlist"
+                      onClick={handleMenuClose}
+                      className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                    >
+                      <FavoriteBorderIcon fontSize="small" />
+                      Wishlist
+                    </Link>
+                    <Link
+                      to="/cart"
+                      onClick={handleMenuClose}
+                      className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                    >
+                      <ShoppingCartIcon fontSize="small" />
+                      Cart
+                    </Link>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-3">
-                  {isAuthenticated ? (
-                    <Link
-                      to="/my-profile"
-                      onClick={handleMenuClose}
-                      className="flex items-center justify-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
-                    >
-                      <PersonOutlineIcon fontSize="small" />
-                      Profile
-                    </Link>
-                  ) : (
-                    <Link
-                      to="/login"
-                      onClick={() => {
-                        handleMenuClose();
-                        handleLogout();
-                      }}
-                      className="flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
-                    >
-                      <LogoutRoundedIcon fontSize="small" />
-                      Logout
-                    </Link>
+                  {isAuthenticated && (
+                    <>
+                      <Link
+                        to="/my-profile"
+                        onClick={handleMenuClose}
+                        className="flex items-center justify-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
+                      >
+                        <PersonOutlineIcon fontSize="small" />
+                        Profile
+                      </Link>
+                      <Link
+                        to="/login"
+                        onClick={() => {
+                          handleMenuClose();
+                          handleLogout();
+                        }}
+                        className="flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                      >
+                        <LogoutRoundedIcon fontSize="small" />
+                        Logout
+                      </Link>
+                    </>
                   )}
                 </div>
               </div>
@@ -224,19 +227,19 @@ const Header = () => {
 
         <div className="flex justify-between items-center gap-4 sm:gap-10 text-black">
           <nav className="space-x-6 text-gray-700 font-medium hidden xl:block">
-            {navItems?.map(
-              (item) =>
-                item.title == "SignUp" ||
-                (isAuthenticated && (
-                  <NavLink
-                    key={item.title}
-                    to={item.url}
-                    className={getNavLinkClass}
-                  >
-                    {item.title}
-                  </NavLink>
-                )),
-            )}
+            {navItems?.map((item) => {
+              if (item.title === "SignUp" && isAuthenticated) return null;
+
+              return (
+                <NavLink
+                  key={item.title}
+                  to={item.url}
+                  className={getNavLinkClass}
+                >
+                  {item.title}
+                </NavLink>
+              );
+            })}
           </nav>
           <div className="hidden lg:block w-80 2xl:w-100 relative">
             <CustomFormInput
@@ -371,34 +374,47 @@ const Header = () => {
                 className="hidden md:inline-block text-sm"
               />
             )}
-            <Link className="hidden sm:block" to="/wishlist">
-              <FavoriteBorderIcon
-                className="rounded-full bg-gray-100 hover:text-red-600 cursor-pointer p-1"
-                fontSize="large"
-              />
-            </Link>
-            <Link className="hidden sm:block" to="/cart">
-              <ShoppingCartIcon
-                className="rounded-full bg-gray-100 hover:text-red-600 cursor-pointer p-1"
-                fontSize="large"
-              />
-            </Link>
+            {!isAuthenticated && (
+              <Link className="hidden sm:block" to="/wishlist">
+                <FavoriteBorderIcon
+                  className="rounded-full bg-gray-100 hover:text-red-600 cursor-pointer p-1"
+                  fontSize="large"
+                />
+              </Link>
+            )}
+            {!isAuthenticated && (
+              <Link className="hidden sm:block" to="/cart">
+                <ShoppingCartIcon
+                  className="rounded-full bg-gray-100 hover:text-red-600 cursor-pointer p-1"
+                  fontSize="large"
+                />
+              </Link>
+            )}
 
-            {isAuthenticated ? (
-              <Link to="/my-profile">
-                <PersonOutlineIcon
-                  className="rounded-full bg-red-100 text-red-600 cursor-pointer p-1"
-                  fontSize="large"
-                />
-              </Link>
-            ) : (
-              <Link to="/login">
-                <LogoutRoundedIcon
-                  className="rounded-full bg-red-100 text-red-600 cursor-pointer p-1"
-                  fontSize="large"
-                  onClick={handleLogout}
-                />
-              </Link>
+            {isAuthenticated && (
+              <>
+                <Link to="/my-profile">
+                  {user?.avatar?.url ? (
+                    <img
+                      src={`http://localhost:8000${user.avatar.url}`}
+                      alt="Profile"
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <PersonOutlineIcon
+                      className="rounded-full bg-red-100 text-red-600 cursor-pointer p-1"
+                      fontSize="large"
+                    />
+                  )}
+                </Link>
+                <Link to="/login">
+                  <LogoutRoundedIcon
+                    className="rounded-full bg-red-100 text-red-600 cursor-pointer p-1"
+                    fontSize="large"
+                    onClick={handleLogout}
+                  />
+                </Link>
+              </>
             )}
           </div>
         </div>

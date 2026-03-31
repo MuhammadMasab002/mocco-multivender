@@ -3,10 +3,15 @@ import CustomButton from "../components/common/CustomButton";
 import CustomFormInput from "../components/common/inputs/CustomFormInput";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { loadUser } from "../services/store/actions/user";
 const SignIn = () => {
   const navigate = useNavigate();
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+  const dispatch = useDispatch();
+  // const { loading, isAuthenticated } = useSelector((state) => state.user);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -37,8 +42,7 @@ const SignIn = () => {
       });
 
       if (data.success) {
-        // Store token in localStorage or context
-        // localStorage.setItem("token", data.token);
+        dispatch(loadUser());
         // Reset form
         setFormData({
           email: "",
