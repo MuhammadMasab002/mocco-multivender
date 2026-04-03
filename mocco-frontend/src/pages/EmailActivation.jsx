@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 const EmailActivation = () => {
@@ -61,7 +61,7 @@ const EmailActivation = () => {
 
   const currentState = statusStyles[status];
 
-  const handleActivate = async () => {
+  const handleActivate = useCallback(async () => {
     if (!token || status === "processing") return;
 
     if (!token) {
@@ -95,13 +95,17 @@ const EmailActivation = () => {
       setStatus("error");
       console.error("Activation error:", error);
     }
-  };
+  }, [VITE_BACKEND_URL, navigate, status, token]);
 
   useEffect(() => {
-    if (token && status === "idle") {
+    if (!token || status !== "idle") return;
+
+    const timerId = setTimeout(() => {
       handleActivate();
-    }
-  }, [token]);
+    }, 0);
+
+    return () => clearTimeout(timerId);
+  }, [token, status, handleActivate]);
 
   const canActivate = token && status !== "processing" && status !== "success";
 

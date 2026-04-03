@@ -161,26 +161,24 @@ const Header = () => {
                   />
                 )}
 
-                {!isAuthenticated && (
-                  <div className="grid grid-cols-2 gap-3">
-                    <Link
-                      to="/wishlist"
-                      onClick={handleMenuClose}
-                      className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
-                    >
-                      <FavoriteBorderIcon fontSize="small" />
-                      Wishlist
-                    </Link>
-                    <Link
-                      to="/cart"
-                      onClick={handleMenuClose}
-                      className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
-                    >
-                      <ShoppingCartIcon fontSize="small" />
-                      Cart
-                    </Link>
-                  </div>
-                )}
+                <div className="grid grid-cols-2 gap-3">
+                  <Link
+                    to="/wishlist"
+                    onClick={handleMenuClose}
+                    className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                  >
+                    <FavoriteBorderIcon fontSize="small" />
+                    Wishlist
+                  </Link>
+                  <Link
+                    to="/cart"
+                    onClick={handleMenuClose}
+                    className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                  >
+                    <ShoppingCartIcon fontSize="small" />
+                    Cart
+                  </Link>
+                </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   {isAuthenticated && (
@@ -225,94 +223,33 @@ const Header = () => {
           </Link>
         </div>
 
-        <div className="flex justify-between items-center gap-4 sm:gap-10 text-black">
-          <nav className="space-x-6 text-gray-700 font-medium hidden xl:block">
-            {navItems?.map((item) => {
-              if (item.title === "SignUp" && isAuthenticated) return null;
+        <nav className="space-x-6 text-gray-700 font-medium hidden xl:block">
+          {navItems?.map((item) => {
+            if (item.title === "SignUp" && isAuthenticated) return null;
 
-              return (
-                <NavLink
-                  key={item.title}
-                  to={item.url}
-                  className={getNavLinkClass}
-                >
-                  {item.title}
-                </NavLink>
-              );
-            })}
-          </nav>
-          <div className="hidden lg:block w-80 2xl:w-100 relative">
-            <CustomFormInput
-              placeholder="Search what are you looking for?"
-              name="search"
-              value={search}
-              icon={true}
-              onChange={handleSearchChange}
-              required
-              className="w-full!"
-            />
-            {/* desktop search */}
-            <div
-              className={`absolute top-full left-0 w-full bg-white border border-red-300 rounded-md mt-1 z-10 overflow-hidden origin-top transition-all duration-300 ease-out delay-75 ${
-                search
-                  ? "opacity-100 scale-y-100 translate-y-0 pointer-events-auto"
-                  : "opacity-0 scale-y-95 -translate-y-2 pointer-events-none"
-              }`}
-            >
-              {searchData && searchData?.length !== 0 ? (
-                <div
-                  className={`transition-all duration-200 ease-in-out delay-100 ${
-                    search
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 -translate-y-1"
-                  }`}
-                >
-                  <div className="py-2 px-1 overflow-y-auto max-h-100">
-                    {searchData?.map((item) => (
-                      <div
-                        key={item.id}
-                        onClick={() => handleNavigation(item.id)}
-                        className="flex p-2 hover:bg-red-50 cursor-pointer"
-                      >
-                        {/* item image */}
-                        <div className="w-10 h-10 mr-3 shrink-0">
-                          <img
-                            src={item.image_Url[1].url}
-                            alt={item.name}
-                            className="w-full h-full object-cover rounded-full"
-                          />
-                        </div>
-                        <div className="text-sm text-gray-700 font-medium">
-                          {item.name}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div
-                  className={`transition-all duration-200 ease-in-out delay-100 ${
-                    search
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 -translate-y-1"
-                  }`}
-                >
-                  <div className="p-2 text-gray-500">No results found</div>
-                </div>
-              )}
-            </div>
-          </div>
+            return (
+              <NavLink
+                key={item.title}
+                to={item.url}
+                className={getNavLinkClass}
+              >
+                {item.title}
+              </NavLink>
+            );
+          })}
+        </nav>
 
+        <div className="flex justify-between items-center gap-3 pl-4 text-black">
           {/* mobile search */}
-          <span className="lg:hidden">
+          <span className="lg:hiddens sm:pr-4">
             <SearchIcon
               onClick={handleSearchDropdownToggle}
-              className="text-gray-500 text-xl cursor-pointer"
+              className={`${isSearchDropdownOpen ? "text-red-500" : "text-gray-500"} text-xl cursor-pointer`}
             />
           </span>
 
           <div
-            className={`lg:hidden absolute top-full left-4 right-4 bg-white border border-red-300 rounded-md mt-1 z-10 overflow-hidden origin-top transition-all duration-300 ease-out delay-75 ${
+            className={`lg:hiddens absolute top-full left-4 md:left-10 lg:left-40 right-4 md:right-10 lg:right-40 bg-white border border-red-300 shadow-2xl rounded-md mt-1 z-10 overflow-hidden origin-top transition-all duration-300 ease-out delay-75 ${
               isSearchDropdownOpen
                 ? "opacity-100 scale-y-100 translate-y-0 pointer-events-auto"
                 : "opacity-0 scale-y-95 -translate-y-2 pointer-events-none"
@@ -365,58 +302,59 @@ const Header = () => {
               ) : null}
             </div>
           </div>
-          <div className="flex justify-between items-center gap-3 pl-4 text-black">
-            {!isAuthenticated && (
-              <CustomButton
-                buttonText="Start Selling"
-                variant="secondary"
-                onClick={() => alert("Start Selling successfully")}
-                className="hidden md:inline-block text-sm"
-              />
-            )}
-            {!isAuthenticated && (
-              <Link className="hidden sm:block" to="/wishlist">
-                <FavoriteBorderIcon
-                  className="rounded-full bg-gray-100 hover:text-red-600 cursor-pointer p-1"
-                  fontSize="large"
-                />
-              </Link>
-            )}
-            {!isAuthenticated && (
-              <Link className="hidden sm:block" to="/cart">
-                <ShoppingCartIcon
-                  className="rounded-full bg-gray-100 hover:text-red-600 cursor-pointer p-1"
-                  fontSize="large"
-                />
-              </Link>
-            )}
+          <CustomButton
+            buttonText="Start Selling"
+            variant="secondary"
+            onClick={() => alert("Start Selling successfully")}
+            className="hidden md:inline-block text-sm w-30!"
+          />
 
-            {isAuthenticated && (
-              <>
-                <Link to="/my-profile">
-                  {user?.avatar?.url ? (
-                    <img
-                      src={`http://localhost:8000${user.avatar.url}`}
-                      alt="Profile"
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <PersonOutlineIcon
-                      className="rounded-full bg-red-100 text-red-600 cursor-pointer p-1"
-                      fontSize="large"
-                    />
-                  )}
-                </Link>
-                <Link to="/login">
-                  <LogoutRoundedIcon
+          <Link className="hidden sm:block" to="/wishlist">
+            <FavoriteBorderIcon
+              className="rounded-full bg-gray-100 hover:text-red-600 cursor-pointer p-1"
+              fontSize="large"
+            />
+          </Link>
+
+          <Link className="hidden sm:block" to="/cart">
+            <ShoppingCartIcon
+              className="rounded-full bg-gray-100 hover:text-red-600 cursor-pointer p-1"
+              fontSize="large"
+            />
+          </Link>
+
+          {isAuthenticated ? (
+            <>
+              <Link to="/my-profile">
+                {user?.avatar?.url ? (
+                  <img
+                    src={`http://localhost:8000${user.avatar.url}`}
+                    alt="Profile"
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <PersonOutlineIcon
                     className="rounded-full bg-red-100 text-red-600 cursor-pointer p-1"
                     fontSize="large"
-                    onClick={handleLogout}
                   />
-                </Link>
-              </>
-            )}
-          </div>
+                )}
+              </Link>
+              <Link to="/login">
+                <LogoutRoundedIcon
+                  className="rounded-full bg-red-100 text-red-600 cursor-pointer p-1"
+                  fontSize="large"
+                  onClick={handleLogout}
+                />
+              </Link>
+            </>
+          ) : (
+            <CustomButton
+              buttonText="Login"
+              variant="primary"
+              onClick={() => navigate("/login")}
+              className="text-sm px-0! py4! w-16!"
+            />
+          )}
         </div>
       </div>
     </header>
