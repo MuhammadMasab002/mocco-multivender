@@ -1,208 +1,441 @@
-import CustomButton from "../components/common/CustomButton";
-import CustomFormInput from "../components/common/inputs/CustomFormInput";
+import { useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import LockIcon from "@mui/icons-material/Lock";
+import PlaceIcon from "@mui/icons-material/Place";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { loadUserFail } from "../services/store/slices/userAuthSlice";
+import ProfileSidebar from "../components/profile/ProfileSidebar";
+import ProfileTab from "../components/profile/ProfileTab";
+import OrdersTab from "../components/profile/OrdersTab";
+import RefundsTab from "../components/profile/RefundsTab";
+import TrackOrdersTab from "../components/profile/TrackOrdersTab";
+import ChangePasswordTab from "../components/profile/ChangePasswordTab";
+import AddressTab from "../components/profile/AddressTab";
+import LogoutTab from "../components/profile/LogoutTab";
+
+const PROFILE_STORAGE_KEY = "mocco_profile_form";
+const ADDRESS_STORAGE_KEY = "mocco_profile_addresses";
+const REFUND_STORAGE_KEY = "mocco_profile_refunds";
+
+const tabs = [
+  { id: "profile", label: "Profile", icon: AccountCircleIcon },
+  { id: "orders", label: "Orders", icon: AssignmentIcon },
+  { id: "refunds", label: "Refunds", icon: KeyboardReturnIcon },
+  { id: "track-orders", label: "Track Orders", icon: LocalShippingIcon },
+  { id: "change-password", label: "Change Password", icon: LockIcon },
+  { id: "address", label: "Address", icon: PlaceIcon },
+  { id: "logout", label: "Logout", icon: LogoutIcon },
+];
+
+const defaultOrders = [
+  {
+    id: "A4472E01",
+    date: "March 7, 2026",
+    shop: "eFlyer",
+    paymentMethod: "COD",
+    paymentStatus: "pending",
+    status: "shipping",
+    items: [
+      { name: "Enim assumenda ullam", qty: 1, amount: 79 },
+      { name: "Gaming pad (mouse pad) Dolore qui", qty: 2, amount: 156 },
+    ],
+    total: 178,
+    shippingAddress: {
+      line1: "Deserunt suscipit co",
+      city: "Lahore",
+      zipCode: "54782",
+      phone: "+1 (968) 458-1307",
+    },
+  },
+  {
+    id: "A4472D34",
+    date: "March 7, 2026",
+    shop: "MultiMart",
+    paymentMethod: "CARD",
+    paymentStatus: "paid",
+    status: "processing",
+    items: [
+      { name: "Wireless speaker", qty: 1, amount: 299 },
+      { name: "Bluetooth earbuds", qty: 2, amount: 589 },
+    ],
+    total: 888,
+    shippingAddress: {
+      line1: "Block A, Johar Town",
+      city: "Lahore",
+      zipCode: "54700",
+      phone: "+92 300 0000000",
+    },
+  },
+];
+
+const addressTypes = ["Home", "Office", "Other"];
+const countries = ["Pakistan", "United Arab Emirates", "Saudi Arabia", "Qatar"];
+
+const statesByCountry = {
+  Pakistan: [
+    "Punjab",
+    "Sindh",
+    "Khyber Pakhtunkhwa",
+    "Balochistan",
+    "Islamabad",
+  ],
+  "United Arab Emirates": ["Dubai", "Abu Dhabi", "Sharjah"],
+  "Saudi Arabia": ["Riyadh", "Makkah", "Madinah"],
+  Qatar: ["Doha", "Al Rayyan", "Al Wakrah"],
+};
+
+const initialProfileForm = (user) => ({
+  name: user?.name || "",
+  email: user?.email || "",
+  phoneNumber: user?.phoneNumber || "",
+  country: user?.addresses?.[0]?.country || "",
+  city: user?.addresses?.[0]?.city || "",
+  zipCode: user?.addresses?.[0]?.zipCode || "",
+  streetAddress1: user?.addresses?.[0]?.address1 || "",
+  streetAddress2: user?.addresses?.[0]?.address2 || "",
+  addressType: user?.addresses?.[0]?.addressType || "Home",
+  currentPassword: "",
+});
+
+const initialAddressForm = {
+  country: "",
+  state: "",
+  city: "",
+  zipCode: "",
+  streetAddress1: "",
+  streetAddress2: "",
+  addressType: "Home",
+};
+
+const titleByTab = {
+  profile: "Profile",
+  orders: "Orders",
+  refunds: "Refunds",
+  "track-orders": "Track Orders",
+  "change-password": "Change Password",
+  address: "Address",
+  logout: "Logout",
+};
+
+const readStoredJson = (storageKey) => {
+  try {
+    const rawValue = localStorage.getItem(storageKey);
+    return rawValue ? JSON.parse(rawValue) : null;
+  } catch {
+    return null;
+  }
+};
 
 const MyProfile = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { tab: routeTab } = useParams();
+  const { user } = useSelector((state) => state.user);
+
+  const queryTab = new URLSearchParams(location.search).get("tab");
+  const resolvedTab = routeTab || queryTab;
+  const activeTab = tabs.some((tab) => tab.id === resolvedTab)
+    ? resolvedTab
+    : "profile";
+
+  const [profileForm, setProfileForm] = useState(() => {
+    const storedProfile = readStoredJson(PROFILE_STORAGE_KEY);
+    return storedProfile
+      ? { ...initialProfileForm(user), ...storedProfile }
+      : initialProfileForm(user);
+  });
+  const [avatarPreview, setAvatarPreview] = useState(() => {
+    const storedProfile = readStoredJson(PROFILE_STORAGE_KEY);
+    return storedProfile?.avatarPreview || user?.avatar?.url || "";
+  });
+  const [orders] = useState(defaultOrders);
+  const [refundOrderId, setRefundOrderId] = useState("");
+  const [refundReason, setRefundReason] = useState("");
+  const [refundRequests, setRefundRequests] = useState(
+    () => readStoredJson(REFUND_STORAGE_KEY) || [],
+  );
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [addresses, setAddresses] = useState(
+    () => readStoredJson(ADDRESS_STORAGE_KEY) || [],
+  );
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [addressForm, setAddressForm] = useState(initialAddressForm);
+
+  const derivedProfile = useMemo(
+    () => ({
+      name: profileForm.name || user?.name || "Guest User",
+      email: profileForm.email || user?.email || "example@email.com",
+    }),
+    [profileForm.email, profileForm.name, user?.email, user?.name],
+  );
+
+  const handleTabChange = (tabId) => {
+    navigate(
+      tabId === "profile" ? "/my-profile" : `/my-profile/?tab=${tabId}`,
+      {
+        replace: true,
+      },
+    );
+  };
+
+  const handleProfileInputChange = (e) => {
+    const { name, value } = e.target;
+    setProfileForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fileReader = new FileReader();
+    fileReader.onload = () => setAvatarPreview(String(fileReader.result || ""));
+    fileReader.readAsDataURL(file);
+  };
+
+  const handleProfileSubmit = (e) => {
+    e.preventDefault();
+
+    if (!profileForm.currentPassword.trim()) {
+      alert("Please enter your current password to update profile details.");
+      return;
+    }
+
+    const payload = { ...profileForm, avatarPreview };
+    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(payload));
+    setProfileForm((prev) => ({ ...prev, currentPassword: "" }));
+    alert("Profile updated successfully.");
+  };
+
+  const handlePasswordInputChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+
+    if (passwordForm.newPassword.length < 6) {
+      alert("Password must be at least 6 characters long.");
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      alert("New password and confirm password do not match.");
+      return;
+    }
+
+    setPasswordForm({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+    alert("Password changed successfully.");
+  };
+
+  const handleRefundSubmit = (e) => {
+    e.preventDefault();
+
+    if (!refundOrderId || !refundReason.trim()) {
+      alert("Please select an order and provide a refund reason.");
+      return;
+    }
+
+    const selectedOrder = orders.find((order) => order.id === refundOrderId);
+    if (!selectedOrder) return;
+
+    const alreadyRequested = refundRequests.some(
+      (request) => request.orderId === selectedOrder.id,
+    );
+
+    if (alreadyRequested) {
+      alert("Refund request already submitted for this order.");
+      return;
+    }
+
+    const nextRefund = {
+      id: Date.now(),
+      orderId: selectedOrder.id,
+      shop: selectedOrder.shop,
+      total: selectedOrder.total,
+      status: "pending",
+      reason: refundReason,
+      createdAt: new Date().toLocaleDateString(),
+    };
+
+    const nextRefunds = [nextRefund, ...refundRequests];
+    setRefundRequests(nextRefunds);
+    localStorage.setItem(REFUND_STORAGE_KEY, JSON.stringify(nextRefunds));
+    setRefundOrderId("");
+    setRefundReason("");
+    alert("Refund request submitted.");
+  };
+
+  const handleAddressInputChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "country") {
+      setAddressForm((prev) => ({ ...prev, country: value, state: "" }));
+      return;
+    }
+
+    setAddressForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddAddress = (e) => {
+    e.preventDefault();
+
+    if (
+      !addressForm.country ||
+      !addressForm.state ||
+      !addressForm.city ||
+      !addressForm.zipCode ||
+      !addressForm.streetAddress1
+    ) {
+      alert("Please fill all required address fields.");
+      return;
+    }
+
+    const nextAddress = { ...addressForm, id: Date.now() };
+    const nextAddresses = [...addresses, nextAddress];
+    setAddresses(nextAddresses);
+    localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(nextAddresses));
+    setAddressForm(initialAddressForm);
+    setShowAddressForm(false);
+    alert("Address added successfully.");
+  };
+
+  const handleDeleteAddress = (id) => {
+    const nextAddresses = addresses.filter((address) => address.id !== id);
+    setAddresses(nextAddresses);
+    localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(nextAddresses));
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem(PROFILE_STORAGE_KEY);
+    localStorage.removeItem(ADDRESS_STORAGE_KEY);
+    localStorage.removeItem(REFUND_STORAGE_KEY);
+    dispatch(loadUserFail("Logged out"));
+    navigate("/login", { replace: true });
+  };
+
+  const tabHeading = titleByTab[activeTab] || "Profile";
+
+  const renderActiveTab = () => {
+    if (activeTab === "profile") {
+      return (
+        <ProfileTab
+          profileForm={profileForm}
+          avatarPreview={avatarPreview}
+          onAvatarChange={handleAvatarChange}
+          onInputChange={handleProfileInputChange}
+          onSubmit={handleProfileSubmit}
+          countries={countries}
+          addressTypes={addressTypes}
+        />
+      );
+    }
+
+    if (activeTab === "orders") {
+      return <OrdersTab orders={orders} />;
+    }
+
+    if (activeTab === "refunds") {
+      return (
+        <RefundsTab
+          orders={orders}
+          refundRequests={refundRequests}
+          refundOrderId={refundOrderId}
+          setRefundOrderId={setRefundOrderId}
+          refundReason={refundReason}
+          setRefundReason={setRefundReason}
+          onSubmit={handleRefundSubmit}
+        />
+      );
+    }
+
+    if (activeTab === "track-orders") {
+      return <TrackOrdersTab orders={orders} />;
+    }
+
+    if (activeTab === "change-password") {
+      return (
+        <ChangePasswordTab
+          passwordForm={passwordForm}
+          onInputChange={handlePasswordInputChange}
+          onSubmit={handlePasswordSubmit}
+        />
+      );
+    }
+
+    if (activeTab === "address") {
+      return (
+        <AddressTab
+          showAddressForm={showAddressForm}
+          setShowAddressForm={setShowAddressForm}
+          addressForm={addressForm}
+          onInputChange={handleAddressInputChange}
+          onAddAddress={handleAddAddress}
+          countries={countries}
+          statesByCountry={statesByCountry}
+          addressTypes={addressTypes}
+          addresses={addresses}
+          onDeleteAddress={handleDeleteAddress}
+          onCancelAddressForm={() => {
+            setShowAddressForm(false);
+            setAddressForm(initialAddressForm);
+          }}
+        />
+      );
+    }
+
+    return <LogoutTab onLogout={handleLogout} />;
+  };
+
   return (
-    <>
-      <div className="container w-full max-w-7xl mx-auto sm:px-4 py-8">
-        {/* Breadcrumb */}
-        <div className="flex justify-between text-gray-600 text-sm mb-6 px-2">
-          <p>
-            Home /
-            <span className="font-semibold text-gray-800"> My Account</span>
-          </p>
-          <p>
-            Welcome!
-            <span className="text-red-600 font-semibold"> Md Rimel</span>
-          </p>
-        </div>
+    <div className="w-full min-h-screen bg-linear-to-br from-gray-50 via-white to-red-50/40">
+      <div className="w-full max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6 p-4 sm:p-6 lg:p-8">
+        <ProfileSidebar
+          userName={derivedProfile.name}
+          userEmail={derivedProfile.email}
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+        />
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <aside className="w-full lg:w-1/4 bg-white rounded shadow p-4">
-            <div className="space-y-6 text-sm text-gray-700">
-              <div>
-                <h5 className="font-semibold mb-2">Manage My Account</h5>
-                <ul className="space-y-1 ps-3">
-                  <li>
-                    <a href="#" className="text-red-600">
-                      Profile
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-red-500">
-                      Change Password
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-red-500">
-                      Payment Options
-                    </a>
-                  </li>
-                </ul>
+        <main className="min-w-0">
+          <div className="px-5 sm:px-8 py-6 border border-gray-200 bg-white/85 backdrop-blur rounded-3xl shadow-sm flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-red-600 mb-3">
+                My Account
               </div>
-
-              <div>
-                <h5 className="font-semibold mb-2">My Orders</h5>
-                <ul className="space-y-1 ps-3">
-                  <li>
-                    <a href="#" className="hover:text-red-500">
-                      Orders
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-red-500">
-                      Returns
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:text-red-500">
-                      Track Orders
-                    </a>
-                  </li>
-
-                  <li>
-                    <a href="#" className="hover:text-red-500">
-                      Cancellations
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div>
-                <h5 className="font-semibold mb-2">My WishList</h5>
-                <ul className="space-y-1 ps-3">
-                  <li>
-                    <a href="#" className="hover:text-red-500">
-                      WishList
-                    </a>
-                  </li>
-                </ul>
-              </div>
+              <p className="text-sm sm:text-base text-gray-600 mt-1 max-w-2xl">
+                Manage your {tabHeading.toLowerCase()} settings and preferences.
+              </p>
             </div>
-          </aside>
+            <p className="text-sm sm:text-base text-gray-500 sm:text-right">
+              Profile <span className="mx-1">/</span>
+              <span className="text-gray-900 font-semibold"> {tabHeading}</span>
+            </p>
+          </div>
 
-          {/* Edit Profile Form */}
-          <section className="flex-1 bg-white rounded shadow p-6">
-            <h3 className="text-red-600 font-semibold mb-6 text-lg">
-              Edit Your Profile
-            </h3>
-
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-4 text-black">
-              {/* First Name */}
-              <div className="flex flex-col">
-                <CustomFormInput
-                  label={"First Name"}
-                  type={"text"}
-                  placeholder={"First Name"}
-                  name="fName"
-                  icon={false}
-                  //   value={fName}
-                  //   onChange={handleChange}
-                  required
-                />
-              </div>
-
-              {/* Last Name */}
-              <div className="flex flex-col">
-                <CustomFormInput
-                  label={"Last Name"}
-                  type={"text"}
-                  placeholder={"Last Name"}
-                  name="lName"
-                  icon={false}
-                  //   value={lName}
-                  //   onChange={handleChange}
-                  required
-                />
-              </div>
-
-              {/* Email */}
-              <div className="flex flex-col">
-                <CustomFormInput
-                  label={"Email"}
-                  type={"email"}
-                  placeholder={"Email"}
-                  name="email"
-                  icon={false}
-                  //   value={email}
-                  //   onChange={handleChange}
-                  required
-                />
-              </div>
-
-              {/* Address */}
-              <div className="flex flex-col">
-                <CustomFormInput
-                  label={"Address"}
-                  type={"text"}
-                  placeholder={"Address"}
-                  name="address"
-                  icon={false}
-                  //   value={address}
-                  //   onChange={handleChange}
-                  required
-                />
-              </div>
-
-              {/* Password Changes - Full Width */}
-              <div className="md:col-span-2 flex flex-col space-y-4">
-                <CustomFormInput
-                  label={"Current Password"}
-                  type="password"
-                  placeholder="Current Password"
-                  name="currentPassword"
-                  icon={false}
-                  //   value={currentPassword}
-                  //   onChange={handleChange}
-                  required
-                />
-                <CustomFormInput
-                  label={"New Password"}
-                  type="password"
-                  placeholder="New Password"
-                  name="newPassword"
-                  icon={false}
-                  //   value={cPassword}
-                  //   onChange={handleChange}
-                  required
-                />
-                <CustomFormInput
-                  label={"Confirm New Password"}
-                  type="password"
-                  placeholder="Confirm New Password"
-                  name="cNewPassword"
-                  icon={false}
-                  //   value={cNewPassword}
-                  //   onChange={handleChange}
-                  required
-                />
-              </div>
-            </form>
-
-            {/* Buttons */}
-            <div className="w-full flex items-center justify-end mt-6 gap-3">
-              <div>
-                <CustomButton
-                  buttonText={"Cancel"}
-                  type="submit"
-                  variant={"secondary"}
-                  onClick={() => alert("Changes cancelled")}
-                />
-              </div>
-              <div>
-                <CustomButton
-                  buttonText={"Save Changes"}
-                  type="submit"
-                  variant={"danger"}
-                  onClick={() => alert("Changes save successfully")}
-                />
-              </div>
-            </div>
-          </section>
-        </div>
+          <div className="py-4 sm:py-6">
+            <section className="bg-white border border-gray-200 rounded-3xl shadow-[0_20px_60px_rgba(15,23,42,0.08)] p-4 sm:p-6 lg:p-8">
+              {renderActiveTab()}
+            </section>
+          </div>
+        </main>
       </div>
-    </>
+    </div>
   );
 };
 
