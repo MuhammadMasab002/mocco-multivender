@@ -155,7 +155,7 @@ const Header = () => {
                     variant="secondary"
                     onClick={() => {
                       handleMenuClose();
-                      alert("Start Selling successfully");
+                      navigate("/shop-create");
                     }}
                     className="w-full"
                   />
@@ -305,7 +305,7 @@ const Header = () => {
           <CustomButton
             buttonText="Start Selling"
             variant="secondary"
-            onClick={() => alert("Start Selling successfully")}
+            onClick={() => navigate("/shop-create")}
             className="hidden md:inline-block text-sm w-30!"
           />
 

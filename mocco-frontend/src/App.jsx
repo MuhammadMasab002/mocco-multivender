@@ -6,6 +6,7 @@ import Cart from "./pages/Cart";
 import ProductDetail from "./pages/ProductDetail";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import ShopCreate from "./pages/ShopCreate";
 import Wishlist from "./pages/WishList";
 import MyProfile from "./pages/MyProfile";
 import AdminLayout from "./layouts/AdminLayout";
@@ -127,6 +128,22 @@ function App() {
             element={
               <AuthRoute isAuthenticated={isAuthenticated}>
                 <SignUp />
+              </AuthRoute>
+            }
+          />
+          <Route
+            path="/shop-create"
+            element={
+              <AuthRoute isAuthenticated={isAuthenticated}>
+                <ShopCreate />
+              </AuthRoute>
+            }
+          />
+          <Route
+            path="/shop-login"
+            element={
+              <AuthRoute isAuthenticated={isAuthenticated}>
+                <SignIn />
               </AuthRoute>
             }
           />
