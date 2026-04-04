@@ -9,7 +9,6 @@ import LockIcon from "@mui/icons-material/Lock";
 import PlaceIcon from "@mui/icons-material/Place";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { loadUserFail } from "../services/store/slices/userAuthSlice";
 import ProfileSidebar from "../components/profile/ProfileSidebar";
 import ProfileTab from "../components/profile/ProfileTab";
 import OrdersTab from "../components/profile/OrdersTab";
@@ -19,6 +18,10 @@ import ChangePasswordTab from "../components/profile/ChangePasswordTab";
 import AddressTab from "../components/profile/AddressTab";
 import PaymentMethodTab from "../components/profile/PaymentMethodTab";
 import LogoutTab from "../components/profile/LogoutTab";
+import { loadUser } from "../services/store/actions/user";
+import axios from "axios";
+
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const PROFILE_STORAGE_KEY = "mocco_profile_form";
 const ADDRESS_STORAGE_KEY = "mocco_profile_addresses";
@@ -423,13 +426,21 @@ const MyProfile = () => {
     );
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem(PROFILE_STORAGE_KEY);
-    localStorage.removeItem(ADDRESS_STORAGE_KEY);
-    localStorage.removeItem(REFUND_STORAGE_KEY);
-    localStorage.removeItem(PAYMENT_STORAGE_KEY);
-    dispatch(loadUserFail("Logged out"));
-    navigate("/login", { replace: true });
+  // handle logout API
+  const handleLogout = async () => {
+    const { data } = await axios.get(`${backendUrl}/user/logout`, {
+      withCredentials: true,
+    });
+    if (data?.success) {
+      localStorage.removeItem(PROFILE_STORAGE_KEY);
+      localStorage.removeItem(ADDRESS_STORAGE_KEY);
+      localStorage.removeItem(REFUND_STORAGE_KEY);
+      localStorage.removeItem(PAYMENT_STORAGE_KEY);
+
+      alert("Logged out successfully.");
+      dispatch(loadUser());
+      navigate("/login", { replace: true });
+    }
   };
 
   const tabHeading = titleByTab[activeTab] || "Profile";

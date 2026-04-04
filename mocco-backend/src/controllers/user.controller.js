@@ -184,4 +184,28 @@ const getUser = async (req, res, next) => {
   }
 };
 
-export { registerUser, activateUserEmail, loginUser, getUser };
+// log out user 
+const logoutUser = async (req, res, next) => {
+  try {
+    res.clearCookie("token", {
+      expires: new Date(Date.now()),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "User logged out successfully!",
+    });
+  } catch (error) {
+    console.error("Error in logoutUser:", error);
+    return next(
+      new ErrorHandler(
+        "Failed to logout user! " + error.message,
+        500,
+      ),
+    );
+  }
+};
+
+export { registerUser, activateUserEmail, loginUser, getUser, logoutUser };
