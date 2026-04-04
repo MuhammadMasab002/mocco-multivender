@@ -50,6 +50,7 @@ const SignIn = () => {
         });
 
         navigate("/");
+        // window.location.reload(true); // Reload the page to update the UI with the new authentication state
       }
     } catch (err) {
       console.error("Login failed:", err);

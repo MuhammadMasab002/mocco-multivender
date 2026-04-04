@@ -46,6 +46,14 @@ const Cart = () => {
 
   return (
     <div className="container max-w-6xl mx-auto py-6 sm:px-6 space-y-8 text-black">
+      {/* show total items in cart */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Your Shopping Cart</h2>
+        <p className="text-lg font-semibold">
+          Total Items: {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
+        </p>
+      </div>
+
       {/* Cart Table */}
       <div className="rounded border shadow-sm">
         <CartTable
