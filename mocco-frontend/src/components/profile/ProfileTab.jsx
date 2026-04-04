@@ -84,7 +84,7 @@ const ProfileTab = ({
           required
         />
 
-        <p className="text-xs sm:text-sm text-gray-500">
+        <p className="text-xs sm:text-sm italic text-gray-500 pb-3">
           Required to verify your identity before updating profile.
         </p>
 
@@ -134,20 +134,22 @@ const ProfileTab = ({
           />
         </div>
 
-        <CustomFormInput
-          label="Street Address 1"
-          name="streetAddress1"
-          value={profileForm.streetAddress1}
-          onChange={onInputChange}
-          placeholder="Street Address 1"
-        />
-        <CustomFormInput
-          label="Street Address 2"
-          name="streetAddress2"
-          value={profileForm.streetAddress2}
-          onChange={onInputChange}
-          placeholder="Street Address 2"
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CustomFormInput
+            label="Street Address 1"
+            name="streetAddress1"
+            value={profileForm.streetAddress1}
+            onChange={onInputChange}
+            placeholder="Street Address 1"
+          />
+          <CustomFormInput
+            label="Street Address 2"
+            name="streetAddress2"
+            value={profileForm.streetAddress2}
+            onChange={onInputChange}
+            placeholder="Street Address 2"
+          />
+        </div>
 
         <div className="w-full md:max-w-md">
           <label className="block text-gray-700 font-medium mb-1">
