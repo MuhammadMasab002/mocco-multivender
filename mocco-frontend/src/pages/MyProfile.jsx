@@ -7,6 +7,7 @@ import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import LockIcon from "@mui/icons-material/Lock";
 import PlaceIcon from "@mui/icons-material/Place";
+import CreditCardIcon from "@mui/icons-material/CreditCard";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { loadUserFail } from "../services/store/slices/userAuthSlice";
 import ProfileSidebar from "../components/profile/ProfileSidebar";
@@ -16,11 +17,13 @@ import RefundsTab from "../components/profile/RefundsTab";
 import TrackOrdersTab from "../components/profile/TrackOrdersTab";
 import ChangePasswordTab from "../components/profile/ChangePasswordTab";
 import AddressTab from "../components/profile/AddressTab";
+import PaymentMethodTab from "../components/profile/PaymentMethodTab";
 import LogoutTab from "../components/profile/LogoutTab";
 
 const PROFILE_STORAGE_KEY = "mocco_profile_form";
 const ADDRESS_STORAGE_KEY = "mocco_profile_addresses";
 const REFUND_STORAGE_KEY = "mocco_profile_refunds";
+const PAYMENT_STORAGE_KEY = "mocco_profile_payment_methods";
 
 const tabs = [
   { id: "profile", label: "Profile", icon: AccountCircleIcon },
@@ -29,6 +32,7 @@ const tabs = [
   { id: "track-orders", label: "Track Orders", icon: LocalShippingIcon },
   { id: "change-password", label: "Change Password", icon: LockIcon },
   { id: "address", label: "Address", icon: PlaceIcon },
+  { id: "payment-method", label: "Payment Method", icon: CreditCardIcon },
   { id: "logout", label: "Logout", icon: LogoutIcon },
 ];
 
@@ -112,6 +116,25 @@ const initialAddressForm = {
   addressType: "Home",
 };
 
+const initialPaymentForm = {
+  cardType: "VISA",
+  cardHolder: "",
+  last4: "",
+  expiryMonth: "",
+  expiryYear: "",
+};
+
+const defaultPaymentMethods = [
+  {
+    id: "visa-default",
+    cardType: "VISA",
+    cardHolder: "Masab Ashraf",
+    last4: "1234",
+    expiryMonth: "08",
+    expiryYear: "2022",
+  },
+];
+
 const titleByTab = {
   profile: "Profile",
   orders: "Orders",
@@ -119,6 +142,7 @@ const titleByTab = {
   "track-orders": "Track Orders",
   "change-password": "Change Password",
   address: "Address",
+  "payment-method": "Payment Method",
   logout: "Logout",
 };
 
@@ -170,6 +194,12 @@ const MyProfile = () => {
   );
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [addressForm, setAddressForm] = useState(initialAddressForm);
+  const [paymentMethods, setPaymentMethods] = useState(() => {
+    const storedMethods = readStoredJson(PAYMENT_STORAGE_KEY);
+    return storedMethods ?? defaultPaymentMethods;
+  });
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [paymentForm, setPaymentForm] = useState(initialPaymentForm);
 
   const derivedProfile = useMemo(
     () => ({
@@ -320,10 +350,84 @@ const MyProfile = () => {
     localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(nextAddresses));
   };
 
+  const handlePaymentInputChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "last4") {
+      const digitsOnly = value.replace(/\D/g, "").slice(0, 4);
+      setPaymentForm((prev) => ({ ...prev, [name]: digitsOnly }));
+      return;
+    }
+
+    if (name === "expiryMonth") {
+      const digitsOnly = value.replace(/\D/g, "").slice(0, 2);
+      setPaymentForm((prev) => ({ ...prev, [name]: digitsOnly }));
+      return;
+    }
+
+    if (name === "expiryYear") {
+      const digitsOnly = value.replace(/\D/g, "").slice(0, 4);
+      setPaymentForm((prev) => ({ ...prev, [name]: digitsOnly }));
+      return;
+    }
+
+    setPaymentForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddPaymentMethod = (e) => {
+    e.preventDefault();
+
+    if (
+      !paymentForm.cardHolder.trim() ||
+      paymentForm.last4.length !== 4 ||
+      paymentForm.expiryMonth.length !== 2 ||
+      paymentForm.expiryYear.length !== 4
+    ) {
+      alert(
+        "Please enter a valid card holder, last 4 digits, and expiry date.",
+      );
+      return;
+    }
+
+    const month = Number(paymentForm.expiryMonth);
+    if (month < 1 || month > 12) {
+      alert("Expiry month must be between 01 and 12.");
+      return;
+    }
+
+    const nextPaymentMethod = {
+      ...paymentForm,
+      cardHolder: paymentForm.cardHolder.trim(),
+      id: Date.now(),
+    };
+
+    const nextPaymentMethods = [nextPaymentMethod, ...paymentMethods];
+    setPaymentMethods(nextPaymentMethods);
+    localStorage.setItem(
+      PAYMENT_STORAGE_KEY,
+      JSON.stringify(nextPaymentMethods),
+    );
+    setPaymentForm(initialPaymentForm);
+    setShowPaymentForm(false);
+    alert("Payment method added successfully.");
+  };
+
+  const handleDeletePaymentMethod = (id) => {
+    const nextPaymentMethods = paymentMethods.filter(
+      (method) => method.id !== id,
+    );
+    setPaymentMethods(nextPaymentMethods);
+    localStorage.setItem(
+      PAYMENT_STORAGE_KEY,
+      JSON.stringify(nextPaymentMethods),
+    );
+  };
+
   const handleLogout = () => {
     localStorage.removeItem(PROFILE_STORAGE_KEY);
     localStorage.removeItem(ADDRESS_STORAGE_KEY);
     localStorage.removeItem(REFUND_STORAGE_KEY);
+    localStorage.removeItem(PAYMENT_STORAGE_KEY);
     dispatch(loadUserFail("Logged out"));
     navigate("/login", { replace: true });
   };
@@ -394,6 +498,24 @@ const MyProfile = () => {
             setShowAddressForm(false);
             setAddressForm(initialAddressForm);
           }}
+        />
+      );
+    }
+
+    if (activeTab === "payment-method") {
+      return (
+        <PaymentMethodTab
+          paymentMethods={paymentMethods}
+          showPaymentForm={showPaymentForm}
+          paymentForm={paymentForm}
+          onInputChange={handlePaymentInputChange}
+          onAddPaymentMethod={handleAddPaymentMethod}
+          onDeletePaymentMethod={handleDeletePaymentMethod}
+          onCancelPaymentForm={() => {
+            setShowPaymentForm(false);
+            setPaymentForm(initialPaymentForm);
+          }}
+          onShowPaymentForm={() => setShowPaymentForm(true)}
         />
       );
     }
