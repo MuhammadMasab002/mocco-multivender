@@ -12,12 +12,15 @@ import { Menu } from "lucide-react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import CustomButton from "../common/CustomButton";
 import { navItems, productData } from "../../static/data.jsx";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { loadUser } from "../../services/store/actions/user.js";
+import axios from "axios";
 
-// const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const Header = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const { user, isAuthenticated } = useSelector((state) => state.user);
 
@@ -26,11 +29,15 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
 
-  const handleLogout = () => {
-    try {
-      alert("Logout successfully");
-    } catch (error) {
-      console.log("error to logout user: ", error);
+  // handle logout API
+  const handleLogout = async () => {
+    const { data } = await axios.get(`${backendUrl}/user/logout`, {
+      withCredentials: true,
+    });
+    if (data?.success) {
+      alert("Logged out successfully.");
+      dispatch(loadUser());
+      navigate("/login", { replace: true });
     }
   };
 
