@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 import userRouter from "./src/routes/user.route.js";
 import errorMiddleware from "./src/middlewares/error.middleware.js";
 import connectDB from "./src/db/index.js";
+import shopRouter from "./src/routes/shop.route.js";
 
 const app = express();
 const isProduction =
@@ -65,6 +66,7 @@ app.use(async (req, res, next) => {
 });
 
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/shop", shopRouter);
 app.use(errorMiddleware);
 
 export default app;

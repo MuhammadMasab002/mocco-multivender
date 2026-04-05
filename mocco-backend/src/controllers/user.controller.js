@@ -4,6 +4,7 @@ import sendMail from "../utils/sendMail.js";
 import User from "../models/user.model.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import sendToken from "../utils/jwtToken.js";
+import { createActivationToken } from "../utils/createToken.js";
 
 const registerUser = async (req, res, next) => {
   try {
@@ -70,17 +71,6 @@ const registerUser = async (req, res, next) => {
       new ErrorHandler("Failed to register user! " + error.message, 500),
     );
   }
-};
-
-// create activation token
-const createActivationToken = (user) => {
-  const activationSecret =
-    process.env.ACTIVATION_TOKEN_SECRET_KEY || process.env.JWT_SECRET_KEY;
-  const activationExpiry = process.env.EXPIRES_ACTIVATION_TOKEN || "5m";
-
-  return jwt.sign(user, activationSecret, {
-    expiresIn: activationExpiry,
-  });
 };
 
 // activate user account
