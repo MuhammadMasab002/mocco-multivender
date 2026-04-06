@@ -23,8 +23,10 @@ import EmailActivation from "./pages/EmailActivation";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loadUser } from "./services/store/actions/user";
+import { loadSeller } from "./services/store/actions/seller";
 
-function ProtectedRoute({ isUserAuthenticated, children }) {
+// User routes
+function UserProtectedRoute({ isUserAuthenticated, children }) {
   if (!isUserAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -40,6 +42,16 @@ function AuthRoute({ isUserAuthenticated, children }) {
   return children;
 }
 
+// Seller routes
+function SellerAuthRoute({ isSellerAuthenticated, children }) {
+  if (isSellerAuthenticated) {
+    return <Navigate to="/shop-dashboard" replace />;
+  }
+
+  return children;
+}
+
+// Admin routes
 function AdminRoute({ isUserAuthenticated, user, children }) {
   if (!isUserAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -55,13 +67,21 @@ function AdminRoute({ isUserAuthenticated, user, children }) {
 function App() {
   const dispatch = useDispatch();
 
-  const { user, loading, isUserAuthenticated } = useSelector((state) => state.user);
+  const {
+    user,
+    isLoading: isUserLoading,
+    isUserAuthenticated,
+  } = useSelector((state) => state.user);
+  const { isLoading: isSellerLoading, isSellerAuthenticated } = useSelector(
+    (state) => state.seller,
+  );
 
   useEffect(() => {
     dispatch(loadUser());
+    dispatch(loadSeller());
   }, [dispatch]);
 
-  if (loading) {
+  if (isUserLoading || isSellerLoading) {
     return <div>Loading...</div>;
   }
 
@@ -73,17 +93,17 @@ function App() {
           <Route
             path="/checkout"
             element={
-              <ProtectedRoute isUserAuthenticated={isUserAuthenticated}>
+              <UserProtectedRoute isUserAuthenticated={isUserAuthenticated}>
                 <Checkout />
-              </ProtectedRoute>
+              </UserProtectedRoute>
             }
           />
           <Route
             path="/cart"
             element={
-              <ProtectedRoute isUserAuthenticated={isUserAuthenticated}>
+              <UserProtectedRoute isUserAuthenticated={isUserAuthenticated}>
                 <Cart />
-              </ProtectedRoute>
+              </UserProtectedRoute>
             }
           />
 
@@ -98,9 +118,9 @@ function App() {
           <Route
             path="/wishlist"
             element={
-              <ProtectedRoute isUserAuthenticated={isUserAuthenticated}>
+              <UserProtectedRoute isUserAuthenticated={isUserAuthenticated}>
                 <Wishlist />
-              </ProtectedRoute>
+              </UserProtectedRoute>
             }
           />
 
@@ -110,9 +130,9 @@ function App() {
           <Route
             path="/my-profile"
             element={
-              <ProtectedRoute isUserAuthenticated={isUserAuthenticated}>
+              <UserProtectedRoute isUserAuthenticated={isUserAuthenticated}>
                 <MyProfile />
-              </ProtectedRoute>
+              </UserProtectedRoute>
             }
           />
 
@@ -132,22 +152,24 @@ function App() {
               </AuthRoute>
             }
           />
-          <Route
-            path="/shop-create"
-            element={
-              // <AuthRoute isUserAuthenticated={isUserAuthenticated}>
-              <ShopCreate />
-              // </AuthRoute>
-            }
-          />
+          {/* Seller Routes */}
           <Route
             path="/shop-login"
             element={
-              <AuthRoute isUserAuthenticated={isUserAuthenticated}>
+              <SellerAuthRoute isSellerAuthenticated={isSellerAuthenticated}>
                 <ShopLogin />
-              </AuthRoute>
+              </SellerAuthRoute>
             }
           />
+          <Route
+            path="/shop-create"
+            element={
+              <SellerAuthRoute isSellerAuthenticated={isSellerAuthenticated}>
+                <ShopCreate />
+              </SellerAuthRoute>
+            }
+          />
+
           <Route path="/activate" element={<EmailActivation />} />
           <Route path="/activate/:token" element={<EmailActivation />} />
           <Route path="/seller/activate/:token" element={<EmailActivation />} />

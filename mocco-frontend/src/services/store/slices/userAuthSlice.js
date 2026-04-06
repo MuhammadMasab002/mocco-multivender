@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   isUserAuthenticated: false,
-  loading: true,
+  isLoading: true,
   user: null,
   error: null,
 };
@@ -13,15 +13,15 @@ const userSlice = createSlice({
   reducers: {
     // These replace your LoadUserRequest, LoadUserSuccess, etc.
     loadUserRequest: (state) => {
-      state.loading = true;
+      state.isLoading = true;
     },
     loadUserSuccess: (state, action) => {
-      state.loading = false;
+      state.isLoading = false;
       state.isUserAuthenticated = true;
       state.user = action.payload;
     },
     loadUserFail: (state, action) => {
-      state.loading = false;
+      state.isLoading = false;
       state.error = action.payload;
       state.isUserAuthenticated = false;
     },

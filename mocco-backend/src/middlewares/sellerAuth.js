@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 const isSellerAuthenticated = async (req, res, next) => {
     try {
-        const seller_token = req.cookies?.token;
+        const { seller_token } = req.cookies;
 
         if (!seller_token) {
             return next(new ErrorHandler("Unauthorized! No token provided.", 401));

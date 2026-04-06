@@ -23,7 +23,7 @@ const Header = () => {
   const dispatch = useDispatch();
 
   const { user, isUserAuthenticated } = useSelector((state) => state.user);
-
+  
   const [search, setSearch] = useState("");
   const [searchData, setSearchData] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -134,7 +134,8 @@ const Header = () => {
               <div className="flex-1 overflow-y-auto px-4 py-5">
                 <nav className="space-y-2">
                   {navItems?.map((item) => {
-                    if (item.title === "SignUp" && isUserAuthenticated) return null;
+                    if (item.title === "SignUp" && isUserAuthenticated)
+                      return null;
                     return (
                       <NavLink
                         key={item.title}

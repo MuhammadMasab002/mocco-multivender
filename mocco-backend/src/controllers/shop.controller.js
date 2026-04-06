@@ -172,4 +172,54 @@ const loginShop = async (req, res, next) => {
 }
 
 
-export { registerShop, activateShopEmail, loginShop };
+// get seller profile/data
+const getSeller = async (req, res, next) => {
+    try {
+        const shop = await Shop.findById(req.user._id);
+
+        // error 
+        if (!shop) {
+            return next(new ErrorHandler("Shop not found!", 404));
+        }
+
+        res.status(200).json({
+            success: true,
+            shop,
+        });
+    } catch (error) {
+        console.error("Error in getShop:", error);
+        return next(
+            new ErrorHandler(
+                "Failed to fetch shop profile! " + error.message,
+                500,
+            ),
+        );
+    }
+};
+
+// log out shop 
+const logoutShop = async (req, res, next) => {
+    try {
+        res.clearCookie("seller_token", {
+            expires: new Date(Date.now()),
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Seller logged out successfully!",
+        });
+    } catch (error) {
+        console.error("Error in logoutShop:", error);
+        return next(
+            new ErrorHandler(
+                "Failed to logout seller! " + error.message,
+                500,
+            ),
+        );
+    }
+};
+
+
+export { registerShop, activateShopEmail, loginShop, getSeller, logoutShop };

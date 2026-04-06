@@ -6,6 +6,7 @@ import CustomFormInput from "../components/common/inputs/CustomFormInput";
 import axios from "axios";
 import { loadUser } from "../services/store/actions/user";
 import { useDispatch } from "react-redux";
+import { loadSeller } from "../services/store/actions/seller";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -43,6 +44,7 @@ const ShopLogin = () => {
 
       if (data?.success) {
         dispatch(loadUser());
+        dispatch(loadSeller());
         setFormData({ email: "", password: "" });
         navigate("/shop-dashboard");
       }
