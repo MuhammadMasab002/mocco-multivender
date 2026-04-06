@@ -7,6 +7,7 @@ import ProductDetail from "./pages/ProductDetail";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import ShopCreate from "./pages/ShopCreate";
+import ShopLogin from "./pages/ShopLogin";
 import Wishlist from "./pages/WishList";
 import MyProfile from "./pages/MyProfile";
 import AdminLayout from "./layouts/AdminLayout";
@@ -135,7 +136,7 @@ function App() {
             path="/shop-create"
             element={
               // <AuthRoute isAuthenticated={isAuthenticated}>
-                <ShopCreate />
+              <ShopCreate />
               // </AuthRoute>
             }
           />
@@ -143,7 +144,7 @@ function App() {
             path="/shop-login"
             element={
               <AuthRoute isAuthenticated={isAuthenticated}>
-                <SignIn />
+                <ShopLogin />
               </AuthRoute>
             }
           />

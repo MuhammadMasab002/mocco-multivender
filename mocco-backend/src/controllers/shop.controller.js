@@ -122,7 +122,7 @@ const activateShopEmail = async (req, res, next) => {
             zipCode: decodedToken.zipCode,
         });
 
-        sendToken(createdShop, 201, res);
+        sendToken(createdShop, 201, res, "seller");
     } catch (error) {
         console.error("Error in activateShopEmail:", error);
         return next(
@@ -134,5 +134,42 @@ const activateShopEmail = async (req, res, next) => {
     }
 };
 
+// login shop
+const loginShop = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return next(new ErrorHandler("Please enter all fields!", 400));
+        }
 
-export { registerShop, activateShopEmail };
+        const shop = await Shop.findOne({ email }).select("+password");
+
+        if (!shop) {
+            return next(new ErrorHandler("Invalid email or password!", 401));
+        }
+
+        if (!shop.password) {
+            return next(new ErrorHandler("Invalid email or password!", 401));
+        }
+
+        const isPasswordMatched = await shop.comparePassword(password);
+
+        if (!isPasswordMatched) {
+            return next(new ErrorHandler("Invalid email or password!", 401));
+        }
+
+        sendToken(shop, 200, res, "seller");
+
+    } catch (error) {
+        console.error("Error in loginShop:", error);
+        return next(
+            new ErrorHandler(
+                "Failed to login shop! " + error.message,
+                500,
+            ),
+        );
+    }
+}
+
+
+export { registerShop, activateShopEmail, loginShop };

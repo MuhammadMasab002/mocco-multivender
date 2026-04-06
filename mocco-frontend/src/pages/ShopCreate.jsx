@@ -236,7 +236,7 @@ const ShopCreate = () => {
 
             <div className="pt-2">
               <CustomButton
-                buttonText="Sign Up"
+                buttonText="Create Shop"
                 type="submit"
                 variant="danger"
               />

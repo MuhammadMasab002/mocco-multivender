@@ -100,7 +100,7 @@ const activateUserEmail = async (req, res, next) => {
       avatar: decodedToken.avatar,
     });
 
-    sendToken(createdUser, 201, res);
+    sendToken(createdUser, 201, res, "user");
   } catch (error) {
     console.error("Error in activateUserEmail:", error);
     return next(
@@ -136,7 +136,7 @@ const loginUser = async (req, res, next) => {
       return next(new ErrorHandler("Invalid email or password!", 401));
     }
 
-    sendToken(user, 200, res);
+    sendToken(user, 200, res, "user");
 
   } catch (error) {
     console.error("Error in loginUser:", error);
@@ -177,7 +177,7 @@ const getUser = async (req, res, next) => {
 // log out user 
 const logoutUser = async (req, res, next) => {
   try {
-    res.clearCookie("token", {
+    res.clearCookie("user_token", {
       expires: new Date(Date.now()),
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
