@@ -22,7 +22,7 @@ const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { user, isAuthenticated } = useSelector((state) => state.user);
+  const { user, isUserAuthenticated } = useSelector((state) => state.user);
 
   const [search, setSearch] = useState("");
   const [searchData, setSearchData] = useState(null);
@@ -134,7 +134,7 @@ const Header = () => {
               <div className="flex-1 overflow-y-auto px-4 py-5">
                 <nav className="space-y-2">
                   {navItems?.map((item) => {
-                    if (item.title === "SignUp" && isAuthenticated) return null;
+                    if (item.title === "SignUp" && isUserAuthenticated) return null;
                     return (
                       <NavLink
                         key={item.title}
@@ -156,7 +156,7 @@ const Header = () => {
               </div>
 
               <div className="border-t border-gray-200 px-4 py-4 space-y-3">
-                {!isAuthenticated && (
+                {!isUserAuthenticated && (
                   <CustomButton
                     buttonText="Start Selling"
                     variant="secondary"
@@ -188,7 +188,7 @@ const Header = () => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  {isAuthenticated && (
+                  {isUserAuthenticated && (
                     <>
                       <Link
                         to="/my-profile"
@@ -232,7 +232,7 @@ const Header = () => {
 
         <nav className="space-x-6 text-gray-700 font-medium hidden xl:block">
           {navItems?.map((item) => {
-            if (item.title === "SignUp" && isAuthenticated) return null;
+            if (item.title === "SignUp" && isUserAuthenticated) return null;
 
             return (
               <NavLink
@@ -330,7 +330,7 @@ const Header = () => {
             />
           </Link>
 
-          {isAuthenticated ? (
+          {isUserAuthenticated ? (
             <>
               <Link to="/my-profile">
                 {user?.avatar?.url ? (

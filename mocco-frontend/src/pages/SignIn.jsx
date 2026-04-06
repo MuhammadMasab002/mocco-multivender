@@ -13,7 +13,7 @@ const SignIn = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const dispatch = useDispatch();
-  // const { loading, isAuthenticated } = useSelector((state) => state.user);
+  // const { loading, isUserAuthenticated } = useSelector((state) => state.user);
 
   const [formData, setFormData] = useState({
     email: "",

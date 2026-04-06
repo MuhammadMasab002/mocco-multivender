@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  isAuthenticated: false,
+  isUserAuthenticated: false,
   loading: true,
   user: null,
   error: null,
@@ -17,13 +17,13 @@ const userSlice = createSlice({
     },
     loadUserSuccess: (state, action) => {
       state.loading = false;
-      state.isAuthenticated = true;
+      state.isUserAuthenticated = true;
       state.user = action.payload;
     },
     loadUserFail: (state, action) => {
       state.loading = false;
       state.error = action.payload;
-      state.isAuthenticated = false;
+      state.isUserAuthenticated = false;
     },
     // Clear error utility
     clearErrors: (state) => {

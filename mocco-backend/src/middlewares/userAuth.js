@@ -2,15 +2,15 @@ import User from "../models/user.model.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import jwt from "jsonwebtoken";
 
-const isAuthenticated = async (req, res, next) => {
+const isUserAuthenticated = async (req, res, next) => {
     try {
-        const token = req.cookies?.token;
+        const user_token = req.cookies?.token;
 
-        if (!token) {
+        if (!user_token) {
             return next(new ErrorHandler("Unauthorized! No token provided.", 401));
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const decoded = jwt.verify(user_token, process.env.JWT_SECRET_KEY);
         req.user = await User.findById(decoded.id).select("-password");
 
         if (!req.user) {
@@ -19,9 +19,9 @@ const isAuthenticated = async (req, res, next) => {
 
         next();
     } catch (error) {
-        console.error("Error in isAuthenticated middleware:", error);
+        console.error("Error in isUserAuthenticated middleware:", error);
         return next(new ErrorHandler("Unauthorized! Invalid token.", 401));
     }
 };
 
-export default isAuthenticated;
+export default isUserAuthenticated;

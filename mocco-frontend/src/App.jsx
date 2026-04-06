@@ -24,24 +24,24 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loadUser } from "./services/store/actions/user";
 
-function ProtectedRoute({ isAuthenticated, children }) {
-  if (!isAuthenticated) {
+function ProtectedRoute({ isUserAuthenticated, children }) {
+  if (!isUserAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
   return children;
 }
 
-function AuthRoute({ isAuthenticated, children }) {
-  if (isAuthenticated) {
+function AuthRoute({ isUserAuthenticated, children }) {
+  if (isUserAuthenticated) {
     return <Navigate to="/" replace />;
   }
 
   return children;
 }
 
-function AdminRoute({ isAuthenticated, user, children }) {
-  if (!isAuthenticated) {
+function AdminRoute({ isUserAuthenticated, user, children }) {
+  if (!isUserAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
@@ -55,7 +55,7 @@ function AdminRoute({ isAuthenticated, user, children }) {
 function App() {
   const dispatch = useDispatch();
 
-  const { user, loading, isAuthenticated } = useSelector((state) => state.user);
+  const { user, loading, isUserAuthenticated } = useSelector((state) => state.user);
 
   useEffect(() => {
     dispatch(loadUser());
@@ -73,7 +73,7 @@ function App() {
           <Route
             path="/checkout"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isUserAuthenticated={isUserAuthenticated}>
                 <Checkout />
               </ProtectedRoute>
             }
@@ -81,7 +81,7 @@ function App() {
           <Route
             path="/cart"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isUserAuthenticated={isUserAuthenticated}>
                 <Cart />
               </ProtectedRoute>
             }
@@ -98,7 +98,7 @@ function App() {
           <Route
             path="/wishlist"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isUserAuthenticated={isUserAuthenticated}>
                 <Wishlist />
               </ProtectedRoute>
             }
@@ -110,7 +110,7 @@ function App() {
           <Route
             path="/my-profile"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isUserAuthenticated={isUserAuthenticated}>
                 <MyProfile />
               </ProtectedRoute>
             }
@@ -119,7 +119,7 @@ function App() {
           <Route
             path="/login"
             element={
-              <AuthRoute isAuthenticated={isAuthenticated}>
+              <AuthRoute isUserAuthenticated={isUserAuthenticated}>
                 <SignIn />
               </AuthRoute>
             }
@@ -127,7 +127,7 @@ function App() {
           <Route
             path="/signup"
             element={
-              <AuthRoute isAuthenticated={isAuthenticated}>
+              <AuthRoute isUserAuthenticated={isUserAuthenticated}>
                 <SignUp />
               </AuthRoute>
             }
@@ -135,7 +135,7 @@ function App() {
           <Route
             path="/shop-create"
             element={
-              // <AuthRoute isAuthenticated={isAuthenticated}>
+              // <AuthRoute isUserAuthenticated={isUserAuthenticated}>
               <ShopCreate />
               // </AuthRoute>
             }
@@ -143,7 +143,7 @@ function App() {
           <Route
             path="/shop-login"
             element={
-              <AuthRoute isAuthenticated={isAuthenticated}>
+              <AuthRoute isUserAuthenticated={isUserAuthenticated}>
                 <ShopLogin />
               </AuthRoute>
             }
@@ -160,7 +160,7 @@ function App() {
         <Route
           path="/admin"
           element={
-            <AdminRoute isAuthenticated={isAuthenticated} user={user}>
+            <AdminRoute isUserAuthenticated={isUserAuthenticated} user={user}>
               <AdminLayout>
                 <AdminPanel />
               </AdminLayout>

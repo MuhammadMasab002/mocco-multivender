@@ -8,14 +8,14 @@ import {
   getUser,
   logoutUser
 } from "../controllers/user.controller.js";
-import isAuthenticated from "../middlewares/auth.js";
+import isUserAuthenticated from "../middlewares/userAuth.js";
 
 const userRouter = express.Router();
 
 userRouter.post("/register", upload.single("file"), registerUser);
 userRouter.post("/activate", activateUserEmail);
 userRouter.post("/login", loginUser);
-userRouter.get("/get-user", isAuthenticated, getUser);
-userRouter.get("/logout", isAuthenticated, logoutUser);
+userRouter.get("/get-user", isUserAuthenticated, getUser);
+userRouter.get("/logout", isUserAuthenticated, logoutUser);
 
 export default userRouter;

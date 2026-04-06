@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
-  const { isAuthenticated } = useSelector((state) => state.user);
+  const { isUserAuthenticated } = useSelector((state) => state.user);
 
   return (
     <footer className="bg-black text-white pt-10 pb-6">
@@ -33,7 +33,7 @@ const Footer = () => {
           <div>
             <h5 className="text-lg font-semibold mb-4">Account</h5>
             <ul className="space-y-2 text-gray-400 text-sm">
-              {isAuthenticated ? (
+              {isUserAuthenticated ? (
                 <li>
                   <Link to="/my-profile">My Account</Link>
                 </li>
