@@ -95,8 +95,8 @@ function AdminPanel() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // State for all data
-  const [orders, setOrders] = useState(initialOrders);
-  const [users, setUsers] = useState(initialUsers);
+  const orders = initialOrders;
+  const users = initialUsers;
 
   // Modal states
   const [showModal, setShowModal] = useState(false);

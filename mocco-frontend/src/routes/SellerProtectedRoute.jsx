@@ -1,22 +1,38 @@
+import { useSelector } from "react-redux";
 import { Navigate, Outlet, useParams } from "react-router-dom";
 
-export function SellerProtectedRoute({ isSellerAuthenticated, seller, children }) {
+export function SellerProtectedRoute({ children }) {
   const { sellerId } = useParams();
+  const {
+    seller,
+    isLoading: isSellerLoading,
+    isSellerAuthenticated,
+  } = useSelector((state) => state.seller);
 
-  if (!isSellerAuthenticated || !seller?._id) {
-    return <Navigate to="/shop-login" replace />;
-  }
+  if (!isSellerLoading) {
+    if (!isSellerAuthenticated || !seller?._id) {
+      return <Navigate to="/shop-login" replace />;
+    }
 
-  if (sellerId && seller._id !== sellerId) {
-    return <Navigate to={`/shop/${seller._id}`} replace />;
+    if (sellerId && seller._id !== sellerId) {
+      return <Navigate to={`/shop/${seller._id}`} replace />;
+    }
   }
 
   return children;
 }
 
-export function SellerAuthRoute({ isSellerAuthenticated, seller, children }) {
-  if (isSellerAuthenticated && seller?._id) {
-    return <Navigate to={`/shop/${seller._id}`} replace />;
+export function SellerAuthRoute({ children }) {
+  const {
+    seller,
+    isLoading: isSellerLoading,
+    isSellerAuthenticated,
+  } = useSelector((state) => state.seller);
+
+  if (!isSellerLoading) {
+    if (isSellerAuthenticated && seller?._id) {
+      return <Navigate to={`/shop/${seller._id}`} replace />;
+    }
   }
 
   return children;

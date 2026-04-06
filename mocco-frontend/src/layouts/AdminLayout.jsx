@@ -10,7 +10,7 @@ const AdminLayout = ({ children }) => {
   };
   return (
     <>
-      <header className="w-full sticky top-0 bg-white shadow-md py-4 px-8 z-[999]">
+      <header className="w-full sticky top-0 bg-white shadow-md py-4 px-8 z-999">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-800">
             <a href="/" className="hover:text-blue-600">
