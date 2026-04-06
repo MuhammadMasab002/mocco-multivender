@@ -23,7 +23,10 @@ const Header = () => {
   const dispatch = useDispatch();
 
   const { user, isUserAuthenticated } = useSelector((state) => state.user);
-  
+  const { seller, isSellerAuthenticated } = useSelector(
+    (state) => state.seller,
+  );
+
   const [search, setSearch] = useState("");
   const [searchData, setSearchData] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -157,17 +160,21 @@ const Header = () => {
               </div>
 
               <div className="border-t border-gray-200 px-4 py-4 space-y-3">
-                {!isUserAuthenticated && (
-                  <CustomButton
-                    buttonText="Start Selling"
-                    variant="secondary"
-                    onClick={() => {
-                      handleMenuClose();
-                      navigate("/shop-create");
-                    }}
-                    className="w-full"
-                  />
-                )}
+                <CustomButton
+                  buttonText={
+                    isSellerAuthenticated ? "Go Dashboard" : "Become a Seller"
+                  }
+                  variant="secondary"
+                  onClick={() => {
+                    handleMenuClose();
+                    navigate(
+                      isSellerAuthenticated
+                        ? `/shop/${seller?._id}`
+                        : "/shop-create",
+                    );
+                  }}
+                  className="w-full"
+                />
 
                 <div className="grid grid-cols-2 gap-3">
                   <Link
@@ -311,10 +318,16 @@ const Header = () => {
             </div>
           </div>
           <CustomButton
-            buttonText="Start Selling"
+            buttonText={
+              isSellerAuthenticated ? "Go Dashboard" : "Become a Seller"
+            }
             variant="secondary"
-            onClick={() => navigate("/shop-create")}
-            className="hidden md:inline-block text-sm w-30!"
+            onClick={() =>
+              navigate(
+                isSellerAuthenticated ? `/shop/${seller?._id}` : "/shop-create",
+              )
+            }
+            className="hidden md:inline-block text-sm w-34!"
           />
 
           <Link className="hidden sm:block" to="/wishlist">

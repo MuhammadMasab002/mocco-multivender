@@ -17,8 +17,9 @@ const sellerSlice = createSlice({
         },
         loadSellerSuccess: (state, action) => {
             state.isLoading = false;
-            state.isSellerAuthenticated = true;
+            state.isSellerAuthenticated = Boolean(action.payload);
             state.seller = action.payload;
+            state.error = null;
         },
         loadSellerFail: (state, action) => {
             state.isLoading = false;

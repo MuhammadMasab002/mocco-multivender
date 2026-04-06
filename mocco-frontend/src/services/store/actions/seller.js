@@ -12,7 +12,7 @@ export const loadSeller = () => async (dispatch) => {
             withCredentials: true,
         });
 
-        dispatch(loadSellerSuccess(data.seller)); // Passing data to slice
+        dispatch(loadSellerSuccess(data.shop)); // Support both payload keys
     } catch (error) {
         const message =
             error?.response?.data?.message ||
