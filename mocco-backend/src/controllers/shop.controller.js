@@ -2,7 +2,8 @@ import Shop from "../models/shop.model.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import { createActivationToken } from "../utils/createToken.js";
 import sendMail from "../utils/sendMail.js";
-
+import sendToken from "../utils/jwtToken.js";
+import jwt from "jsonwebtoken";
 
 // shop create 
 const registerShop = async (req, res, next) => {
@@ -90,5 +91,48 @@ const registerShop = async (req, res, next) => {
     }
 }
 
+// activate shop account
+const activateShopEmail = async (req, res, next) => {
+    try {
+        const { token } = req.body;
 
-export { registerShop };
+        if (!token) {
+            return next(new ErrorHandler("Activation token is required!", 400));
+        }
+
+        const activationSecret =
+            process.env.ACTIVATION_TOKEN_SECRET_KEY || process.env.JWT_SECRET_KEY;
+
+        const decodedToken = jwt.verify(token, activationSecret);
+
+        const existingShop = await Shop.findOne({ email: decodedToken.email });
+
+        if (existingShop) {
+            return next(new ErrorHandler("Shop already activated!", 400));
+        }
+
+        const createdShop = await Shop.create({
+            name: decodedToken.name,
+            email: decodedToken.email,
+            password: decodedToken.password,
+            avatar: decodedToken.avatar,
+            phoneNumber: decodedToken.phoneNumber,
+            description: decodedToken.description,
+            addresses: decodedToken.addresses,
+            zipCode: decodedToken.zipCode,
+        });
+
+        sendToken(createdShop, 201, res);
+    } catch (error) {
+        console.error("Error in activateShopEmail:", error);
+        return next(
+            new ErrorHandler(
+                "Failed to activate shop account! " + error.message,
+                500,
+            ),
+        );
+    }
+};
+
+
+export { registerShop, activateShopEmail };

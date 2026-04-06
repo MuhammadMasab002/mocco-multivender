@@ -1,12 +1,12 @@
 // user routes
 import express from "express";
-import { registerShop } from "../controllers/shop.controller.js";
+import { activateShopEmail, registerShop } from "../controllers/shop.controller.js";
 import upload from "../../multer.js";
 
 const shopRouter = express.Router();
 
 shopRouter.post("/register", upload.single("file"), registerShop);
-// shopRouter.post("/activate", activateShopEmail);
+shopRouter.post("/activate", activateShopEmail);
 // shopRouter.post("/login", loginShop);
 // shopRouter.get("/get-shop", isAuthenticated, getShop);
 // shopRouter.get("/logout", isAuthenticated, logoutShop);

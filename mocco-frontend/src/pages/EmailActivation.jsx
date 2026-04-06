@@ -1,9 +1,10 @@
 import axios from "axios";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 const EmailActivation = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { token } = useParams();
   const [status, setStatus] = useState(token ? "idle" : "missing");
 
@@ -16,6 +17,12 @@ const EmailActivation = () => {
     if (token.length <= 14) return token;
     return `${token.slice(0, 8)}...${token.slice(-6)}`;
   }, [token]);
+
+  const isSellerActivation = location.pathname.startsWith("/seller/activate");
+  const activationEndpoint = isSellerActivation
+    ? `${VITE_BACKEND_URL}/shop/activate`
+    : `${VITE_BACKEND_URL}/user/activate`;
+  const successRedirect = isSellerActivation ? "/shop-login" : "/login";
 
   const statusStyles = {
     idle: {
@@ -73,7 +80,7 @@ const EmailActivation = () => {
 
     try {
       const { data } = await axios.post(
-        `${VITE_BACKEND_URL}/user/activate`,
+        activationEndpoint,
         {
           token,
         },
@@ -85,7 +92,7 @@ const EmailActivation = () => {
       if (data?.success) {
         setStatus("success");
         setTimeout(() => {
-          navigate("/login", { replace: true });
+          navigate(successRedirect, { replace: true });
         }, 900);
         return;
       }
@@ -95,7 +102,7 @@ const EmailActivation = () => {
       setStatus("error");
       console.error("Activation error:", error);
     }
-  }, [VITE_BACKEND_URL, navigate, status, token]);
+  }, [activationEndpoint, navigate, status, successRedirect, token]);
 
   useEffect(() => {
     if (!token || status !== "idle") return;
@@ -185,7 +192,7 @@ const EmailActivation = () => {
               Resend from signup
             </Link>
             <Link
-              to="/login"
+              to={isSellerActivation ? "/shop-login" : "/login"}
               className="rounded-xl border border-slate-300 px-4 py-3 text-center text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
               Continue to login

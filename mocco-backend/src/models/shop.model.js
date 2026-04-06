@@ -19,7 +19,7 @@ const shopSchema = new Schema(
             select: false,
         },
         phoneNumber: {
-            type: Number,
+            type: String,
             required: [true, "Please enter your shop phone number!"],
         },
         description: {

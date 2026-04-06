@@ -147,8 +147,9 @@ function App() {
               </AuthRoute>
             }
           />
-          <Route path="/activate/:token" element={<EmailActivation />} />
           <Route path="/activate" element={<EmailActivation />} />
+          <Route path="/activate/:token" element={<EmailActivation />} />
+          <Route path="/seller/activate/:token" element={<EmailActivation />} />
 
           {/* Catch-all route for 404 */}
           <Route path="*" element={<NotFound />} />
