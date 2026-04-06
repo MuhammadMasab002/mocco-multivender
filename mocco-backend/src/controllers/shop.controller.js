@@ -1,12 +1,24 @@
 import Shop from "../models/shop.model.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import { createActivationToken } from "../utils/createToken.js";
+import sendMail from "../utils/sendMail.js";
 
 
 // shop create 
-const registerShop = async (req, res) => {
+const registerShop = async (req, res, next) => {
     try {
-        const { name, email, password, phoneNumber, description, addresses, zipCode } = req.body;
+        const {
+            name,
+            email,
+            password,
+            phoneNumber,
+            description,
+            addresses: addressesFromBody,
+            address,
+            zipCode,
+        } = req.body || {};
+
+        const addresses = addressesFromBody || address;
 
         if (!name || !email || !password || !phoneNumber || !addresses || !zipCode) {
             return res

@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import CustomButton from "../components/common/CustomButton";
 import CustomFormInput from "../components/common/inputs/CustomFormInput";
+import axios from "axios";
+
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const initialFormData = {
-  shopName: "",
+  name: "",
   phoneNumber: "",
   email: "",
   address: "",
@@ -15,6 +18,7 @@ const initialFormData = {
 };
 
 const ShopCreate = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState(initialFormData);
 
   const logoPreview = useMemo(() => {
@@ -36,16 +40,59 @@ const ShopCreate = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!formData) return;
     if (!formData.file) {
       alert("Please upload your shop logo avatar.");
       return;
     }
+    try {
+      // Make API call to register shop using axios
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("phoneNumber", formData.phoneNumber);
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("address", formData.address);
+      formDataToSend.append("zipCode", formData.zipCode);
+      formDataToSend.append("password", formData.password);
 
-    alert("Seller sign up submitted successfully.");
-    setFormData(initialFormData);
+      if (formData.file) {
+        formDataToSend.append("file", formData.file);
+      }
+
+      const { data } = await axios.post(
+        `${backendUrl}/shop/register`,
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      if (data.success) {
+        alert(data.message);
+        // Reset form
+        setFormData(initialFormData);
+        navigate("/shop-login");
+      } else {
+        console.error(
+          "Shop registration failed:",
+          data.message || "Unknown error",
+        );
+        alert(`Shop registration failed: ${data.message || "Unknown error"}`);
+      }
+    } catch (err) {
+      console.error("Registration failed:", err);
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "An unexpected error occurred";
+
+      alert(`Registration failed: ${errorMessage}`);
+    }
   };
 
   return (
@@ -90,8 +137,8 @@ const ShopCreate = () => {
             <div className="grid grid-cols-1 gap-4">
               <CustomFormInput
                 label="Shop Name"
-                name="shopName"
-                value={formData.shopName}
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 placeholder="Enter your shop name"
                 required
@@ -101,6 +148,7 @@ const ShopCreate = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <CustomFormInput
                 label="Phone Number"
+                type="tel"
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}

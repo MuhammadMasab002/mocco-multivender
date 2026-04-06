@@ -134,9 +134,9 @@ function App() {
           <Route
             path="/shop-create"
             element={
-              <AuthRoute isAuthenticated={isAuthenticated}>
+              // <AuthRoute isAuthenticated={isAuthenticated}>
                 <ShopCreate />
-              </AuthRoute>
+              // </AuthRoute>
             }
           />
           <Route
