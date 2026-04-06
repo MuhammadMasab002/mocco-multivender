@@ -1,8 +1,28 @@
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import CustomButton from "../components/common/CustomButton";
+import { loadSeller } from "../services/store/actions/seller";
+import axios from "axios";
+
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const ShopDashboard = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { seller } = useSelector((state) => state.seller);
+
+  // handle logout API
+  const handleLogout = async () => {
+    const { data } = await axios.get(`${backendUrl}/shop/logout`, {
+      withCredentials: true,
+    });
+    if (data?.success) {
+      alert("Logged out successfully.");
+      dispatch(loadSeller());
+      navigate("/login", { replace: true });
+    }
+  };
 
   return (
     <section className="w-full min-h-[78vh] rounded-3xl border border-gray-200 bg-white p-5 sm:p-8 shadow-[0_16px_60px_rgba(15,23,42,0.08)]">
@@ -54,6 +74,14 @@ const ShopDashboard = () => {
               Browse Products
             </Link>
           </div>
+        </div>
+        <div className="flex justify-end mt-10 w-full text-black">
+          <CustomButton
+            buttonText="Logout"
+            // variant="primary"
+            onClick={() => handleLogout()}
+            className="text-sm px-0! py4! w-16!"
+          />
         </div>
       </div>
     </section>
