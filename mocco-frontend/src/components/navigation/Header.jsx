@@ -162,7 +162,7 @@ const Header = () => {
               <div className="border-t border-gray-200 px-4 py-4 space-y-3">
                 <CustomButton
                   buttonText={
-                    isSellerAuthenticated ? "Go Dashboard" : "Become a Seller"
+                    isSellerAuthenticated ? "My Shop" : "Become a Seller"
                   }
                   variant="secondary"
                   onClick={() => {
@@ -318,16 +318,14 @@ const Header = () => {
             </div>
           </div>
           <CustomButton
-            buttonText={
-              isSellerAuthenticated ? "Go Dashboard" : "Become a Seller"
-            }
+            buttonText={isSellerAuthenticated ? "My Shop" : "Become a Seller"}
             variant="secondary"
             onClick={() =>
               navigate(
                 isSellerAuthenticated ? `/shop/${seller?._id}` : "/shop-create",
               )
             }
-            className="hidden md:inline-block text-sm w-34!"
+            className="hidden md:inline-block text-sm max-w-34!"
           />
 
           <Link className="hidden sm:block" to="/wishlist">

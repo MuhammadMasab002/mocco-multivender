@@ -25,13 +25,14 @@ import SignIn from "./pages/SignIn.jsx";
 import SignUp from "./pages/SignUp.jsx";
 import ShopLogin from "./pages/ShopLogin.jsx";
 import ShopCreate from "./pages/ShopCreate.jsx";
-import ShopDashboard from "./pages/ShopDashboard.jsx";
 import EmailActivation from "./pages/EmailActivation.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import AdminPanel from "./pages/AdminPanel.jsx";
 import AdminLayout from "./layouts/AdminLayout.jsx";
 import Home from "./pages/Home.jsx";
 import Contact from "./pages/Contact.jsx";
+import ShopDashboard from "./pages/ShopDashboard.jsx";
+import MyShop from "./pages/MyShop.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -139,7 +140,7 @@ function App() {
               </SellerProtectedRoute>
             }
           >
-            <Route index element={<ShopDashboard />} />
+            <Route index element={<MyShop />} />
           </Route>
 
           <Route path="/activate" element={<EmailActivation />} />
@@ -158,6 +159,15 @@ function App() {
                 <AdminPanel />
               </AdminLayout>
             </AdminProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/shop-dashboard"
+          element={
+            <SellerProtectedRoute>
+              <ShopDashboard />
+            </SellerProtectedRoute>
           }
         />
       </Routes>
