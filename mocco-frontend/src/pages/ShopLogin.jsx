@@ -46,8 +46,10 @@ const ShopLogin = () => {
         dispatch(loadUser());
         dispatch(loadSeller());
         setFormData({ email: "", password: "" });
-
-        navigate("/shop-dashboard", { replace: true });
+        // redirect to shop/:sellerId/dashboard
+        const sellerId = data.seller._id;
+        console.log("data:", data);
+        navigate(`/shop/${sellerId}`, { replace: true });
       }
     } catch (err) {
       const message =

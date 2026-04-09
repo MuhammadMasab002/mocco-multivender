@@ -29,7 +29,7 @@ const ProfileSidebar = ({
   return (
     <div className="w-full">
       {/* Desktop Sidebar Layout */}
-      <aside className="hidden lg:block lg:sticky lg:top-8 h-fit bg-white/85 backdrop-blur border border-gray-200 rounded-3xl shadow-sm overflow-hidden">
+      <aside className="hidden lg:block lg:sticky lg:top-20 h-fit bg-white/85 backdrop-blur border border-gray-200 rounded-3xl shadow-sm overflow-hidden">
         <div className="p-5 border-b border-gray-100 flex items-center gap-3 bg-linear-to-r from-gray-50 to-red-50/60">
           <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-red-500 to-red-600 text-white flex items-center justify-center shadow-md ring-4 ring-white transform hover:scale-105 transition-transform">
             <span className="text-lg font-bold">
