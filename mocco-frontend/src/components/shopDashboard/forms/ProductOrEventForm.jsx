@@ -1,0 +1,161 @@
+const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
+  const isEvent = mode === "event";
+
+  return (
+    <form
+      onSubmit={onSubmit}
+      className="mx-auto w-full max-w-6xl rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_14px_34px_rgba(15,23,42,0.06)] sm:p-8"
+    >
+      <h2 className="text-center text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+        {isEvent ? "Create New Event" : "Create New Product"}
+      </h2>
+
+      <div className="mt-8 space-y-6">
+        <label className="block space-y-2">
+          <span className="text-sm font-semibold text-slate-700">
+            Product Name <span className="text-rose-500">*</span>
+          </span>
+          <input
+            type="text"
+            placeholder="Product Name"
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+            required
+          />
+        </label>
+
+        <label className="block space-y-2">
+          <span className="text-sm font-semibold text-slate-700">
+            Description <span className="text-rose-500">*</span>
+          </span>
+          <textarea
+            rows={5}
+            placeholder="Product Description"
+            className="w-full resize-none rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+            required
+          />
+        </label>
+
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-slate-700">
+              Category <span className="text-rose-500">*</span>
+            </span>
+            <select
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+              defaultValue=""
+              required
+            >
+              <option value="" disabled>
+                Choose a category
+              </option>
+              <option>Computers and Laptops</option>
+              <option>Mobile and Tablets</option>
+              <option>Music and Gaming</option>
+              <option>Others</option>
+            </select>
+          </label>
+
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-slate-700">Tags</span>
+            <input
+              type="text"
+              placeholder="Tags (comma separated)"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+            />
+          </label>
+        </div>
+
+        {isEvent && (
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-slate-700">
+                Event Start Date <span className="text-rose-500">*</span>
+              </span>
+              <input
+                type="date"
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                required
+              />
+            </label>
+
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-slate-700">
+                Event End Date <span className="text-rose-500">*</span>
+              </span>
+              <input
+                type="date"
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                required
+              />
+            </label>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-slate-700">
+              Original Price
+            </span>
+            <input
+              type="number"
+              placeholder="Original Price"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+            />
+          </label>
+
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-slate-700">
+              Discount Price <span className="text-rose-500">*</span>
+            </span>
+            <input
+              type="number"
+              placeholder="Discount Price"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+              required
+            />
+          </label>
+        </div>
+
+        <label className="block space-y-2">
+          <span className="text-sm font-semibold text-slate-700">
+            Product Stock <span className="text-rose-500">*</span>
+          </span>
+          <input
+            type="number"
+            placeholder="0"
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+            required
+          />
+        </label>
+
+        <div>
+          <p className="text-sm font-semibold text-slate-700">
+            Product Images <span className="text-rose-500">*</span>
+          </p>
+          <div className="mt-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6">
+            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+              <button
+                type="button"
+                className="inline-flex h-28 w-28 items-center justify-center rounded-xl border-2 border-blue-400 bg-blue-50 text-3xl font-semibold text-blue-600"
+              >
+                +
+              </button>
+              <p className="text-center text-slate-500 sm:pt-10 sm:text-left">
+                Click the + button to add product images
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-8 py-3 text-lg font-semibold text-white transition hover:bg-blue-700"
+        >
+          {isEvent ? "Create Event" : "Create Product"}
+        </button>
+      </div>
+    </form>
+  );
+};
+
+export default ProductOrEventForm;
