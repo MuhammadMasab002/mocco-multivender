@@ -147,7 +147,7 @@ const MyShop = () => {
     <>
       <section className="relative w-full rounded-3xl border border-slate-200/90 bg-linear-to-b from-slate-50 via-slate-100 to-slate-50 p-4 sm:p-6 lg:p-8">
         <div className="pointer-events-none absolute -left-10 -top-14 h-52 w-52 rounded-full bg-sky-100/70 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-14 -right-10 h-64 w-64 rounded-full bg-rose-100/60 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-14 -right-4 h-64 border-4 w-64 rounded-full bg-rose-100/60 blur-3xl" />
 
         <div className="relative grid grid-cols-1 items-start gap-6 xl:grid-cols-[320px_1fr] xl:gap-7">
           <MyShopSidebar
