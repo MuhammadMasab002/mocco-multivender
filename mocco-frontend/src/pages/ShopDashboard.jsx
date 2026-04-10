@@ -4,9 +4,10 @@ import { useNavigate } from "react-router-dom";
 import {
   BadgePercent,
   CalendarDays,
-  CalendarRange,
   CircleDollarSign,
+  Clock3,
   Gift,
+  HandCoins,
   Inbox,
   LayoutDashboard,
   LogOut,
@@ -361,6 +362,42 @@ const CouponForm = ({ onSubmit }) => {
   );
 };
 
+const TableActionIcon = ({ type = "preview" }) => {
+  const isDelete = type === "delete";
+  const IconComponent = isDelete ? Trash2 : Eye;
+
+  return (
+    <button
+      type="button"
+      aria-label={isDelete ? "Delete" : "Preview"}
+      className={`inline-flex h-9 w-9 items-center justify-center rounded-lg border transition ${
+        isDelete
+          ? "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100"
+          : "border-sky-200 bg-sky-50 text-sky-600 hover:bg-sky-100"
+      }`}
+    >
+      <IconComponent size={16} />
+    </button>
+  );
+};
+
+const TruncateTextCell = ({
+  text,
+  maxWidthClass = "max-w-44",
+  mono = false,
+}) => {
+  const value = String(text ?? "-");
+
+  return (
+    <span
+      title={value}
+      className={`block truncate ${maxWidthClass} ${mono ? "font-mono text-xs sm:text-sm" : ""}`}
+    >
+      {value}
+    </span>
+  );
+};
+
 const TableShell = ({ columns, rows }) => (
   <div className="w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_10px_26px_rgba(15,23,42,0.06)]">
     <div className="overflow-x-auto">
@@ -580,6 +617,40 @@ const AddBankAccountModal = ({ open, loading, onClose, onSubmit }) => {
   );
 };
 
+const DashboardStatCard = ({
+  title,
+  value,
+  subtitle,
+  icon,
+  iconWrapClass,
+  iconClass,
+  valueClass = "text-2xl",
+}) => {
+  const IconComponent = icon;
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_22px_rgba(15,23,42,0.05)]">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm font-medium text-slate-500">{title}</p>
+        <span
+          className={`inline-flex h-15 w-15 items-center justify-center rounded-xl ${iconWrapClass}`}
+        >
+          <IconComponent size={21} className={iconClass} />
+        </span>
+      </div>
+
+      <p className={`mt-2 font-semibold text-slate-900 ${valueClass}`}>
+        {value}
+      </p>
+      {subtitle ? (
+        <p className="mt-1 text-xs uppercase tracking-wide text-slate-400">
+          {subtitle}
+        </p>
+      ) : null}
+    </div>
+  );
+};
+
 const ShopDashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -669,6 +740,14 @@ const ShopDashboard = () => {
   ];
 
   const availableBalance = 10;
+  const pendingOrders = orders.filter(
+    (item) => item.status !== "delivered",
+  ).length;
+  const averageOrderValue =
+    orders.length > 0
+      ? orders.reduce((sum, item) => sum + Number(item.total || 0), 0) /
+        orders.length
+      : 0;
   const withdrawAmount = Number(withdrawInput || 0);
   const fee = withdrawAmount * 0.1;
   const userReceives = Math.max(withdrawAmount - fee, 0);
@@ -778,7 +857,7 @@ const ShopDashboard = () => {
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-[0_10px_26px_rgba(15,23,42,0.06)]">
-            <p className="text-lg font-medium text-slate-700 sm:text-xl">
+            <p className="text-lg sm:text-xl font-medium text-slate-700">
               Available Balance
             </p>
             <div className="mx-auto mt-2 h-0.5 w-14 rounded-full bg-slate-400" />
@@ -788,46 +867,61 @@ const ShopDashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_22px_rgba(15,23,42,0.05)]">
-              <p className="text-sm font-medium text-slate-500">
-                Total Products
-              </p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">
-                {sellerProducts.length}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_22px_rgba(15,23,42,0.05)]">
-              <p className="text-sm font-medium text-slate-500">Total Orders</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">
-                {orders.length}
-              </p>
-              <p className="text-xs uppercase tracking-wide text-slate-400">
-                0 delivered
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_22px_rgba(15,23,42,0.05)]">
-              <p className="text-sm font-medium text-slate-500">
-                Total Revenue
-              </p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">
-                $0.00
-              </p>
-              <p className="text-xs uppercase tracking-wide text-slate-400">
-                After 10% platform fees
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_22px_rgba(15,23,42,0.05)]">
-              <p className="text-sm font-medium text-slate-500">
-                Active Events
-              </p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">
-                {sellerEvents.length}
-              </p>
-            </div>
+            <DashboardStatCard
+              title="Total Products"
+              value={sellerProducts.length}
+              icon={Package}
+              iconWrapClass="bg-blue-50"
+              iconClass="text-blue-600"
+            />
+            <DashboardStatCard
+              title="Total Orders"
+              value={orders.length}
+              subtitle="0 delivered"
+              icon={ShoppingBag}
+              iconWrapClass="bg-emerald-50"
+              iconClass="text-emerald-600"
+            />
+            <DashboardStatCard
+              title="Total Revenue"
+              value={formatMoney(0)}
+              subtitle="After 10% platform fees"
+              icon={Wallet}
+              iconWrapClass="bg-violet-50"
+              iconClass="text-violet-600"
+            />
+            <DashboardStatCard
+              title="Active Events"
+              value={sellerEvents.length}
+              icon={CalendarDays}
+              iconWrapClass="bg-orange-50"
+              iconClass="text-orange-600"
+            />
+            <DashboardStatCard
+              title="Pending Orders"
+              value={pendingOrders}
+              icon={Clock3}
+              iconWrapClass="bg-blue-50"
+              iconClass="text-blue-600"
+            />
+            <DashboardStatCard
+              title="Average Order Value"
+              value={formatMoney(averageOrderValue)}
+              icon={HandCoins}
+              iconWrapClass="bg-emerald-50"
+              iconClass="text-emerald-600"
+            />
+            <DashboardStatCard
+              title="Withdrawal Requests"
+              value={withdrawals.length}
+              icon={BadgePercent}
+              iconWrapClass="bg-violet-50"
+              iconClass="text-violet-600"
+            />
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-[0_10px_26px_rgba(15,23,42,0.06)]">
-            <h2 className="text-3xl font-normal tracking-tight text-slate-900">
+            <h2 className="text-xl font-medium tracking-tight text-slate-900">
               Recent Transactions
             </h2>
             <div className="mx-auto mt-4 h-0.5 w-16 rounded-full bg-slate-400" />
@@ -835,10 +929,10 @@ const ShopDashboard = () => {
               className="mx-auto mt-12 text-slate-300"
               size={40}
             />
-            <p className="mt-6 text-xl font-medium text-slate-700 sm:text-2xl">
+            <p className="mt-6 text-lg sm:text-xl font-normal text-slate-700">
               No transactions yet
             </p>
-            <p className="mx-auto mt-2 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base">
+            <p className="mx-auto mt-2 max-w-2xl leading-7 text-slate-500">
               Your withdrawal history will appear here once you make your first
               withdrawal
             </p>
@@ -860,13 +954,20 @@ const ShopDashboard = () => {
             "Delete",
           ]}
           rows={sellerProducts.map((item, i) => [
-            `69abd7d0${i}88124dd5a...`,
-            item?.name || "Unnamed Product",
+            <TruncateTextCell
+              text={`69abd7d0${i}88124dd5a`}
+              maxWidthClass="max-w-36"
+              mono
+            />,
+            <TruncateTextCell
+              text={item?.name || "Unnamed Product"}
+              maxWidthClass="max-w-48"
+            />,
             `US$ ${item?.discount_price ?? item?.price ?? 0}`,
             item?.stock ?? 0,
             item?.total_sell ?? 0,
-            "👁️",
-            "🗑️",
+            <TableActionIcon type="preview" />,
+            <TableActionIcon type="delete" />,
           ])}
         />
       );
@@ -895,14 +996,18 @@ const ShopDashboard = () => {
             "Delete",
           ]}
           rows={sellerEvents.map((item) => [
-            item.productId,
-            item.name,
+            <TruncateTextCell
+              text={item.productId}
+              maxWidthClass="max-w-36"
+              mono
+            />,
+            <TruncateTextCell text={item.name} maxWidthClass="max-w-48" />,
             `US$ ${item.price}`,
             item.stock,
             item.soldOut,
             item.startDate,
             item.endDate,
-            "🗑️",
+            <TableActionIcon type="delete" />,
           ])}
         />
       );
@@ -928,14 +1033,14 @@ const ShopDashboard = () => {
             "Delete",
           ]}
           rows={sellerCoupons.map((item) => [
-            item.id,
-            item.name,
+            <TruncateTextCell text={item.id} maxWidthClass="max-w-36" mono />,
+            <TruncateTextCell text={item.name} maxWidthClass="max-w-40" />,
             `${item.value}%`,
             item.minAmount,
             item.maxAmount,
-            item.product,
+            <TruncateTextCell text={item.product} maxWidthClass="max-w-44" />,
             item.category,
-            "🗑️",
+            <TableActionIcon type="delete" />,
           ])}
         />
       );
@@ -960,15 +1065,15 @@ const ShopDashboard = () => {
             "Delete",
           ]}
           rows={orders.map((item) => [
-            item.id,
-            item.customer,
-            item.items,
+            <TruncateTextCell text={item.id} maxWidthClass="max-w-36" mono />,
+            <TruncateTextCell text={item.customer} maxWidthClass="max-w-40" />,
+            <TruncateTextCell text={item.items} maxWidthClass="max-w-44" />,
             `US$ ${item.total.toFixed(2)}`,
             item.status,
             item.qty,
             item.date,
-            "👁️",
-            "🗑️",
+            <TableActionIcon type="preview" />,
+            <TableActionIcon type="delete" />,
           ])}
         />
       );
