@@ -1,81 +1,17 @@
 import { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  CalendarDays,
-  Gift,
-  Inbox,
-  LayoutDashboard,
-  LogOut,
-  Package,
-  Plus,
-  ShoppingBag,
-  Tag,
-  Ticket,
-  Wallet,
-} from "lucide-react";
 import axios from "axios";
+import ShopDashboardHeader from "../components/shopDashboard/ShopDashboardHeader";
+import ShopDashboardSidebar from "../components/shopDashboard/ShopDashboardSidebar";
 import ShopDashboardContent from "../components/shopDashboard/ShopDashboardContent";
+import { dashboardItems } from "../components/shopDashboard/constants/dashboardItems";
 import { productData } from "../static/data";
 import { loadSeller } from "../services/store/actions/seller";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const formatMoney = (amount = 0) => `$${Number(amount || 0).toFixed(2)}`;
-
-const dashboardItems = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, color: "blue" },
-  {
-    id: "all-products",
-    label: "All Products",
-    icon: Package,
-    color: "emerald",
-  },
-  {
-    id: "create-product",
-    label: "Create Product",
-    icon: Plus,
-    color: "violet",
-  },
-  { id: "all-events", label: "All Events", icon: Tag, color: "orange" },
-  {
-    id: "create-event",
-    label: "Create Event",
-    icon: CalendarDays,
-    color: "sky",
-  },
-  { id: "all-coupons", label: "All Coupons", icon: Ticket, color: "pink" },
-  { id: "create-coupon", label: "Create Coupon", icon: Gift, color: "indigo" },
-  { id: "orders", label: "Orders", icon: ShoppingBag, color: "teal" },
-  { id: "withdraw", label: "Withdraw Money", icon: Wallet, color: "amber" },
-  { id: "inbox", label: "Shop Inbox", icon: Inbox, color: "slate" },
-];
-
-const colorTokens = {
-  blue: "border-blue-100 bg-blue-50 text-blue-600",
-  emerald: "border-emerald-100 bg-emerald-50 text-emerald-600",
-  violet: "border-violet-100 bg-violet-50 text-violet-600",
-  orange: "border-orange-100 bg-orange-50 text-orange-600",
-  sky: "border-sky-100 bg-sky-50 text-sky-600",
-  pink: "border-pink-100 bg-pink-50 text-pink-600",
-  indigo: "border-indigo-100 bg-indigo-50 text-indigo-600",
-  teal: "border-teal-100 bg-teal-50 text-teal-600",
-  amber: "border-amber-100 bg-amber-50 text-amber-600",
-  slate: "border-slate-100 bg-slate-50 text-slate-600",
-};
-
-const dotTokens = {
-  blue: "bg-blue-600",
-  emerald: "bg-emerald-600",
-  violet: "bg-violet-600",
-  orange: "bg-orange-600",
-  sky: "bg-sky-600",
-  pink: "bg-pink-600",
-  indigo: "bg-indigo-600",
-  teal: "bg-teal-600",
-  amber: "bg-amber-600",
-  slate: "bg-slate-600",
-};
 
 const pakistanBanks = [
   "UBL - United Bank Limited",
@@ -99,52 +35,6 @@ const makeEventDate = (offset) => {
   const date = new Date();
   date.setDate(date.getDate() + offset);
   return date.toLocaleDateString("en-GB");
-};
-
-const SidebarItem = ({ item, active, onClick }) => {
-  const IconComponent = item.icon;
-  const activeColor = colorTokens[item.color] || colorTokens.slate;
-
-  return (
-    <button
-      type="button"
-      onClick={() => onClick(item.id)}
-      // flex items-center justify-between transition-all duration-300 cursor-pointer group
-      className={`flex items-center justify-between w-full gap-3 rounded-xl border px-4 py-3 text-left text-base font-semibold transition-all duration-300 cursor-pointer group ${
-        active
-          ? `${activeColor} shadow-[0_8px_20px_rgba(15,23,42,0.08)]`
-          : "border-transparent text-slate-600 hover:bg-slate-50"
-      }`}
-    >
-      <span className="flex items-center gap-3 font-medium text-sm sm:text-[15px]">
-        <IconComponent
-          size={22}
-          className={`transition-transform ${active ? "group-hover:rotate-12" : ""}`}
-        />
-
-        <span>{item.label}</span>
-      </span>
-
-      {active && (
-        <span
-          className={`flex justify-self-end h-2.5 w-2.5 rounded-full transition-all ${dotTokens[item.color] || dotTokens.slate}`}
-        />
-      )}
-    </button>
-  );
-};
-
-const TopRightIcon = ({ icon, colorClass = "text-slate-500" }) => {
-  const IconComponent = icon;
-
-  return (
-    <button
-      type="button"
-      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent transition hover:border-slate-200 hover:bg-slate-50"
-    >
-      <IconComponent size={20} className={colorClass} />
-    </button>
-  );
 };
 
 const ShopDashboard = () => {
@@ -356,69 +246,18 @@ const ShopDashboard = () => {
 
   return (
     <section className="min-h-screen w-full bg-linear-to-b from-slate-100 via-slate-50 to-white text-slate-900">
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="flex items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <img
-              src={"../../public/mocco-favicon.png"}
-              alt="Shop"
-              className="h-9 w-9 object-cover"
-            />
-            <div>
-              <p className="text-xl font-bold leading-none text-slate-800">
-                Mocco Mart
-              </p>
-              <p className="text-xs text-slate-500">Seller Dashboard</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <TopRightIcon icon={Tag} colorClass="text-orange-500" />
-            <TopRightIcon icon={Gift} colorClass="text-pink-500" />
-            <TopRightIcon icon={ShoppingBag} colorClass="text-blue-500" />
-            <TopRightIcon icon={Package} colorClass="text-emerald-500" />
-            <TopRightIcon icon={Inbox} colorClass="text-violet-500" />
-
-            <img
-              src={
-                "https://dummyimage.com/120x120/e2e8f0/64748b.png&text=Seller"
-              }
-              alt="Seller profile"
-              className="ml-2 h-10 w-10 rounded-full border border-slate-200 object-cover shadow-sm"
-            />
-          </div>
-        </div>
-      </header>
+      <ShopDashboardHeader
+        activeView={activeView}
+        onTabChange={handleTabChange}
+      />
 
       <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr]">
-        <aside className="z-20 h-fit border-b border-slate-200 bg-white lg:sticky lg:top-20 xl:h-[calc(100vh-73px)] xl:overflow-y-auto xl:border-b-0 xl:border-r">
-          <div className="border-b border-slate-200 p-6">
-            <h2 className="text-xl font-semibold tracking-tight text-slate-900">
-              Shop Dashboard
-            </h2>
-            <p className="text-sm text-slate-500">Manage your store</p>
-          </div>
-
-          <nav className="space-y-2 p-4">
-            {dashboardItems.map((item) => (
-              <SidebarItem
-                key={item.id}
-                item={item}
-                active={activeView === item.id}
-                onClick={handleTabChange}
-              />
-            ))}
-
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:text-base"
-            >
-              <LogOut size={18} />
-              Log Out
-            </button>
-          </nav>
-        </aside>
+        <ShopDashboardSidebar
+          items={dashboardItems}
+          activeView={activeView}
+          onTabChange={handleTabChange}
+          onLogout={handleLogout}
+        />
 
         <main className="p-4 sm:p-6 lg:p-8 xl:p-10">
           <ShopDashboardContent
