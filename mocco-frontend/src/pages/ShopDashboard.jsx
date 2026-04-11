@@ -25,10 +25,25 @@ const formatMoney = (amount = 0) => `$${Number(amount || 0).toFixed(2)}`;
 
 const dashboardItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, color: "blue" },
-  { id: "all-products", label: "All Products", icon: Package, color: "emerald" },
-  { id: "create-product", label: "Create Product", icon: Plus, color: "violet" },
+  {
+    id: "all-products",
+    label: "All Products",
+    icon: Package,
+    color: "emerald",
+  },
+  {
+    id: "create-product",
+    label: "Create Product",
+    icon: Plus,
+    color: "violet",
+  },
   { id: "all-events", label: "All Events", icon: Tag, color: "orange" },
-  { id: "create-event", label: "Create Event", icon: CalendarDays, color: "sky" },
+  {
+    id: "create-event",
+    label: "Create Event",
+    icon: CalendarDays,
+    color: "sky",
+  },
   { id: "all-coupons", label: "All Coupons", icon: Ticket, color: "pink" },
   { id: "create-coupon", label: "Create Coupon", icon: Gift, color: "indigo" },
   { id: "orders", label: "Orders", icon: ShoppingBag, color: "teal" },
@@ -47,6 +62,19 @@ const colorTokens = {
   teal: "border-teal-100 bg-teal-50 text-teal-600",
   amber: "border-amber-100 bg-amber-50 text-amber-600",
   slate: "border-slate-100 bg-slate-50 text-slate-600",
+};
+
+const dotTokens = {
+  blue: "bg-blue-600",
+  emerald: "bg-emerald-600",
+  violet: "bg-violet-600",
+  orange: "bg-orange-600",
+  sky: "bg-sky-600",
+  pink: "bg-pink-600",
+  indigo: "bg-indigo-600",
+  teal: "bg-teal-600",
+  amber: "bg-amber-600",
+  slate: "bg-slate-600",
 };
 
 const pakistanBanks = [
@@ -81,15 +109,27 @@ const SidebarItem = ({ item, active, onClick }) => {
     <button
       type="button"
       onClick={() => onClick(item.id)}
-      className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-left text-base font-semibold transition ${
+      // flex items-center justify-between transition-all duration-300 cursor-pointer group
+      className={`flex items-center justify-between w-full gap-3 rounded-xl border px-4 py-3 text-left text-base font-semibold transition-all duration-300 cursor-pointer group ${
         active
           ? `${activeColor} shadow-[0_8px_20px_rgba(15,23,42,0.08)]`
           : "border-transparent text-slate-600 hover:bg-slate-50"
       }`}
     >
-      <IconComponent size={22} />
-      <span>{item.label}</span>
-      {active && <span className="ml-1 text-lg leading-none">•</span>}
+      <span className="flex items-center gap-3 font-medium text-sm sm:text-[15px]">
+        <IconComponent
+          size={22}
+          className={`transition-transform ${active ? "group-hover:rotate-12" : ""}`}
+        />
+
+        <span>{item.label}</span>
+      </span>
+
+      {active && (
+        <span
+          className={`flex justify-self-end h-2.5 w-2.5 rounded-full transition-all ${dotTokens[item.color] || dotTokens.slate}`}
+        />
+      )}
     </button>
   );
 };
@@ -143,7 +183,9 @@ const ShopDashboard = () => {
       const shopName = String(item?.shop?.name || "")
         .trim()
         .toLowerCase();
-      return shopName === name || shopName.includes(name) || name.includes(shopName);
+      return (
+        shopName === name || shopName.includes(name) || name.includes(shopName)
+      );
     });
 
     return own.length ? own : allProducts.slice(0, 2);
@@ -199,10 +241,13 @@ const ShopDashboard = () => {
   ];
 
   const availableBalance = 10;
-  const pendingOrders = orders.filter((item) => item.status !== "delivered").length;
+  const pendingOrders = orders.filter(
+    (item) => item.status !== "delivered",
+  ).length;
   const averageOrderValue =
     orders.length > 0
-      ? orders.reduce((sum, item) => sum + Number(item.total || 0), 0) / orders.length
+      ? orders.reduce((sum, item) => sum + Number(item.total || 0), 0) /
+        orders.length
       : 0;
   const withdrawAmount = Number(withdrawInput || 0);
   const fee = withdrawAmount * 0.1;
@@ -234,7 +279,10 @@ const ShopDashboard = () => {
   };
 
   const handleAddBankAccount = (payload) => {
-    const accountNumber = String(payload?.accountNumber || "").replace(/\s+/g, "");
+    const accountNumber = String(payload?.accountNumber || "").replace(
+      /\s+/g,
+      "",
+    );
     const pin = String(payload?.pin || "").trim();
 
     if (!/^\d{8,30}$/.test(accountNumber)) {
@@ -297,7 +345,9 @@ const ShopDashboard = () => {
 
   const handleTabChange = (tabId) => {
     navigate(
-      tabId === "dashboard" ? "/shop-dashboard" : `/shop-dashboard/?tab=${tabId}`,
+      tabId === "dashboard"
+        ? "/shop-dashboard"
+        : `/shop-dashboard/?tab=${tabId}`,
       {
         replace: true,
       },
@@ -315,7 +365,9 @@ const ShopDashboard = () => {
               className="h-9 w-9 object-cover"
             />
             <div>
-              <p className="text-xl font-bold leading-none text-slate-800">Mocco Mart</p>
+              <p className="text-xl font-bold leading-none text-slate-800">
+                Mocco Mart
+              </p>
               <p className="text-xs text-slate-500">Seller Dashboard</p>
             </div>
           </div>
@@ -328,7 +380,9 @@ const ShopDashboard = () => {
             <TopRightIcon icon={Inbox} colorClass="text-violet-500" />
 
             <img
-              src={"https://dummyimage.com/120x120/e2e8f0/64748b.png&text=Seller"}
+              src={
+                "https://dummyimage.com/120x120/e2e8f0/64748b.png&text=Seller"
+              }
               alt="Seller profile"
               className="ml-2 h-10 w-10 rounded-full border border-slate-200 object-cover shadow-sm"
             />
@@ -339,7 +393,9 @@ const ShopDashboard = () => {
       <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr]">
         <aside className="z-20 h-fit border-b border-slate-200 bg-white lg:sticky lg:top-20 xl:h-[calc(100vh-73px)] xl:overflow-y-auto xl:border-b-0 xl:border-r">
           <div className="border-b border-slate-200 p-6">
-            <h2 className="text-xl font-semibold tracking-tight text-slate-900">Shop Dashboard</h2>
+            <h2 className="text-xl font-semibold tracking-tight text-slate-900">
+              Shop Dashboard
+            </h2>
             <p className="text-sm text-slate-500">Manage your store</p>
           </div>
 

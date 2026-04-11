@@ -94,7 +94,7 @@ const AddBankAccountModal = ({
               Account Number *
             </span>
             <input
-              type="text"
+              type="number"
               value={formData.accountNumber}
               onChange={(event) =>
                 setFormData((prev) => ({

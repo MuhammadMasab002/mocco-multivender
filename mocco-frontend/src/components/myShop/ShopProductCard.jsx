@@ -17,7 +17,7 @@ const ShopProductCard = ({ product }) => {
           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
         />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-slate-900/30 to-transparent" />
-        <span className="absolute left-3 top-3 rounded-full border border-white/80 bg-white/90 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-slate-700 backdrop-blur-sm">
+        <span className="absolute left-3 top-3 rounded-full border border-red-500/40 bg-white/90 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-slate-700 backdrop-blur-sm">
           {category}
         </span>
       </div>
