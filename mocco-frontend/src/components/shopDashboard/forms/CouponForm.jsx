@@ -96,7 +96,7 @@ const CouponForm = ({ onSubmit }) => {
 
         <button
           type="submit"
-          className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-8 py-3 text-lg font-semibold text-white transition hover:bg-blue-700"
+          className="inline-flex items-center justify-center rounded-xl cursor-pointer bg-blue-600 px-8 py-3 text-lg font-semibold text-white transition hover:bg-blue-700"
         >
           Create Coupon
         </button>

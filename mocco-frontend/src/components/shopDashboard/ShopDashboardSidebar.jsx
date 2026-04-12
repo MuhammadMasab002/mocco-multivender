@@ -81,7 +81,7 @@ const ShopDashboardSidebar = ({ items, activeView, onTabChange, onLogout }) => {
         <button
           type="button"
           onClick={onLogout}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:text-base"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl cursor-pointer bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:text-base"
         >
           <LogOut size={18} />
           Log Out

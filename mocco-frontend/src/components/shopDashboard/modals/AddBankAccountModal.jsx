@@ -36,7 +36,7 @@ const AddBankAccountModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100"
+            className="rounded-lg cursor-pointer p-2 text-slate-500 transition hover:bg-slate-100"
             aria-label="Close"
           >
             <X size={20} />
@@ -140,14 +140,14 @@ const AddBankAccountModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-slate-300 px-6 py-3 text-base font-semibold text-slate-700 transition hover:bg-slate-50"
+            className="rounded-xl cursor-pointer border border-slate-300 px-6 py-3 text-base font-semibold text-slate-700 transition hover:bg-slate-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="rounded-xl bg-blue-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+            className="rounded-xl cursor-pointer bg-blue-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
           >
             {loading ? "Saving..." : "Add Account"}
           </button>
