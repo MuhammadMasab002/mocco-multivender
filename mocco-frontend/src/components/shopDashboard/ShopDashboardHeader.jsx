@@ -1,4 +1,5 @@
 import { Gift, Inbox, Package, ShoppingBag, Tag } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const TopRightIcon = ({
   title,
@@ -59,7 +60,9 @@ const topIcons = [
   },
 ];
 
-const ShopDashboardHeader = ({ activeView, onTabChange }) => {
+const ShopDashboardHeader = ({ activeView, onTabChange, sellerId }) => {
+  const sellerProfilePath = sellerId ? `/shop/${sellerId}` : "/shop-login";
+
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div className="flex items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
@@ -89,11 +92,19 @@ const ShopDashboardHeader = ({ activeView, onTabChange }) => {
             />
           ))}
 
-          <img
-            src={"https://dummyimage.com/120x120/e2e8f0/64748b.png&text=Seller"}
-            alt="Seller profile"
-            className="ml-2 h-10 w-10 rounded-full border border-slate-200 object-cover shadow-sm"
-          />
+          <Link
+            to={sellerProfilePath}
+            aria-label="Seller profile"
+            className="cursor-pointer"
+          >
+            <img
+              src={
+                "https://dummyimage.com/120x120/e2e8f0/64748b.png&text=Seller"
+              }
+              alt="Seller profile"
+              className="ml-2 h-10 w-10 rounded-full border border-slate-200 object-cover shadow-sm transition hover:scale-105"
+            />
+          </Link>
         </div>
       </div>
     </header>

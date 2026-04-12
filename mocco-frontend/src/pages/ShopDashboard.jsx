@@ -249,6 +249,7 @@ const ShopDashboard = () => {
       <ShopDashboardHeader
         activeView={activeView}
         onTabChange={handleTabChange}
+        sellerId={seller?._id}
       />
 
       <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr]">
