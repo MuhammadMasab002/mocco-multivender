@@ -11,9 +11,9 @@ const isSellerAuthenticated = async (req, res, next) => {
         }
 
         const decoded = jwt.verify(seller_token, process.env.JWT_SECRET_KEY);
-        req.user = await Shop.findById(decoded.id).select("-password");
+        req.seller = await Shop.findById(decoded.id).select("-password");
 
-        if (!req.user) {
+        if (!req.seller) {
             return next(new ErrorHandler("Unauthorized! Seller not found.", 401));
         }
 

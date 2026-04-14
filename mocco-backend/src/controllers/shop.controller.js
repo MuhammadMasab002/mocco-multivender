@@ -175,7 +175,7 @@ const loginShop = async (req, res, next) => {
 // get seller profile/data
 const getSeller = async (req, res, next) => {
     try {
-        const shop = await Shop.findById(req.user._id);
+        const shop = await Shop.findById(req.seller._id);
 
         // error 
         if (!shop) {

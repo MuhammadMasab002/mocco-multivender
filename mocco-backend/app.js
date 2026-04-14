@@ -7,6 +7,7 @@ import userRouter from "./src/routes/user.route.js";
 import errorMiddleware from "./src/middlewares/error.middleware.js";
 import connectDB from "./src/db/index.js";
 import shopRouter from "./src/routes/shop.route.js";
+import productRouter from "./src/routes/product.router.js";
 
 const app = express();
 const isProduction =
@@ -67,6 +68,7 @@ app.use(async (req, res, next) => {
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/shop", shopRouter);
+app.use("/api/v1/product", productRouter);
 app.use(errorMiddleware);
 
 export default app;
