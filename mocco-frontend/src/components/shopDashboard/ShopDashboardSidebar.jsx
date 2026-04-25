@@ -60,7 +60,7 @@ const SidebarItem = ({ item, active, onClick }) => {
 
 const ShopDashboardSidebar = ({ items, activeView, onTabChange, onLogout }) => {
   return (
-    <aside className="z-20 h-fit pb-10 border-b border-slate-200 bg-white lg:sticky lg:top-20 xl:border-r xl:border-b-0">
+    <aside className="z-20 h-fit pb-10 border-b border-slate-200 bg-white xl:sticky xl:top-20 xl:border-r xl:border-b-0">
       <div className="border-b border-slate-200 p-6">
         <h2 className="text-xl font-semibold tracking-tight text-slate-900">
           Shop Dashboard

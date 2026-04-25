@@ -118,7 +118,7 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
             rows={5}
             name="description"
             placeholder={`Enter ${isEvent ? "event" : "product"} description`}
-            className="w-full resize-none rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
             required
           />
         </label>

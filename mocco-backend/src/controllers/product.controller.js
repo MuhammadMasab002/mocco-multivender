@@ -4,19 +4,8 @@ import Product from "../models/product.model.js";
 import Shop from "../models/shop.model.js";
 
 // create product
-export const createProduct = catchAsyncErrors(async (req, res, next) => {
+const createProduct = catchAsyncErrors(async (req, res, next) => {
     try {
-        const sellerId = req.seller.id;
-
-        // 1. Find seller shop
-        const shop = await Shop.findOne({ _id: sellerId });
-
-        if (!shop) {
-            return res.status(404).json({
-                success: false,
-                message: "Shop not found for this seller",
-            });
-        }
 
         const {
             name,
@@ -79,4 +68,26 @@ export const createProduct = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-export default { createProduct };
+// get all products of a shop
+const getShopProducts = catchAsyncErrors(async (req, res, next) => {
+    try {
+
+        // 2. Find all products for this shop
+        const products = await Product.find({ shop: shop._id });
+
+        return res.status(200).json({
+            success: true,
+            message: "Products retrieved successfully",
+            products,
+        });
+
+    } catch (error) {
+        console.error("Error in getShopProducts:", error);
+        return next(
+            new ErrorHandler("Failed to get products! " + error.message, 500),
+        );
+    }
+});
+
+
+export { createProduct, getShopProducts };
