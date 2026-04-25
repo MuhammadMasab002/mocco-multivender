@@ -68,7 +68,7 @@ const ShopDashboardHeader = ({ activeView, onTabChange, sellerId }) => {
       <div className="flex items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           <img
-            src={"../../public/mocco-favicon.png"}
+            src={"/mocco-favicon.png"}
             alt="Shop"
             className="h-9 w-9 object-cover"
           />

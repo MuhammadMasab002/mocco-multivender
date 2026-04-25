@@ -61,14 +61,30 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
     });
   };
 
-  const handleFormSubmit = (event) => {
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+
     if (!images.length) {
-      event.preventDefault();
       setImageError("Please upload at least one image.");
       return;
     }
 
-    onSubmit?.(event);
+    try {
+      const submitted = await onSubmit?.(
+        event,
+        images.map((item) => item.file),
+      );
+
+      if (submitted) {
+        setImageError("");
+        handleClearImages();
+        event.target.reset();
+      }
+    } catch (error) {
+      setImageError(
+        error?.message || `Failed to create ${isEvent ? "event" : "product"}.`,
+      );
+    }
   };
 
   return (
@@ -87,7 +103,8 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
           </span>
           <input
             type="text"
-            placeholder="Product Name"
+            name="name"
+            placeholder={`Enter ${isEvent ? "event" : "product"} name`}
             className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
             required
           />
@@ -99,7 +116,8 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
           </span>
           <textarea
             rows={5}
-            placeholder="Product Description"
+            name="description"
+            placeholder={`Enter ${isEvent ? "event" : "product"} description`}
             className="w-full resize-none rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
             required
           />
@@ -111,6 +129,7 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
               Category <span className="text-rose-500">*</span>
             </span>
             <select
+              name="category"
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
               defaultValue=""
               required
@@ -129,6 +148,7 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
             <span className="text-sm font-semibold text-slate-700">Tags</span>
             <input
               type="text"
+              name="tags"
               placeholder="Tags (comma separated)"
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
             />
@@ -143,6 +163,7 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
               </span>
               <input
                 type="date"
+                name="eventStartDate"
                 className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                 required
               />
@@ -154,6 +175,7 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
               </span>
               <input
                 type="date"
+                name="eventEndDate"
                 className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                 required
               />
@@ -168,8 +190,10 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
             </span>
             <input
               type="number"
+              name="price"
               placeholder="Original Price"
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+              required
             />
           </label>
 
@@ -179,6 +203,7 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
             </span>
             <input
               type="number"
+              name="discount_price"
               placeholder="Discount Price"
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
               required
@@ -188,10 +213,12 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
 
         <label className="block space-y-2">
           <span className="text-sm font-semibold text-slate-700">
-            Product Stock <span className="text-rose-500">*</span>
+            {isEvent ? "Event Product" : "Product"} Stock{" "}
+            <span className="text-rose-500">*</span>
           </span>
           <input
             type="number"
+            name="stock"
             placeholder="0"
             className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
             required
@@ -200,12 +227,14 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
 
         <div>
           <p className="text-sm font-semibold text-slate-700">
-            Product Images <span className="text-rose-500">*</span>
+            {isEvent ? "Event Product" : "Product"} Images{" "}
+            <span className="text-rose-500">*</span>
           </p>
           <div className="mt-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6">
             <input
               ref={fileInputRef}
               type="file"
+              name="files"
               accept="image/*"
               multiple
               onChange={handleImageChange}
