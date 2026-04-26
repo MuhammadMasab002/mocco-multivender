@@ -54,7 +54,7 @@ export default function ShopDashboardContent({
   }
 
   if (activeView === "all-products") {
-    return <AllProductsTab sellerProducts={sellerProducts} />;
+    return <AllProductsTab />;
   }
 
   if (activeView === "create-product") {

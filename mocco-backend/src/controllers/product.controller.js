@@ -71,9 +71,11 @@ const createProduct = catchAsyncErrors(async (req, res, next) => {
 // get all products of a shop
 const getShopProducts = catchAsyncErrors(async (req, res, next) => {
     try {
+        // 1. Find the shop of the authenticated seller
+        const sellerId = req.seller._id;
 
         // 2. Find all products for this shop
-        const products = await Product.find({ shop: shop._id });
+        const products = await Product.find({ shop: sellerId });
 
         return res.status(200).json({
             success: true,

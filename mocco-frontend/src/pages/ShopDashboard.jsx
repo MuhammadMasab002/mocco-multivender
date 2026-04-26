@@ -61,28 +61,8 @@ const ShopDashboard = () => {
     ? queryTab
     : "dashboard";
 
-  const sellerProducts = useMemo(() => {
-    const name = String(seller?.name || "")
-      .trim()
-      .toLowerCase();
-    const allProducts = Array.isArray(productData) ? productData : [];
-
-    if (!name) return allProducts.slice(0, 2);
-
-    const own = allProducts.filter((item) => {
-      const shopName = String(item?.shop?.name || "")
-        .trim()
-        .toLowerCase();
-      return (
-        shopName === name || shopName.includes(name) || name.includes(shopName)
-      );
-    });
-
-    return own.length ? own : allProducts.slice(0, 2);
-  }, [seller?.name]);
-
   const sellerEvents = useMemo(() => {
-    return sellerProducts.map((product, index) => ({
+    return productData.map((product, index) => ({
       id: `EV-${120 + index}`,
       productId: `69abd${index}088124dd5a...`,
       name: product?.name || "Event Product",
@@ -92,7 +72,7 @@ const ShopDashboard = () => {
       startDate: makeEventDate(1 + index * 2),
       endDate: makeEventDate(7 + index * 3),
     }));
-  }, [sellerProducts]);
+  }, []);
 
   const sellerCoupons = useMemo(
     () => [
@@ -102,11 +82,11 @@ const ShopDashboard = () => {
         value: 10,
         minAmount: 100,
         maxAmount: 500,
-        product: sellerProducts?.[0]?.name || "Gaming Headphone",
-        category: sellerProducts?.[0]?.category || "Computers and Laptops",
+        product: productData?.[0]?.name || "Gaming Headphone",
+        category: productData?.[0]?.category || "Computers and Laptops",
       },
     ],
-    [sellerProducts],
+    [],
   );
 
   const orders = [
@@ -264,7 +244,7 @@ const ShopDashboard = () => {
           <ShopDashboardContent
             activeView={activeView}
             seller={seller}
-            sellerProducts={sellerProducts}
+            sellerProducts={productData}
             sellerEvents={sellerEvents}
             sellerCoupons={sellerCoupons}
             orders={orders}

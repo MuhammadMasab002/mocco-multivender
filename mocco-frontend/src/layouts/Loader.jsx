@@ -1,7 +1,6 @@
 import React from "react";
 import Lottie from "react-lottie";
-// import animationData from "../assets/animations/24151-ecommerce-animation.json";
-import animationData from "../assets/animations/1-loading-animation.json";
+import animationData from "../assets/animations/5-circle.json";
 
 const Loader = () => {
   const defaultOptions = {
@@ -13,8 +12,8 @@ const Loader = () => {
     },
   };
   return (
-    <div className="w-full h-screen flex justify-center items-center py-10 px-4">
-      <Lottie options={defaultOptions} height={400} width={400} />
+    <div className="w-full flex justify-center items-center py-10 px-4">
+      <Lottie options={defaultOptions} height={100} width={100} />
     </div>
   );
 };

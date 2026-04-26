@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { Navigate, Outlet, useParams } from "react-router-dom";
-import Loader from "../layouts/Loader";
+import AppLoader from "../layouts/AppLoader";
 
 export function SellerProtectedRoute({ children }) {
   const { sellerId } = useParams();
@@ -11,7 +11,7 @@ export function SellerProtectedRoute({ children }) {
   } = useSelector((state) => state.seller);
 
   if (isSellerLoading) {
-    return <Loader />;
+    return <AppLoader />;
   } else {
     if (!isSellerAuthenticated || !seller?._id) {
       return <Navigate to="/shop-login" replace />;
