@@ -2,13 +2,20 @@ import TableShell from "../shared/TableShell";
 import TableActionIcon from "../shared/TableActionIcon";
 import TruncateTextCell from "../shared/TruncateTextCell";
 import { useEffect } from "react";
-import { getProducts } from "../../../services/store/actions/product";
+import {
+  deleteProduct,
+  getProducts,
+} from "../../../services/store/actions/product";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const AllProductsTab = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const { seller } = useSelector((state) => state.seller);
+  const shopId = seller?._id;
+
   const {
     products,
     isLoading: isProductLoading,
@@ -16,13 +23,21 @@ const AllProductsTab = () => {
   } = useSelector((state) => state.product);
 
   useEffect(() => {
-    dispatch(getProducts());
-  }, [dispatch]);
+    dispatch(getProducts(shopId));
+  }, [dispatch, shopId]);
 
   // implement route to product detail page
   const handlePreviewRoute = (productId) => {
     if (!productId) return;
     navigate(`/product-detail/${productId}`);
+  };
+
+  // implement delete product functionality
+  const handleDeleteProduct = async (productId) => {
+    if (!productId) return;
+    await dispatch(deleteProduct(productId));
+    // Optionally, you can show a success message or handle errors here
+    alert("Product deleted successfully!" + productId);
   };
 
   const rows =
@@ -49,9 +64,7 @@ const AllProductsTab = () => {
           />,
           <TableActionIcon
             key={`product-delete-${i}`}
-            action={() =>
-              alert(`Delete functionality not implemented yet: ${item?._id}`)
-            }
+            action={() => handleDeleteProduct(item?._id)}
             type="delete"
           />,
         ])

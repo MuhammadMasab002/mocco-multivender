@@ -72,7 +72,13 @@ const createProduct = catchAsyncErrors(async (req, res, next) => {
 const getShopProducts = catchAsyncErrors(async (req, res, next) => {
     try {
         // 1. Find the shop of the authenticated seller
-        const sellerId = req.seller._id;
+        const sellerId = req.params.shopId; // Get shopId from route params
+
+        const shop = await Shop.findOne({ _id: sellerId });
+
+        if (!shop) {
+            return next(new ErrorHandler("Shop not found for this seller", 404));
+        }
 
         // 2. Find all products for this shop
         const products = await Product.find({ shop: sellerId });
