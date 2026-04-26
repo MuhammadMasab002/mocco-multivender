@@ -6,12 +6,14 @@ import Event from "../models/event.model.js";
 const createEvent = catchAsyncErrors(async (req, res, next) => {
     try {
 
+        const shop = req.seller; // get shop from authenticated seller
+
         const {
             name,
             description,
             category,
-            start_Date,
-            Finish_Date,
+            startDate,
+            endDate,
             status,
             tags,
             stock,
@@ -46,8 +48,8 @@ const createEvent = catchAsyncErrors(async (req, res, next) => {
             name,
             description,
             category,
-            start_Date,
-            Finish_Date,
+            startDate,
+            endDate,
             status,
             tags: tags ? tags.split(",") : [],
             stock,

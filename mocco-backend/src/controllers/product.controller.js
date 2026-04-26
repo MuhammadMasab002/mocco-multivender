@@ -7,6 +7,8 @@ import Shop from "../models/shop.model.js";
 const createProduct = catchAsyncErrors(async (req, res, next) => {
     try {
 
+        const shop = req.seller; // get shop from authenticated seller
+
         const {
             name,
             description,

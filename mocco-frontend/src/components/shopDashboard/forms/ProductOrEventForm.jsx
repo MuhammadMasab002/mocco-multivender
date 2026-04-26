@@ -163,7 +163,7 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
               </span>
               <input
                 type="date"
-                name="eventStartDate"
+                name="startDate"
                 className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                 required
               />
@@ -175,7 +175,7 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
               </span>
               <input
                 type="date"
-                name="eventEndDate"
+                name="endDate"
                 className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                 required
               />

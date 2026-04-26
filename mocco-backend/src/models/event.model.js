@@ -14,11 +14,11 @@ const eventSchema = new Schema(
             type: String,
             required: [true, "Please enter event product category!"],
         },
-        start_Date: {
+        startDate: {
             type: Date,
             required: true,
         },
-        Finish_Date: {
+        endDate: {
             type: Date,
             required: true,
         },
