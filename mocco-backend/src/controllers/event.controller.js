@@ -103,4 +103,29 @@ const getShopEvents = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-export { createEvent, getShopEvents };
+// delete event by id
+const deleteEvent = catchAsyncErrors(async (req, res, next) => {
+    try {
+        const eventId = req.params.id;
+
+        const event = await Event.findById(eventId);
+
+        if (!event) {
+            return next(new ErrorHandler("Event not found", 404));
+        }
+
+        await Event.findByIdAndDelete(eventId);
+
+        return res.status(200).json({
+            success: true,
+            message: "Event deleted successfully",
+        });
+    } catch (error) {
+        console.error("Error in deleteEvent:", error);
+        return next(
+            new ErrorHandler("Failed to delete event! " + error.message, 500)
+        );
+    }
+});
+
+export { createEvent, getShopEvents, deleteEvent };
