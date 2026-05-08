@@ -1,7 +1,7 @@
 import TableShell from "../shared/TableShell";
 import TableActionIcon from "../shared/TableActionIcon";
 import TruncateTextCell from "../shared/TruncateTextCell";
-import { getEvents } from "../../../services/store/actions/event";
+import { deleteEvent, getEvents } from "../../../services/store/actions/event";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -30,12 +30,12 @@ const AllEventsTab = () => {
   };
 
   // implement delete product functionality
-  // const handleDeleteProduct = async (productId) => {
-  //   if (!productId) return;
-  //   await dispatch(deleteProduct(productId));
-  //   // Optionally, you can show a success message or handle errors here
-  //   alert("Product deleted successfully!" + productId);
-  // };
+  const handleDeleteEvent = async (eventId) => {
+    if (!eventId) return;
+    await dispatch(deleteEvent(eventId));
+    // Optionally, you can show a success message or handle errors here
+    alert("Event deleted successfully!" + eventId);
+  };
 
   const rows =
     events?.length > 0
@@ -64,7 +64,7 @@ const AllEventsTab = () => {
           />,
           <TableActionIcon
             key={`event-delete-${i}`}
-            // action={() => handleDeleteEvent(item?._id)}
+            action={() => handleDeleteEvent(item?._id)}
             type="delete"
           />,
         ])
