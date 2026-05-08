@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -6,8 +6,9 @@ import ShopDashboardHeader from "../components/shopDashboard/ShopDashboardHeader
 import ShopDashboardSidebar from "../components/shopDashboard/ShopDashboardSidebar";
 import ShopDashboardContent from "../components/shopDashboard/ShopDashboardContent";
 import { dashboardItems } from "../components/shopDashboard/constants/dashboardItems";
-import { productData } from "../static/data";
 import { loadSeller } from "../services/store/actions/seller";
+import { getProducts } from "../services/store/actions/product";
+import { getEvents } from "../services/store/actions/event";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -31,17 +32,21 @@ const pakistanBanks = [
   "BankIslami Pakistan Limited",
 ];
 
-const makeEventDate = (offset) => {
-  const date = new Date();
-  date.setDate(date.getDate() + offset);
-  return date.toLocaleDateString("en-GB");
-};
-
 const ShopDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
   const { seller } = useSelector((state) => state.seller);
+  const { products } = useSelector((state) => state.product);
+  const { events } = useSelector((state) => state.event);
+
+  // Fetch products and events for the seller on mount
+  useEffect(() => {
+    if (seller?._id) {
+      dispatch(getProducts(seller._id));
+      dispatch(getEvents(seller._id));
+    }
+  }, [seller?._id, dispatch]);
 
   const [withdrawInput, setWithdrawInput] = useState("4");
   const [showBankModal, setShowBankModal] = useState(false);
@@ -62,17 +67,8 @@ const ShopDashboard = () => {
     : "dashboard";
 
   const sellerEvents = useMemo(() => {
-    return productData.map((product, index) => ({
-      id: `EV-${120 + index}`,
-      productId: `69abd${index}088124dd5a...`,
-      name: product?.name || "Event Product",
-      price: product?.discount_price ?? product?.price ?? 0,
-      stock: product?.stock ?? 0,
-      soldOut: product?.total_sell ?? 0,
-      startDate: makeEventDate(1 + index * 2),
-      endDate: makeEventDate(7 + index * 3),
-    }));
-  }, []);
+    return Array.isArray(events) ? events : [];
+  }, [events]);
 
   const sellerCoupons = useMemo(
     () => [
@@ -82,11 +78,11 @@ const ShopDashboard = () => {
         value: 10,
         minAmount: 100,
         maxAmount: 500,
-        product: productData?.[0]?.name || "Gaming Headphone",
-        category: productData?.[0]?.category || "Computers and Laptops",
+        product: products?.[0]?.name || "Product",
+        category: products?.[0]?.category || "Category",
       },
     ],
-    [],
+    [products],
   );
 
   const orders = [
@@ -244,7 +240,7 @@ const ShopDashboard = () => {
           <ShopDashboardContent
             activeView={activeView}
             seller={seller}
-            sellerProducts={productData}
+            sellerProducts={products}
             sellerEvents={sellerEvents}
             sellerCoupons={sellerCoupons}
             orders={orders}

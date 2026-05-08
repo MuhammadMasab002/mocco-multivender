@@ -1,6 +1,7 @@
 import catchAsyncErrors from "../middlewares/CatchAsyncErrors.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import Event from "../models/event.model.js";
+import Shop from "../models/shop.model.js";
 
 // create event
 const createEvent = catchAsyncErrors(async (req, res, next) => {

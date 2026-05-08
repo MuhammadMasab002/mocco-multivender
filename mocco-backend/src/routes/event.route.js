@@ -11,7 +11,7 @@ eventRouter.post(
     upload.array("files", 10),
     createEvent,
 );
-eventRouter.get("/all", getShopEvents);
-// eventRouter.get("/all/:shopId", getShopEvents);
+// eventRouter.get("/all", getShopEvents);
+eventRouter.get("/all/:shopId", getShopEvents);
 
 export default eventRouter;

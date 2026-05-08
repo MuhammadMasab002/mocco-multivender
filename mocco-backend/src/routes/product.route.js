@@ -11,8 +11,8 @@ productRouter.post(
     upload.array("files", 10),
     createProduct,
 );
-productRouter.get("/all", getShopProducts);
-// productRouter.get("/all/:shopId", getShopProducts);
+// productRouter.get("/all", getShopProducts);
+productRouter.get("/all/:shopId", getShopProducts);
 productRouter.delete("/delete/:id", isSellerAuthenticated, deleteProduct);
 
 export default productRouter;

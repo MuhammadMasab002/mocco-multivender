@@ -9,7 +9,7 @@ import OrdersTab from "./tabs/OrdersTab";
 import WithdrawTab from "./tabs/WithdrawTab";
 import InboxTab from "./tabs/InboxTab";
 
-export default function ShopDashboardContent({
+const ShopDashboardContent = ({
   activeView,
   seller,
   sellerProducts,
@@ -37,7 +37,7 @@ export default function ShopDashboardContent({
   onDeleteBankAccount,
   onSubmitWithdrawRequest,
   onAddBankAccount,
-}) {
+}) => {
   if (activeView === "dashboard") {
     return (
       <DashboardTab
@@ -108,4 +108,6 @@ export default function ShopDashboardContent({
   }
 
   return <InboxTab />;
-}
+};
+
+export default ShopDashboardContent;
