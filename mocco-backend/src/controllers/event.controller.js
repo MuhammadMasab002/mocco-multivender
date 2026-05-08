@@ -75,4 +75,31 @@ const createEvent = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-export { createEvent };
+// get all events for a shop
+const getShopEvents = catchAsyncErrors(async (req, res, next) => {
+    try {
+        // 1. Find the shop of the authenticated seller
+        const sellerId = req.params.shopId; // Get shopId from route params
+
+        const shop = await Shop.findOne({ _id: sellerId });
+
+        if (!shop) {
+            return next(new ErrorHandler("Shop not found for this seller", 404));
+        }
+
+        const events = await Event.find({ shop: sellerId });
+
+        return res.status(200).json({
+            success: true,
+            events,
+        });
+
+    } catch (error) {
+        console.error("Error in getShopEvents:", error);
+        return next(
+            new ErrorHandler("Failed to fetch events! " + error.message, 500)
+        );
+    }
+});
+
+export { createEvent, getShopEvents };

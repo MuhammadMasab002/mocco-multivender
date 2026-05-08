@@ -1,5 +1,5 @@
 import express from "express";
-import { createEvent } from "../controllers/event.controller.js";
+import { createEvent, getShopEvents } from "../controllers/event.controller.js";
 import isSellerAuthenticated from "../middlewares/sellerAuth.js";
 import upload from "../../multer.js";
 
@@ -11,5 +11,7 @@ eventRouter.post(
     upload.array("files", 10),
     createEvent,
 );
+eventRouter.get("/all", getShopEvents);
+// eventRouter.get("/all/:shopId", getShopEvents);
 
 export default eventRouter;

@@ -12,7 +12,7 @@ productRouter.post(
     createProduct,
 );
 productRouter.get("/all", getShopProducts);
-productRouter.get("/all/:shopId", getShopProducts);
+// productRouter.get("/all/:shopId", getShopProducts);
 productRouter.delete("/delete/:id", isSellerAuthenticated, deleteProduct);
 
 export default productRouter;
