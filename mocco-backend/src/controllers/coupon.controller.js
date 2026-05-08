@@ -27,7 +27,7 @@ const createCoupon = catchAsyncErrors(async (req, res, next) => {
 
         const coupon = await Coupon.create({
             code,
-            discount,
+            value: discount,
             minAmount,
             maxAmount,
             product: productId,

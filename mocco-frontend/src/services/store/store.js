@@ -4,6 +4,7 @@ import userReducer from "./slices/userAuthSlice";
 import sellerReducer from "./slices/sellerAuthSlice";
 import productReducer from "./slices/productSlice";
 import eventReducer from "./slices/eventSlice";
+import couponReducer from "./slices/couponSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     seller: sellerReducer,
     product: productReducer,
     event: eventReducer,
+    coupon: couponReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(MoccoMartApi.middleware),

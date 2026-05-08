@@ -6,7 +6,7 @@ const CreateEventTab = () => {
   const dispatch = useDispatch();
 
   const handleEventFormSubmit = async (event, imageFiles = []) => {
-    console.log("create event", event.currentTarget);
+    // console.log("create event", event.currentTarget);
     const formData = new FormData(event.currentTarget);
     formData.delete("files");
     imageFiles.forEach((file) => {
