@@ -50,4 +50,49 @@ const createCoupon = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-export { createCoupon };
+// get coupons
+const getCoupons = catchAsyncErrors(async (req, res, next) => {
+    try {
+        const shopId = req.params.shopId;
+
+        const coupons = await Coupon.find({ shop: shopId });
+
+        return res.status(200).json({
+            success: true,
+            coupons,
+        });
+    } catch (error) {
+        console.error("Error in getCoupons:", error);
+        return next(
+            new ErrorHandler("Failed to fetch coupons! " + error.message, 500)
+        );
+    }
+});
+
+// delete coupon by id
+const deleteCoupon = catchAsyncErrors(async (req, res, next) => {
+    try {
+        const couponId = req.params.id;
+
+        const coupon = await Coupon.findByIdAndDelete(couponId);
+
+        if (!coupon) {
+            return res.status(404).json({
+                success: false,
+                message: "Coupon not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Coupon deleted successfully",
+        });
+    } catch (error) {
+        console.error("Error in deleteCoupon:", error);
+        return next(
+            new ErrorHandler("Failed to delete coupon! " + error.message, 500)
+        );
+    }
+});
+
+export { createCoupon, getCoupons, deleteCoupon };
