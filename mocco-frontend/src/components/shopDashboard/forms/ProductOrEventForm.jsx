@@ -5,7 +5,45 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
   const fileInputRef = useRef(null);
   const [images, setImages] = useState([]);
   const [imageError, setImageError] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [eventDateError, setEventDateError] = useState("");
 
+  const getMinEndDate = (selectedStartDate) => {
+    if (!selectedStartDate) return "";
+
+    const startDateObj = new Date(selectedStartDate);
+    startDateObj.setDate(startDateObj.getDate() + 3);
+
+    return startDateObj.toISOString().split("T")[0];
+  };
+
+  // When start date changes, auto-set end date to 3 days later
+  const handleStartDateChange = (e) => {
+    const start = e.target.value;
+    setStartDate(start);
+    setEventDateError("");
+
+    if (start) {
+      const endDateStr = getMinEndDate(start);
+      setEndDate(endDateStr);
+    }
+  };
+
+  const handleEndDateChange = (e) => {
+    setEventDateError("");
+
+    const nextEndDate = e.target.value;
+    const minEndDate = getMinEndDate(startDate);
+
+    if (minEndDate && nextEndDate < minEndDate) {
+      setEventDateError("End date must be at least 3 days after the start date.");
+      setEndDate(minEndDate);
+      return;
+    }
+
+    setEndDate(nextEndDate);
+  };
   useEffect(() => {
     return () => {
       images.forEach((item) => {
@@ -69,6 +107,23 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
       return;
     }
 
+    // Validate event dates if creating an event
+    if (isEvent) {
+      if (!startDate || !endDate) {
+        setEventDateError("Both start and end dates are required.");
+        return;
+      }
+
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const daysDifference = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+
+      if (daysDifference < 3) {
+        setEventDateError("Event must be at least 3 days long. End date must be at least 3 days after start date.");
+        return;
+      }
+    }
+
     try {
       const submitted = await onSubmit?.(
         event,
@@ -79,6 +134,9 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
         setImageError("");
         handleClearImages();
         event.target.reset();
+        setStartDate("");
+        setEndDate("");
+        setEventDateError("");
       }
     } catch (error) {
       setImageError(
@@ -156,31 +214,43 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
         </div>
 
         {isEvent && (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            <label className="space-y-2">
-              <span className="text-sm font-semibold text-slate-700">
-                Event Start Date <span className="text-rose-500">*</span>
-              </span>
-              <input
-                type="date"
-                name="startDate"
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-                required
-              />
-            </label>
+          <>
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <label className="space-y-2">
+                <span className="text-sm font-semibold text-slate-700">
+                  Event Start Date <span className="text-rose-500">*</span>
+                </span>
+                <input
+                  type="date"
+                  name="startDate"
+                  value={startDate}
+                  onChange={handleStartDateChange}
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                  required
+                />
+              </label>
 
-            <label className="space-y-2">
-              <span className="text-sm font-semibold text-slate-700">
-                Event End Date <span className="text-rose-500">*</span>
-              </span>
-              <input
-                type="date"
-                name="endDate"
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-                required
-              />
-            </label>
-          </div>
+              <label className="space-y-2">
+                <span className="text-sm font-semibold text-slate-700">
+                  Event End Date <span className="text-rose-500">*</span>
+                </span>
+                <input
+                  type="date"
+                  name="endDate"
+                  value={endDate}
+                  onChange={handleEndDateChange}
+                  min={getMinEndDate(startDate)}
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                  required
+                />
+              </label>
+            </div>
+            {eventDateError && (
+              <div className="rounded-lg bg-rose-50 p-3 text-sm font-medium text-rose-600">
+                {eventDateError}
+              </div>
+            )}
+          </>
         )}
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
