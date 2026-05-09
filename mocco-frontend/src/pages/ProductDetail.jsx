@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import ProductDetailInfo from "../components/common/products/ProductDetailInfo";
 import { useNavigate, useParams } from "react-router-dom";
 import { productData } from "../static/data";
@@ -23,18 +24,23 @@ export const ProductDetail = () => {
   // get product id from route params
   const { productId } = useParams();
   const navigate = useNavigate();
+  const { products: sellerProducts } = useSelector((state) => state.product);
 
   const [quantity, setQuantity] = useState(1);
-  const products = useMemo(
-    () => (Array.isArray(productData) ? productData : []),
-    [],
-  );
+  const products = useMemo(() => {
+    const storeProducts = Array.isArray(sellerProducts) ? sellerProducts : [];
+    const staticProducts = Array.isArray(productData) ? productData : [];
+
+    return storeProducts.length > 0 ? storeProducts : staticProducts;
+  }, [sellerProducts]);
 
   const currentProduct = useMemo(() => {
     if (!productId) return null;
 
     return (
-      products.find((product) => String(product?.id) === String(productId)) ||
+      products.find(
+        (product) => String(product?._id || product?.id) === String(productId),
+      ) ||
       null
     );
   }, [productId, products]);
@@ -48,7 +54,11 @@ export const ProductDetail = () => {
     const currentCategorySingular = singularizeWords(currentCategoryNorm);
 
     const sameCategoryProducts = products.filter((product) => {
-      if (String(product?.id) === String(currentProduct?.id)) return false;
+      if (
+        String(product?._id || product?.id) ===
+        String(currentProduct?._id || currentProduct?.id)
+      )
+        return false;
 
       const productCategoryNorm = normalizeCategory(product?.category || "");
       const productCategorySingular = singularizeWords(productCategoryNorm);
@@ -67,7 +77,11 @@ export const ProductDetail = () => {
     }
 
     return products
-      .filter((product) => String(product?.id) !== String(currentProduct?.id))
+      .filter(
+        (product) =>
+          String(product?._id || product?.id) !==
+          String(currentProduct?._id || currentProduct?.id),
+      )
       .sort((a, b) => Number(b?.total_sell || 0) - Number(a?.total_sell || 0))
       .slice(0, 4);
   }, [currentProduct, products]);
@@ -105,7 +119,11 @@ export const ProductDetail = () => {
         {/* LEFT: Product Image */}
         <div className="w-full flex justify-center">
           <img
-            src={currentProduct?.image_Url?.[0]?.url}
+            src={
+              currentProduct?.images?.[0]?.url ||
+              currentProduct?.image_Url?.[0]?.url ||
+              ""
+            }
             alt={currentProduct?.name}
             className="w-full max-w-md rounded shadow"
           />

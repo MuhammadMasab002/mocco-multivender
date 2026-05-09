@@ -13,8 +13,11 @@ const ShopDashboardContent = ({
   activeView,
   seller,
   sellerProducts,
+  productLoading,
   sellerEvents,
   sellerCoupons,
+  couponLoading,
+  onDeleteCoupon,
   orders,
   withdrawals,
   availableBalance,
@@ -54,7 +57,12 @@ const ShopDashboardContent = ({
   }
 
   if (activeView === "all-products") {
-    return <AllProductsTab />;
+    return (
+      <AllProductsTab
+        sellerProducts={sellerProducts}
+        productLoading={productLoading}
+      />
+    );
   }
 
   if (activeView === "create-product") {
@@ -70,7 +78,13 @@ const ShopDashboardContent = ({
   }
 
   if (activeView === "all-coupons") {
-    return <AllCouponsTab sellerCoupons={sellerCoupons} />;
+    return (
+      <AllCouponsTab
+        sellerCoupons={sellerCoupons}
+        isLoading={couponLoading}
+        onDeleteCoupon={onDeleteCoupon}
+      />
+    );
   }
 
   if (activeView === "create-coupon") {

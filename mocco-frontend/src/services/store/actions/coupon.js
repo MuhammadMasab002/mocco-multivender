@@ -34,12 +34,11 @@ const createCoupon = (couponFormData) => async (dispatch) => {
 const getCoupons = (shopId) => async (dispatch) => {
     try {
         dispatch(getCouponsRequest());
-        const { data } = await axios.get(`${backendUrl}/coupon/all/${shopId}`,
-            //     {
-            //     withCredentials: true,
-            // }
-        );
+        const { data } = await axios.get(`${backendUrl}/coupon/all/${shopId}`, {
+            withCredentials: true,
+        });
         dispatch(getCouponsSuccess(data.coupons));
+        return data;
     } catch (error) {
         const message =
             error?.response?.data?.message ||

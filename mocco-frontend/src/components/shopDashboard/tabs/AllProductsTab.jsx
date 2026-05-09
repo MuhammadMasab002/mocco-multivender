@@ -1,51 +1,40 @@
 import TableShell from "../shared/TableShell";
 import TableActionIcon from "../shared/TableActionIcon";
 import TruncateTextCell from "../shared/TruncateTextCell";
-import { useEffect } from "react";
-import {
-  deleteProduct,
-  getProducts,
-} from "../../../services/store/actions/product";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { deleteProduct } from "../../../services/store/actions/product";
 
-const AllProductsTab = () => {
+const AllProductsTab = ({ sellerProducts = [], productLoading = false }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { seller } = useSelector((state) => state.seller);
-  const shopId = seller?._id;
-
-  const {
-    products,
-    isLoading: isProductLoading,
-    error: productError,
-  } = useSelector((state) => state.product);
-
-  useEffect(() => {
-    dispatch(getProducts(shopId));
-  }, [dispatch, shopId]);
-
-  // implement route to product detail page
   const handlePreviewRoute = (productId) => {
     if (!productId) return;
     navigate(`/product-detail/${productId}`);
   };
 
-  // implement delete product functionality
   const handleDeleteProduct = async (productId) => {
     if (!productId) return;
-    await dispatch(deleteProduct(productId));
-    // Optionally, you can show a success message or handle errors here
-    alert("Product deleted successfully!" + productId);
+
+    const shouldDelete = window.confirm("Delete this product?");
+    if (!shouldDelete) return;
+
+    try {
+      await dispatch(deleteProduct(productId));
+    } catch (error) {
+      window.alert(error?.message || "Failed to delete product");
+    }
   };
 
+  const productsToRender = Array.isArray(sellerProducts) ? sellerProducts : [];
+
   const rows =
-    products?.length > 0
-      ? products?.map((item, i) => [
+    productsToRender.length > 0
+      ? productsToRender.map((item, i) => [
           <TruncateTextCell
             key={`product-id-${i}`}
-            text={item?._id || i}
+            text={item?._id || `69abd7d0${i}88124dd5a`}
             maxWidthClass="max-w-36"
             mono
           />,
@@ -59,26 +48,27 @@ const AllProductsTab = () => {
           item?.total_sell ?? 0,
           <TableActionIcon
             key={`product-preview-${i}`}
-            action={() => handlePreviewRoute(item?._id)}
             type="preview"
+            action={() => handlePreviewRoute(item?._id)}
           />,
           <TableActionIcon
             key={`product-delete-${i}`}
-            action={() => handleDeleteProduct(item?._id)}
             type="delete"
+            action={() => handleDeleteProduct(item?._id)}
           />,
         ])
-      : [
-          [
-            productError && "No products found for this shop.",
-            "-",
-            "-",
-            "-",
-            "-",
-            "-",
-            "-",
-          ],
-        ];
+      : [[
+          productLoading
+            ? "Loading products..."
+            : "No products found for this shop.",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-",
+        ]];
+
 
   return (
     <TableShell
@@ -92,7 +82,7 @@ const AllProductsTab = () => {
         "Delete",
       ]}
       rows={rows}
-      productLoading={isProductLoading}
+      productLoading={productLoading}
     />
   );
 };

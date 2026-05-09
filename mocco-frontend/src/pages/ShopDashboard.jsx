@@ -9,6 +9,7 @@ import { dashboardItems } from "../components/shopDashboard/constants/dashboardI
 import { loadSeller } from "../services/store/actions/seller";
 import { getProducts } from "../services/store/actions/product";
 import { getEvents } from "../services/store/actions/event";
+import { deleteCoupon, getCoupons } from "../services/store/actions/coupon";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -37,14 +38,16 @@ const ShopDashboard = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const { seller } = useSelector((state) => state.seller);
-  const { products } = useSelector((state) => state.product);
+  const { products, isLoading: productLoading } = useSelector((state) => state.product);
   const { events } = useSelector((state) => state.event);
+  const { coupons, getLoading: couponLoading } = useSelector((state) => state.coupon);
 
-  // Fetch products and events for the seller on mount
+  // Fetch products, events, and coupons for the seller on mount
   useEffect(() => {
     if (seller?._id) {
       dispatch(getProducts(seller._id));
       dispatch(getEvents(seller._id));
+      dispatch(getCoupons(seller._id));
     }
   }, [seller?._id, dispatch]);
 
@@ -71,19 +74,34 @@ const ShopDashboard = () => {
   }, [events]);
 
   const sellerCoupons = useMemo(
-    () => [
-      {
-        id: "69abd9a988124d...",
-        name: "first coupon code",
-        value: 10,
-        minAmount: 100,
-        maxAmount: 500,
-        product: products?.[0]?.name || "Product",
-        category: products?.[0]?.category || "Category",
-      },
-    ],
-    [products],
+    () =>
+      Array.isArray(coupons)
+        ? coupons.map((coupon) => {
+            const matchedProduct = products?.find(
+              (product) => String(product._id) === String(coupon.product?._id || coupon.product),
+            );
+
+            return {
+              ...coupon,
+              productName: matchedProduct?.name || coupon.product?.name || "Product",
+            };
+          })
+        : [],
+    [coupons, products],
   );
+
+  const handleDeleteCoupon = async (couponId) => {
+    if (!couponId) return;
+
+    const shouldDelete = window.confirm("Delete this coupon?");
+    if (!shouldDelete) return;
+
+    try {
+      await dispatch(deleteCoupon(couponId));
+    } catch (error) {
+      window.alert(error?.message || "Failed to delete coupon");
+    }
+  };
 
   const orders = [
     {
@@ -241,8 +259,11 @@ const ShopDashboard = () => {
             activeView={activeView}
             seller={seller}
             sellerProducts={products}
+            productLoading={productLoading}
             sellerEvents={sellerEvents}
             sellerCoupons={sellerCoupons}
+            couponLoading={couponLoading}
+            onDeleteCoupon={handleDeleteCoupon}
             orders={orders}
             withdrawals={withdrawals}
             availableBalance={availableBalance}
