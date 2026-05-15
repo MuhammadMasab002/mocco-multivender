@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 
 const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
   const isEvent = mode === "event";
   const fileInputRef = useRef(null);
   const [images, setImages] = useState([]);
   const [imageError, setImageError] = useState("");
+  const [statusMessage, setStatusMessage] = useState({ type: "", text: "" });
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [eventDateError, setEventDateError] = useState("");
@@ -52,6 +54,10 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
     };
   }, [images]);
 
+  // Show server-side errors from product/event slices (render-time fallback)
+  const productError = useSelector((state) => state.product?.error);
+  const eventError = useSelector((state) => state.event?.error);
+
   const handleImageChange = (event) => {
     const selectedFiles = Array.from(event.target.files || []);
 
@@ -64,10 +70,12 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
     if (invalidFile) {
       setImageError("Only image files are allowed.");
       event.target.value = "";
+      setStatusMessage({ type: "error", text: "Only image files are allowed." });
       return;
     }
 
     setImageError("");
+    setStatusMessage({ type: "", text: "" });
 
     setImages((prev) => {
       const next = selectedFiles.map((file) => ({
@@ -101,9 +109,11 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
+    setStatusMessage({ type: "", text: "" });
 
     if (!images.length) {
       setImageError("Please upload at least one image.");
+      setStatusMessage({ type: "error", text: "Please upload at least one image." });
       return;
     }
 
@@ -111,6 +121,7 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
     if (isEvent) {
       if (!startDate || !endDate) {
         setEventDateError("Both start and end dates are required.");
+        setStatusMessage({ type: "error", text: "Both start and end dates are required." });
         return;
       }
 
@@ -120,6 +131,7 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
 
       if (daysDifference < 3) {
         setEventDateError("Event must be at least 3 days long. End date must be at least 3 days after start date.");
+        setStatusMessage({ type: "error", text: "Event must be at least 3 days long." });
         return;
       }
     }
@@ -131,17 +143,20 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
       );
 
       if (submitted) {
+        setStatusMessage({ type: "success", text: isEvent ? "Event created successfully." : "Product created successfully." });
         setImageError("");
         handleClearImages();
         event.target.reset();
         setStartDate("");
         setEndDate("");
         setEventDateError("");
+        setTimeout(() => setStatusMessage({ type: "", text: "" }), 3000);
       }
     } catch (error) {
       setImageError(
         error?.message || `Failed to create ${isEvent ? "event" : "product"}.`,
       );
+      setStatusMessage({ type: "error", text: error?.message || `Failed to create ${isEvent ? "event" : "product"}.` });
     }
   };
 
@@ -153,6 +168,11 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
       <h2 className="text-center text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
         {isEvent ? "Create New Event" : "Create New Product"}
       </h2>
+      {((statusMessage.text && statusMessage.text) || (!statusMessage.text && (isEvent ? eventError : productError))) && (
+        <div className={`rounded-lg mt-4 px-4 py-3 text-sm font-medium ${statusMessage.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+          {statusMessage.text || (isEvent ? eventError : productError)}
+        </div>
+      )}
 
       <div className="mt-8 space-y-6">
         <label className="block space-y-2">

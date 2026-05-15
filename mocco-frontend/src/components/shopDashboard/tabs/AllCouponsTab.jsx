@@ -14,6 +14,7 @@ const AllCouponsTab = ({ sellerCoupons = [], onDeleteCoupon, isLoading }) => {
   return (
     <TableShell
       columns={[
+        "Coupon ID",
         "Coupon Code",
         "Value (%)",
         "Min Amount",
@@ -29,6 +30,11 @@ const AllCouponsTab = ({ sellerCoupons = [], onDeleteCoupon, isLoading }) => {
           text={item._id}
           maxWidthClass="max-w-36"
           mono
+        />,
+        <TruncateTextCell
+          key={`coupon-code-${i}`}
+          text={item.code}
+          maxWidthClass="max-w-36"
         />,
         `${item.value}%`,
         item.minAmount ?? "-",
