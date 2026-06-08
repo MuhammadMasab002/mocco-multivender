@@ -18,7 +18,7 @@ const isProduction =
 
 // config
 if (!isProduction) {
-  dotenv.config({ path: "./src/config/.env" });
+  dotenv.config({ path: "./.env" });
 }
 
 const normalizeOrigin = (origin) =>

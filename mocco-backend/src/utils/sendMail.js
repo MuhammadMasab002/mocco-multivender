@@ -1,18 +1,28 @@
 import nodemailer from "nodemailer";
 
 const sendMail = async (options) => {
+  const smtpHost = process.env.SMPT_HOST?.trim();
+  const smtpPort = process.env.SMPT_PORT?.trim();
+  const smtpService = process.env.SMPT_SERVICE?.trim();
+  const smtpUser = process.env.SMPT_MAIL?.trim();
+  const smtpPassword = process.env.SMPT_PASSWORD?.trim();
+
+  if (!smtpHost || !smtpPort || !smtpService || !smtpUser || !smtpPassword) {
+    throw new Error("SMTP configuration is missing. Check .env values for SMPT_HOST, SMPT_PORT, SMPT_SERVICE, SMPT_MAIL, and SMPT_PASSWORD.");
+  }
+
   const transporter = nodemailer.createTransport({
-    host: process.env.SMPT_HOST,
-    port: process.env.SMPT_PORT,
-    service: process.env.SMPT_SERVICE,
+    host: smtpHost,
+    port: Number(smtpPort),
+    service: smtpService,
     auth: {
-      user: process.env.SMPT_MAIL,
-      pass: process.env.SMPT_PASSWORD,
+      user: smtpUser,
+      pass: smtpPassword,
     },
   });
 
   const mailOptions = {
-    from: process.env.SMPT_MAIL,
+    from: smtpUser,
     to: options.email,
     subject: options.subject,
     text: options.message,

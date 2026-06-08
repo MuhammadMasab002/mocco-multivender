@@ -14,7 +14,7 @@ process.on("uncaughtException", (err) => {
 // config
 if (process.env.NODE_ENV !== "PRODUCTION") {
   console.log("Running in development mode");
-  dotenv.config({ path: "./src/config/.env" });
+  dotenv.config({ path: "./.env" });
 } else {
   console.log("Running in production mode");
 }
