@@ -103,6 +103,27 @@ const getShopEvents = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
+// get all active events across shops (for homepage)
+const getAllEvents = catchAsyncErrors(async (req, res, next) => {
+    try {
+        const now = new Date();
+
+        const events = await Event.find({
+            status: "Running",
+            startDate: { $lte: now },
+            endDate: { $gte: now },
+            stock: { $gt: 0 },
+        }).sort({ createdAt: -1 });
+
+        return res.status(200).json({ success: true, events });
+    } catch (error) {
+        console.error("Error in getAllEvents:", error);
+        return next(
+            new ErrorHandler("Failed to fetch events! " + error.message, 500),
+        );
+    }
+});
+
 // delete event by id
 const deleteEvent = catchAsyncErrors(async (req, res, next) => {
     try {
@@ -128,4 +149,4 @@ const deleteEvent = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-export { createEvent, getShopEvents, deleteEvent };
+export { createEvent, getShopEvents, getAllEvents, deleteEvent };

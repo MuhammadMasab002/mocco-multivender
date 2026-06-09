@@ -49,6 +49,21 @@ const getEvents = (shopId) => async (dispatch) => {
     }
 }
 
+// Get all active events (global)
+const getAllEvents = () => async (dispatch) => {
+    try {
+        dispatch(getEventsRequest());
+        const { data } = await axios.get(`${backendUrl}/event/all`);
+        dispatch(getEventsSuccess(data.events));
+    } catch (error) {
+        const message =
+            error?.response?.data?.message ||
+            error?.message ||
+            "Failed to fetch events";
+        dispatch(getEventsFail(message));
+    }
+}
+
 // Delete event by id
 const deleteEvent = (eventId) => async (dispatch) => {
     try {
@@ -68,4 +83,4 @@ const deleteEvent = (eventId) => async (dispatch) => {
     }
 }
 
-export { createEvent, getEvents, deleteEvent };
+export { createEvent, getEvents, getAllEvents, deleteEvent };
