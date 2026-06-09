@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../common/CustomButton";
 
@@ -8,6 +8,37 @@ const formatMoney = (value) => {
 
   return `$${numberValue.toLocaleString()}`;
 };
+
+const getCountdownParts = (endDate, nowTime = Date.now()) => {
+  const endTime = new Date(endDate).getTime();
+
+  if (!Number.isFinite(endTime)) {
+    return {
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      isExpired: true,
+    };
+  }
+
+  const diff = Math.max(0, endTime - nowTime);
+  const totalSeconds = Math.floor(diff / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return {
+    days,
+    hours,
+    minutes,
+    seconds,
+    isExpired: diff <= 0,
+  };
+};
+
+const formatCountdownValue = (value) => String(value).padStart(2, "0");
 
 const getCardData = (eventProduct = {}) => {
   const imageUrl =
@@ -57,6 +88,7 @@ const EventCard = ({
   showMoreCta = false,
 }) => {
   const navigate = useNavigate();
+  const [clockTick, setClockTick] = useState(0);
 
   const {
     imageUrl,
@@ -72,8 +104,26 @@ const EventCard = ({
     discountPercent,
   } = getCardData(eventProduct);
 
+  const countdownReady = clockTick > 0;
+  const countdown = countdownReady
+    ? getCountdownParts(eventProduct?.endDate, clockTick)
+    : null;
+
   const isSoldOut = stock <= 0;
   const productId = eventProduct?._id || eventProduct?.id;
+
+  useEffect(() => {
+    const syncClock = () => setClockTick(Date.now());
+    const initialTimer = window.setTimeout(syncClock, 0);
+    const timer = setInterval(() => {
+      setClockTick(Date.now());
+    }, 1000);
+
+    return () => {
+      window.clearTimeout(initialTimer);
+      clearInterval(timer);
+    };
+  }, []);
 
   const handleSeeDetails = () => {
     if (!productId) return;
@@ -117,19 +167,29 @@ const EventCard = ({
               {title}
             </h3>
 
-            <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
-              <div className="flex items-center justify-between text-[11px] font-medium text-slate-600">
-                <span>Sold: {sold}</span>
-                <span>Stock: {stock}</span>
+            <div className="rounded-xl border border-red-100 bg-red-50 px-3 py-2">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-red-600">
+                Time left
+              </p>
+              <div className="mt-2 grid grid-cols-4 gap-2 text-center">
+                {[
+                  { label: "Days", value: countdown?.days ?? "--" },
+                  { label: "Hours", value: countdown?.hours ?? "--" },
+                  { label: "Mins", value: countdown?.minutes ?? "--" },
+                  { label: "Secs", value: countdown?.seconds ?? "--" },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-lg bg-white px-2 py-2 shadow-sm">
+                    <div className="text-sm font-bold text-slate-900">
+                      {typeof item.value === "number" ? formatCountdownValue(item.value) : item.value}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wide text-slate-500">
+                      {item.label}
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
-                <div
-                  className="h-full rounded-full bg-linear-to-r from-red-400 to-red-500"
-                  style={{ width: `${soldPercent}%` }}
-                />
-              </div>
-              <p className="text-center text-[11px] text-slate-500">
-                {sold} sold out of {totalUnits || sold}
+              <p className="mt-2 text-center text-[11px] text-slate-500">
+                {countdown?.isExpired ? "Event ended" : countdownReady ? "Ends soon" : "Loading countdown"}
               </p>
             </div>
           </div>
@@ -203,9 +263,39 @@ const EventCard = ({
             {shortDescription}
           </p>
 
+          <div className="mt-5 grid grid-cols-4 gap-3 sm:gap-4">
+            {[
+              { label: "Days", value: countdown?.days ?? "--" },
+              { label: "Hours", value: countdown?.hours ?? "--" },
+              { label: "Minutes", value: countdown?.minutes ?? "--" },
+              { label: "Seconds", value: countdown?.seconds ?? "--" },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="rounded-2xl border border-red-100 bg-white px-3 py-3 text-center shadow-sm"
+              >
+                <div className="text-lg sm:text-xl font-bold text-slate-900">
+                  {typeof item.value === "number" ? formatCountdownValue(item.value) : item.value}
+                </div>
+                <div className="mt-1 text-[10px] sm:text-xs uppercase tracking-[0.16em] text-slate-500">
+                  {item.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-3 text-xs sm:text-sm font-medium text-red-600">
+          </p>
+
           <div className="mt-5 rounded-xl bg-linear-to-r from-red-50 via-rose-50 to-orange-50 border border-red-100 px-4 py-3 text-center">
             <span className="text-red-700 text-base font-semibold">
-              Limited-time deal from trusted seller
+            {countdown?.isExpired
+              ? "This event has ended"
+              : countdownReady
+              ? "Hurry! Limited time left"
+                : "Countdown loading"}
+            
+              
             </span>
           </div>
 
