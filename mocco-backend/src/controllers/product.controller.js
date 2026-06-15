@@ -1,6 +1,7 @@
 import catchAsyncErrors from "../middlewares/CatchAsyncErrors.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import Product from "../models/product.model.js";
+import Event from "../models/event.model.js";
 import Shop from "../models/shop.model.js";
 
 // get all products across shops (for storefront/home pages)
@@ -194,7 +195,46 @@ const getShopProducts = catchAsyncErrors(async (req, res, next) => {
     } catch (error) {
         console.error("Error in getShopProducts:", error);
         return next(
-            new ErrorHandler("Failed to get products! " + error.message, 500),
+            new ErrorHandler("Failed to get shop products! " + error.message, 500),
+        );
+    }
+});
+
+// get product by ID (searches Product, then Event, populates shop)
+const getProductById = catchAsyncErrors(async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        let product = await Product.findById(id).populate("shop", "name avatar description createdAt");
+
+        if (!product) {
+            product = await Event.findById(id).populate("shop", "name avatar description createdAt");
+        }
+
+        if (!product) {
+            return next(new ErrorHandler("Product not found!", 404));
+        }
+
+        let relatedProducts = [];
+        if (product.category) {
+            // Find products in the same category, excluding the current one
+            relatedProducts = await Product.find({
+                category: product.category,
+                _id: { $ne: product._id }
+            })
+                .sort({ total_sell: -1 }) // Sort by best selling
+                .limit(4);
+        }
+
+        return res.status(200).json({
+            success: true,
+            product,
+            relatedProducts,
+        });
+    } catch (error) {
+        console.error("Error in getProductById:", error);
+        return next(
+            new ErrorHandler("Failed to get product details! " + error.message, 500),
         );
     }
 });
@@ -224,4 +264,4 @@ const deleteProduct = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-export { createProduct, getAllProducts, getFeaturedProducts, getBestSellingProducts, toggleFeatured, getShopProducts, deleteProduct };
+export { createProduct, getAllProducts, getFeaturedProducts, getBestSellingProducts, getProductById, toggleFeatured, getShopProducts, deleteProduct };

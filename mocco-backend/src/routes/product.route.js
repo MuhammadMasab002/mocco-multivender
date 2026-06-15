@@ -5,6 +5,7 @@ import {
     getAllProducts,
     getFeaturedProducts,
     getBestSellingProducts,
+    getProductById,
     getShopProducts,
     toggleFeatured,
 } from "../controllers/product.controller.js";
@@ -23,6 +24,7 @@ productRouter.post(
 productRouter.get("/all", getAllProducts);
 productRouter.get("/featured", getFeaturedProducts);
 productRouter.get("/best-selling", getBestSellingProducts);
+productRouter.get("/detail/:id", getProductById);
 productRouter.get("/all/:shopId", getShopProducts);
 
 productRouter.patch("/toggle-featured/:id", isSellerAuthenticated, toggleFeatured);
