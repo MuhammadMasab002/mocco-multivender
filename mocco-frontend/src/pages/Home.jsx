@@ -34,53 +34,6 @@ const scoreEventProduct = (product) => {
   return discountStrength * 0.45 + totalSell * 0.4 + rating * 0.15;
 };
 
-const sampleProducts = [
-  {
-    id: 1,
-    image:
-      "https://images.unsplash.com/photo-1656944227421-d0e8de487d9d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    name: "HAVIT HV-G92 Playing shoes",
-    price: "$120",
-    oldPrice: "205",
-    badge: "New",
-    discount: "40",
-    isWishlisted: "true",
-  },
-  {
-    id: 2,
-    image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80&auto=format&fit=crop",
-    name: "Sony WH-1000XM4 Headphones",
-    price: "$299",
-    oldPrice: "440",
-    badge: "Hot",
-    discount: "26",
-    isWishlisted: "false",
-  },
-  {
-    id: 3,
-    image:
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&q=80&auto=format&fit=crop",
-    name: "RGB Liquid Apple Laptop",
-    price: "$120",
-    oldPrice: "160",
-    badge: "Sale",
-    discount: "10",
-    isWishlisted: "true",
-  },
-  {
-    id: 4,
-    image:
-      "https://images.unsplash.com/photo-1752442534054-ef5b221c39a3?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    name: "Gaming Mouse",
-    price: "$59",
-    oldPrice: "111",
-    badge: "Limited",
-    discount: "21",
-    isWishlisted: "false",
-  },
-];
-
 function Home() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -221,7 +174,10 @@ function Home() {
       </section>
 
       <section className="w-full max-w-7xl py-10 space-y-8">
-        <NewArrivalProducts featureProducts={sampleProducts} />
+        <NewArrivalProducts
+          productLoading={productLoading}
+          newArrivalProducts={storeProducts}
+        />
       </section>
 
       <section className="w-full max-w-7xl py-4 sm:py-10 md:py-20">
