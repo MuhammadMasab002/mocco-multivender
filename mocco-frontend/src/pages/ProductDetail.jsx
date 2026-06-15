@@ -40,8 +40,7 @@ export const ProductDetail = () => {
     return (
       products.find(
         (product) => String(product?._id || product?.id) === String(productId),
-      ) ||
-      null
+      ) || null
     );
   }, [productId, products]);
 
@@ -124,6 +123,7 @@ export const ProductDetail = () => {
               currentProduct?.image_Url?.[0]?.url ||
               ""
             }
+            // src={`http://localhost:8000/api/v1/uploads/${currentProduct?.images?.[0]?.url || currentProduct?.images?.[0]?.public_id}`}
             alt={currentProduct?.name}
             className="w-full max-w-md rounded shadow"
           />

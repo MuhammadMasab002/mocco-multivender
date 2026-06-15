@@ -5,8 +5,10 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import CloseIcon from "@mui/icons-material/Close";
 import CustomButton from "../CustomButton";
+import { useNavigate } from "react-router-dom";
 
 const ProductCard = ({ product, handleClick }) => {
+  const navigate = useNavigate();
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [productDetailView, setProductDetailView] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -181,9 +183,20 @@ const ProductCard = ({ product, handleClick }) => {
                     <h3 className="text-sm font-semibold text-gray-900 mb-2">
                       Seller Details
                     </h3>
-                    <p className="text-sm text-gray-700">
-                      Seller Name: {product?.shop?.name || "MultiMart"}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-700">
+                        Seller Name:
+                      </span>
+                      <div>
+                        <CustomButton
+                          buttonText={product?.shop?.name || "MultiMart"}
+                          variant="textDanger"
+                          onClick={() =>
+                            navigate(`/shop/${product?.shop?._id}`)
+                          }
+                        />
+                      </div>
+                    </div>
                     <div className="mt-3 max-w-40">
                       <CustomButton
                         buttonText="Send Message"

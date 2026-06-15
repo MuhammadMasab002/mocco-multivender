@@ -132,16 +132,7 @@ function App() {
             }
           />
 
-          <Route
-            path="/shop/:sellerId/*"
-            element={
-              <SellerProtectedRoute>
-                <SellerRoutesLayout />
-              </SellerProtectedRoute>
-            }
-          >
-            <Route index element={<MyShop />} />
-          </Route>
+          <Route path="/shop/:sellerId" element={<MyShop />} />
 
           <Route path="/activate" element={<EmailActivation />} />
           <Route path="/activate/:token" element={<EmailActivation />} />

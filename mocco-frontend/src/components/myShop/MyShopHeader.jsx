@@ -36,11 +36,12 @@ const MyShopHeader = ({
   totalReviews,
   activeTab,
   onTabChange,
+  isOwner,
 }) => {
   return (
     <div className="rounded-3xl border border-slate-200 bg-white px-4 py-6 text-center shadow-[0_12px_36px_rgba(15,23,42,0.08)] sm:px-8 sm:py-7">
       <p className="text-xs uppercase tracking-[0.2em] text-red-500">
-        Shop Dashboard
+        Shop {isOwner && "Dashboard"}
       </p>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
         {toTitle(displayShop.name)}
@@ -70,21 +71,22 @@ const MyShopHeader = ({
           onClick={() => onTabChange("reviews")}
         />
       </div>
-
-      <div className="mt-6 flex flex-wrap justify-center gap-3">
-        <Link
-          to="/shop-dashboard"
-          className="inline-flex items-center justify-center rounded-none border border-slate-900 bg-slate-900 px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-        >
-          Shop Dashboard
-        </Link>
-        <Link
-          to="/"
-          className="inline-flex items-center justify-center rounded-none border border-slate-300 bg-white px-8 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-        >
-          MultiMart Home
-        </Link>
-      </div>
+      {isOwner && (
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <Link
+            to="/shop-dashboard"
+            className="inline-flex items-center justify-center rounded-none border border-slate-900 bg-slate-900 px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+          >
+            Shop Dashboard
+          </Link>
+          <Link
+            to="/"
+            className="inline-flex items-center justify-center rounded-none border border-slate-300 bg-white px-8 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+          >
+            MultiMart Home
+          </Link>
+        </div>
+      )}
     </div>
   );
 };

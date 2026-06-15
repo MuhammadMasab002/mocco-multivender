@@ -187,10 +187,35 @@ const getSeller = async (req, res, next) => {
             shop,
         });
     } catch (error) {
-        console.error("Error in getShop:", error);
+        console.error("Error in getSeller:", error);
         return next(
             new ErrorHandler(
-                "Failed to fetch shop profile! " + error.message,
+                "Failed to fetch seller profile! " + error.message,
+                500,
+            ),
+        );
+    }
+};
+
+// get public shop info
+const getShopInfo = async (req, res, next) => {
+    try {
+        const { shopId } = req.params;
+        const shop = await Shop.findById(shopId).select("-password -email -phoneNumber");
+
+        if (!shop) {
+            return next(new ErrorHandler("Shop not found!", 404));
+        }
+
+        res.status(200).json({
+            success: true,
+            shop,
+        });
+    } catch (error) {
+        console.error("Error in getShopInfo:", error);
+        return next(
+            new ErrorHandler(
+                "Failed to fetch shop info! " + error.message,
                 500,
             ),
         );
@@ -222,4 +247,4 @@ const logoutShop = async (req, res, next) => {
 };
 
 
-export { registerShop, activateShopEmail, loginShop, getSeller, logoutShop };
+export { registerShop, activateShopEmail, loginShop, getSeller, getShopInfo, logoutShop };

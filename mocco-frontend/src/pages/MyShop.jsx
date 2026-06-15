@@ -1,81 +1,78 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { loadSeller } from "../services/store/actions/seller";
-import { productData } from "../static/data";
+import { getProducts } from "../services/store/actions/product";
+import { getEvents } from "../services/store/actions/event";
 import MyShopSidebar from "../components/myShop/MyShopSidebar";
 import MyShopHeader from "../components/myShop/MyShopHeader";
 import ShopProductCard from "../components/myShop/ShopProductCard";
 import ShopEventCard from "../components/myShop/ShopEventCard";
 import ShopEmptyState from "../components/myShop/ShopEmptyState";
 import EditShopModal from "../components/myShop/EditShopModal";
-import {
-  backendUrl,
-  initialFormState,
-  normalize,
-  toTitle,
-} from "../components/myShop/utils";
+import { backendUrl, initialFormState } from "../components/myShop/utils";
 
 const MyShop = () => {
-  const navigate = useNavigate();
+  const { sellerId } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { seller } = useSelector((state) => state.seller);
-  const sellerSnapshot = useMemo(() => initialFormState(seller), [seller]);
+  const { products: storeProducts } = useSelector((state) => state.product);
+  const { events: storeEvents } = useSelector((state) => state.event);
 
   const [activeTab, setActiveTab] = useState("products");
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [shopView, setShopView] = useState(() => initialFormState(seller));
-  const [editForm, setEditForm] = useState(() => initialFormState(seller));
+  const [shopView, setShopView] = useState(() => initialFormState({}));
+  const [editForm, setEditForm] = useState(() => initialFormState({}));
+  const [isShopLoading, setIsShopLoading] = useState(true);
 
-  const hasShopOverride = useMemo(() => {
-    return Boolean(shopView.name || shopView.email || shopView.phoneNumber);
-  }, [shopView.email, shopView.name, shopView.phoneNumber]);
+  const isOwner = seller?._id === sellerId;
 
-  const displayShop = hasShopOverride ? shopView : sellerSnapshot;
+  // Load shop products and events on mount
+  useEffect(() => {
+    if (sellerId) {
+      dispatch(getProducts(sellerId));
+      dispatch(getEvents(sellerId));
+    }
+  }, [dispatch, sellerId]);
 
-  const sellerProducts = useMemo(() => {
-    const safeProducts = Array.isArray(productData) ? productData : [];
-    const sellerName = normalize(displayShop.name);
+  // Load shop profile
+  useEffect(() => {
+    const fetchShopInfo = async () => {
+      try {
+        setIsShopLoading(true);
+        if (isOwner) {
+          setShopView(initialFormState(seller));
+          setEditForm(initialFormState(seller));
+        } else {
+          const { data } = await axios.get(
+            `${backendUrl}/shop/info/${sellerId}`,
+          );
+          setShopView(initialFormState(data?.shop));
+        }
+      } catch (error) {
+        console.error("Failed to fetch shop details", error);
+      } finally {
+        setIsShopLoading(false);
+      }
+    };
+    if (sellerId) fetchShopInfo();
+  }, [sellerId, isOwner, seller]);
 
-    if (!sellerName) return safeProducts.slice(0, 4);
-
-    const matched = safeProducts.filter((product) => {
-      const productShopName = normalize(product?.shop?.name);
-      return (
-        productShopName === sellerName ||
-        productShopName.includes(sellerName) ||
-        sellerName.includes(productShopName)
-      );
-    });
-
-    return matched.length > 0 ? matched : safeProducts.slice(0, 4);
-  }, [displayShop.name]);
-
-  const eventItems = useMemo(() => {
-    return sellerProducts.slice(0, 3).map((product, index) => {
-      const eventEnd = new Date();
-      eventEnd.setDate(eventEnd.getDate() + 7 + index * 5);
-
-      return {
-        id: `${product?.id || index}-event`,
-        title: toTitle(product?.name),
-        image: product?.image_Url?.[0]?.url,
-        note: "Promote this product in limited-time flash campaigns.",
-        endsOn: eventEnd.toLocaleDateString("en-US"),
-      };
-    });
-  }, [sellerProducts]);
+  const sellerProducts = Array.isArray(storeProducts) ? storeProducts : [];
+  const eventItems = Array.isArray(storeEvents) ? storeEvents : [];
 
   const reviewItems = useMemo(() => {
     return sellerProducts.flatMap((product) => {
       const reviews = Array.isArray(product?.reviews) ? product.reviews : [];
 
       return reviews.map((review, index) => ({
-        id: `${product?.id || index}-review-${index}`,
-        productName: toTitle(product?.name),
-        comment: review?.comment || "Great product",
-        rating: Number(review?.rating || product?.rating || 4),
+        id: `${product?._id || index}-review-${index}`,
+        productName: product?.name || "Product",
+        comment: review?.comment || "No comment",
+        rating: Number(review?.rating || 0),
       }));
     });
   }, [sellerProducts]);
@@ -143,6 +140,12 @@ const MyShop = () => {
     window.alert("Shop profile updated on this dashboard.");
   };
 
+  if (isShopLoading) {
+    return (
+      <div className="flex justify-center py-20">Loading shop profile...</div>
+    );
+  }
+
   return (
     <>
       <section className="relative w-full rounded-3xl border border-slate-200/90 bg-linear-to-b from-slate-50 via-slate-100 to-slate-50 p-4 sm:p-6 lg:p-8">
@@ -151,36 +154,56 @@ const MyShop = () => {
 
         <div className="relative grid grid-cols-1 items-start gap-6 xl:grid-cols-[320px_1fr] xl:gap-7">
           <MyShopSidebar
-            displayShop={displayShop}
+            displayShop={shopView}
             totalProducts={totalProducts}
-            sellerCreatedAt={seller?.createdAt}
+            sellerCreatedAt={shopView?.createdAt}
             onOpenEdit={openEditModal}
             onLogout={handleLogout}
+            isOwner={isOwner}
           />
 
           <main className="space-y-10">
             <MyShopHeader
-              displayShop={displayShop}
+              displayShop={shopView}
               totalProducts={totalProducts}
               totalEvents={totalEvents}
               totalReviews={totalReviews}
               activeTab={activeTab}
               onTabChange={setActiveTab}
+              isOwner={isOwner}
             />
 
             {activeTab === "products" && (
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {sellerProducts.map((product) => (
-                  <ShopProductCard key={product.id} product={product} />
-                ))}
+                {sellerProducts.length > 0 ? (
+                  sellerProducts.map((product) => (
+                    <ShopProductCard key={product._id} product={product} />
+                  ))
+                ) : (
+                  <div className="col-span-full">
+                    <ShopEmptyState
+                      title="No products found"
+                      subtitle="This shop hasn't listed any products yet."
+                    />
+                  </div>
+                )}
               </div>
             )}
 
             {activeTab === "events" && (
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {eventItems.map((event) => (
-                  <ShopEventCard key={event.id} event={event} />
-                ))}
+                {eventItems.length > 0 ? (
+                  eventItems.map((event) => (
+                    <ShopEventCard key={event._id} event={event} />
+                  ))
+                ) : (
+                  <div className="col-span-full">
+                    <ShopEmptyState
+                      title="No events found"
+                      subtitle="This shop doesn't have any active events."
+                    />
+                  </div>
+                )}
               </div>
             )}
 

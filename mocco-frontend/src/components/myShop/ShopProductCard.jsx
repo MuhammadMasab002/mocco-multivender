@@ -1,23 +1,33 @@
 import React from "react";
 import { toTitle } from "./utils";
+import { useNavigate } from "react-router-dom";
 
 const ShopProductCard = ({ product }) => {
+  const navigate = useNavigate();
   const title = toTitle(product?.name);
   const price = product?.discount_price ?? product?.price ?? 0;
   const oldPrice = product?.discount_price ? product?.price : null;
   const rating = Number(product?.rating || 4.2);
   const category = toTitle(product?.category || "General");
 
+  const imageUrl =
+    product?.images?.[0]?.url ||
+    product?.image_Url?.[0]?.url ||
+    "https://dummyimage.com/600x400/e2e8f0/64748b.png&text=Product";
+
   return (
-    <article className="group overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-[0_10px_32px_rgba(15,23,42,0.07)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(15,23,42,0.13)]">
+    <article
+      onClick={() => navigate(`/product-detail/${product._id}`)}
+      className="group overflow-hidden cursor-pointer rounded-3xl border border-slate-200/90 bg-white shadow-[0_10px_32px_rgba(15,23,42,0.07)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(15,23,42,0.13)]"
+    >
       <div className="relative h-56 overflow-hidden bg-linear-to-br from-slate-50 to-slate-100">
         <img
-          src={product?.image_Url?.[0]?.url}
+          src={imageUrl}
           alt={title}
           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
         />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-slate-900/30 to-transparent" />
-        <span className="absolute left-3 top-3 rounded-full border border-red-500/40 bg-white/90 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-slate-700 backdrop-blur-sm">
+        <span className="absolute left-3 top-3 rounded-full border border-red-500/40 bg-white/90 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-slate-700 backdrop-blur-sm shadow-sm">
           {category}
         </span>
       </div>
@@ -53,25 +63,6 @@ const ShopProductCard = ({ product }) => {
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
             Best Offer
           </p>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2 rounded-2xl border border-slate-100 bg-white p-3.5 text-sm">
-          <div className="text-center">
-            <p className="text-slate-400">Price</p>
-            <p className="font-semibold text-slate-700">${price}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-slate-400">Stock</p>
-            <p className="font-semibold text-slate-700">
-              {product?.stock ?? 0}
-            </p>
-          </div>
-          <div className="text-center">
-            <p className="text-slate-400">Sold</p>
-            <p className="font-semibold text-slate-700">
-              {product?.total_sell ?? 0}
-            </p>
-          </div>
         </div>
       </div>
     </article>
