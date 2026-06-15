@@ -12,12 +12,10 @@ const BestSelling = ({
   const navigate = useNavigate();
   const products = Array.isArray(productData) ? productData : [];
 
-  const sortedProducts = [...products].sort(
-    (a, b) => (b?.total_sell ?? 0) - (a?.total_sell ?? 0),
-  );
-
   const bestSellingProducts =
-    typeof limit === "number" ? sortedProducts.slice(0, limit) : sortedProducts;
+    typeof limit === "number" && isFinite(limit)
+      ? products.slice(0, limit)
+      : products;
 
   return (
     <div>

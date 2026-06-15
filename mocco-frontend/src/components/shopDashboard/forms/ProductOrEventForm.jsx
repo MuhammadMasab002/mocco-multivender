@@ -10,6 +10,8 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [eventDateError, setEventDateError] = useState("");
+  // isFeatured defaults to false — seller must explicitly promote the product
+  const [isFeatured, setIsFeatured] = useState(false);
 
   const getMinEndDate = (selectedStartDate) => {
     if (!selectedStartDate) return "";
@@ -39,7 +41,9 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
     const minEndDate = getMinEndDate(startDate);
 
     if (minEndDate && nextEndDate < minEndDate) {
-      setEventDateError("End date must be at least 3 days after the start date.");
+      setEventDateError(
+        "End date must be at least 3 days after the start date.",
+      );
       setEndDate(minEndDate);
       return;
     }
@@ -70,7 +74,10 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
     if (invalidFile) {
       setImageError("Only image files are allowed.");
       event.target.value = "";
-      setStatusMessage({ type: "error", text: "Only image files are allowed." });
+      setStatusMessage({
+        type: "error",
+        text: "Only image files are allowed.",
+      });
       return;
     }
 
@@ -113,7 +120,10 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
 
     if (!images.length) {
       setImageError("Please upload at least one image.");
-      setStatusMessage({ type: "error", text: "Please upload at least one image." });
+      setStatusMessage({
+        type: "error",
+        text: "Please upload at least one image.",
+      });
       return;
     }
 
@@ -121,7 +131,10 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
     if (isEvent) {
       if (!startDate || !endDate) {
         setEventDateError("Both start and end dates are required.");
-        setStatusMessage({ type: "error", text: "Both start and end dates are required." });
+        setStatusMessage({
+          type: "error",
+          text: "Both start and end dates are required.",
+        });
         return;
       }
 
@@ -130,8 +143,13 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
       const daysDifference = Math.floor((end - start) / (1000 * 60 * 60 * 24));
 
       if (daysDifference < 3) {
-        setEventDateError("Event must be at least 3 days long. End date must be at least 3 days after start date.");
-        setStatusMessage({ type: "error", text: "Event must be at least 3 days long." });
+        setEventDateError(
+          "Event must be at least 3 days long. End date must be at least 3 days after start date.",
+        );
+        setStatusMessage({
+          type: "error",
+          text: "Event must be at least 3 days long.",
+        });
         return;
       }
     }
@@ -143,20 +161,31 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
       );
 
       if (submitted) {
-        setStatusMessage({ type: "success", text: isEvent ? "Event created successfully." : "Product created successfully." });
+        setStatusMessage({
+          type: "success",
+          text: isEvent
+            ? "Event created successfully."
+            : "Product created successfully.",
+        });
         setImageError("");
         handleClearImages();
         event.target.reset();
         setStartDate("");
         setEndDate("");
         setEventDateError("");
+        setIsFeatured(false);
         setTimeout(() => setStatusMessage({ type: "", text: "" }), 3000);
       }
     } catch (error) {
       setImageError(
         error?.message || `Failed to create ${isEvent ? "event" : "product"}.`,
       );
-      setStatusMessage({ type: "error", text: error?.message || `Failed to create ${isEvent ? "event" : "product"}.` });
+      setStatusMessage({
+        type: "error",
+        text:
+          error?.message ||
+          `Failed to create ${isEvent ? "event" : "product"}.`,
+      });
     }
   };
 
@@ -168,8 +197,11 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
       <h2 className="text-center text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
         {isEvent ? "Create New Event" : "Create New Product"}
       </h2>
-      {((statusMessage.text && statusMessage.text) || (!statusMessage.text && (isEvent ? eventError : productError))) && (
-        <div className={`rounded-lg mt-4 px-4 py-3 text-sm font-medium ${statusMessage.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+      {((statusMessage.text && statusMessage.text) ||
+        (!statusMessage.text && (isEvent ? eventError : productError))) && (
+        <div
+          className={`rounded-lg mt-4 px-4 py-3 text-sm font-medium ${statusMessage.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+        >
           {statusMessage.text || (isEvent ? eventError : productError)}
         </div>
       )}
@@ -397,6 +429,45 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
             )}
           </div>
         </div>
+
+        {/* isFeatured toggle — only for products, not events */}
+        {!isEvent && (
+          <div className="flex items-start gap-4 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-slate-800">
+                Mark as Featured
+              </p>
+              <p className="mt-0.5 text-xs text-slate-500">
+                Featured products are promoted and highlighted on the homepage.
+                Enable this only for products you want to spotlight.
+              </p>
+            </div>
+
+            {/* Hidden input so FormData captures the value */}
+            <input
+              type="hidden"
+              name="isFeatured"
+              value={isFeatured ? "true" : "false"}
+            />
+
+            {/* Toggle switch */}
+            <button
+              type="button"
+              role="switch"
+              aria-checked={isFeatured}
+              onClick={() => setIsFeatured((prev) => !prev)}
+              className={`relative mt-0.5 inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                isFeatured ? "bg-amber-400" : "bg-slate-300"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  isFeatured ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+        )}
 
         <button
           type="submit"

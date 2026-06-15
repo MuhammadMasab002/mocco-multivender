@@ -9,6 +9,11 @@ import { useNavigate } from "react-router-dom";
 import CategoriesGrid from "../components/home/CategoriesGrid";
 import { productData } from "../static/data.jsx";
 import { getAllEvents } from "../services/store/actions/event";
+import {
+  getAllProducts,
+  getFeaturedProducts,
+  getBestSellingProducts,
+} from "../services/store/actions/product";
 import FeatureProducts from "../components/home/FeatureProducts.jsx";
 import SponsoredBrands from "../components/home/SponsoredBrands.jsx";
 import EventCard from "../components/home/EventCard.jsx";
@@ -80,12 +85,24 @@ function Home() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { events: storeEvents } = useSelector((state) => state.event);
+  const {
+    products: storeProducts,
+    featuredProducts,
+    bestSellingProducts,
+    isLoading: productLoading,
+    isFeaturedLoading,
+    isBestSellingLoading,
+  } = useSelector((state) => state.product);
 
   useEffect(() => {
     dispatch(getAllEvents());
+    dispatch(getAllProducts());
+    dispatch(getFeaturedProducts());
+    dispatch(getBestSellingProducts());
   }, [dispatch]);
 
-  const sourceEvents = Array.isArray(storeEvents) && storeEvents.length > 0 ? storeEvents : [];
+  const sourceEvents =
+    Array.isArray(storeEvents) && storeEvents.length > 0 ? storeEvents : [];
 
   const rankedEventProducts = sourceEvents
     .filter((product) => Number(product?.stock || 0) > 0)
@@ -119,11 +136,21 @@ function Home() {
           limit={8}
           handleClick={handleClick}
         />
-        <BestSelling
-          productData={productData}
-          limit={8}
-          handleClick={handleClick}
-        />
+        {isBestSellingLoading ? (
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
+            Loading best-selling products...
+          </div>
+        ) : bestSellingProducts?.length > 0 ? (
+          <BestSelling
+            productData={bestSellingProducts}
+            limit={8}
+            handleClick={handleClick}
+          />
+        ) : (
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
+            No best-selling products found right now.
+          </div>
+        )}
       </section>
 
       <section className="w-full py-12 px-5">
@@ -180,11 +207,17 @@ function Home() {
       </section>
 
       <section className="w-full max-w-7xl px-5 py-8 space-y-8 sm:space-y-12">
-        <FeatureProducts
-          productData={productData}
-          limit={8}
-          handleClick={handleClick}
-        />
+        {isFeaturedLoading ? (
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
+            Loading featured products...
+          </div>
+        ) : (
+          <FeatureProducts
+            productData={featuredProducts}
+            limit={8}
+            handleClick={handleClick}
+          />
+        )}
       </section>
 
       <section className="w-full max-w-7xl py-10 space-y-8">

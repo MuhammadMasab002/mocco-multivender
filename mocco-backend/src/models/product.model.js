@@ -50,6 +50,22 @@ const productSchema = new Schema(
             type: Number,
             default: 0,
         },
+        isFeatured: {
+            type: Boolean,
+            default: false,
+        },
+        rating: {
+            type: Number,
+            default: 0,
+        },
+        reviews: [
+            {
+                user: { type: Schema.Types.ObjectId, ref: "User" },
+                rating: { type: Number, required: true },
+                comment: { type: String },
+                createdAt: { type: Date, default: Date.now },
+            },
+        ],
         shop: {
             type: Schema.Types.ObjectId,
             ref: "Shop",

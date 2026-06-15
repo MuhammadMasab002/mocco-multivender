@@ -1,5 +1,13 @@
 import express from "express";
-import { createProduct, deleteProduct, getShopProducts } from "../controllers/product.controller.js";
+import {
+    createProduct,
+    deleteProduct,
+    getAllProducts,
+    getFeaturedProducts,
+    getBestSellingProducts,
+    getShopProducts,
+    toggleFeatured,
+} from "../controllers/product.controller.js";
 import isSellerAuthenticated from "../middlewares/sellerAuth.js";
 import upload from "../../multer.js";
 
@@ -11,8 +19,13 @@ productRouter.post(
     upload.array("files", 10),
     createProduct,
 );
-// productRouter.get("/all", getShopProducts);
+
+productRouter.get("/all", getAllProducts);
+productRouter.get("/featured", getFeaturedProducts);
+productRouter.get("/best-selling", getBestSellingProducts);
 productRouter.get("/all/:shopId", getShopProducts);
+
+productRouter.patch("/toggle-featured/:id", isSellerAuthenticated, toggleFeatured);
 productRouter.delete("/delete/:id", isSellerAuthenticated, deleteProduct);
 
 export default productRouter;
