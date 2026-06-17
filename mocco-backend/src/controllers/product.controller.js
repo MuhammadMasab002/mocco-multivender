@@ -239,6 +239,63 @@ const getProductById = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
+// search products and events
+const searchProducts = catchAsyncErrors(async (req, res, next) => {
+    try {
+        const { q } = req.query;
+        let results = [];
+
+        if (!q || q.trim() === "") {
+            // Return top 10 products if query is empty
+            const topProducts = await Product.find({})
+                .populate("shop", "name avatar")
+                .sort({ total_sell: -1, createdAt: -1 })
+                .limit(10);
+
+            results = topProducts.map(p => ({ ...p.toObject(), type: 'product' }));
+        } else {
+            // Search in both Products and Events
+            const regex = new RegExp(q, 'i');
+
+            const [products, events] = await Promise.all([
+                Product.find({
+                    $or: [
+                        { name: regex },
+                        { category: regex },
+                        { tags: { $in: [regex] } }
+                    ]
+                }).populate("shop", "name avatar").limit(10),
+                Event.find({
+                    $or: [
+                        { name: regex },
+                        { category: regex },
+                        { tags: { $in: [regex] } }
+                    ]
+                }).populate("shop", "name avatar").limit(10)
+            ]);
+
+            const mappedProducts = products.map(p => ({ ...p.toObject(), type: 'product' }));
+            const mappedEvents = events.map(e => ({ ...e.toObject(), type: 'event' }));
+
+            // Combine and limit to top 15 results
+            results = [...mappedProducts, ...mappedEvents]
+                .sort((a, b) => (b.total_sell || 0) - (a.total_sell || 0))
+                .slice(0, 15);
+        }
+
+        return res.status(200).json({
+            success: true,
+            results,
+        });
+
+    } catch (error) {
+        console.error("Error in searchProducts:", error);
+        return next(
+            new ErrorHandler("Failed to search products! " + error.message, 500),
+        );
+    }
+});
+
 // delete product by id
 const deleteProduct = catchAsyncErrors(async (req, res, next) => {
     try {
@@ -264,4 +321,4 @@ const deleteProduct = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-export { createProduct, getAllProducts, getFeaturedProducts, getBestSellingProducts, getProductById, toggleFeatured, getShopProducts, deleteProduct };
+export { createProduct, getAllProducts, getFeaturedProducts, getBestSellingProducts, getProductById, toggleFeatured, getShopProducts, deleteProduct, searchProducts };

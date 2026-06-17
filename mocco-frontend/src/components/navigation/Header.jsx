@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomFormInput from "../common/inputs/CustomFormInput";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -11,10 +11,12 @@ import IconButton from "@mui/material/IconButton";
 import { Menu } from "lucide-react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import CustomButton from "../common/CustomButton";
-import { navItems, productData } from "../../static/data.jsx";
+import { navItems } from "../../static/data.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { loadUser } from "../../services/store/actions/user.js";
 import axios from "axios";
+import { getAllEvents } from "../../services/store/actions/event.js";
+import GlobalSearch from "./GlobalSearch.jsx";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -27,10 +29,22 @@ const Header = () => {
     (state) => state.seller,
   );
 
-  const [search, setSearch] = useState("");
-  const [searchData, setSearchData] = useState(null);
+  // api call to get events for search
+  useEffect(() => {
+    dispatch(getAllEvents());
+  }, [dispatch]);
+
+  const { products, isLoading: isProductsLoading } = useSelector(
+    (state) => state.product,
+  );
+  const { events, isLoading: isEventsLoading } = useSelector(
+    (state) => state.event,
+  );
+
+  console.log("products on search:-->", products);
+  console.log("events on search:-->", events);
+
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
 
   // handle logout API
   const handleLogout = async () => {
@@ -42,23 +56,6 @@ const Header = () => {
       dispatch(loadUser());
       navigate("/login", { replace: true });
     }
-  };
-
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearch(value);
-
-    // filter search
-    const filteredData =
-      productData &&
-      productData.filter((item) =>
-        item.name.toLowerCase().includes(value.toLowerCase()),
-      );
-    setSearchData(filteredData);
-  };
-
-  const handleSearchDropdownToggle = () => {
-    setIsSearchDropdownOpen((prev) => !prev);
   };
 
   const handleMenuToggle = () => {
@@ -77,12 +74,7 @@ const Header = () => {
   // handle navigation
   const handleNavigation = (productId) => {
     if (!productId) return;
-
     handleMenuClose();
-
-    setSearch("");
-    setIsSearchDropdownOpen(false); // Close the search dropdown on mobile after navigation
-
     navigate(`/product-detail/${productId}`);
   };
 
@@ -254,69 +246,8 @@ const Header = () => {
           })}
         </nav>
 
-        <div className="flex justify-between items-center gap-3 pl-4 text-black">
-          {/* mobile search */}
-          <span className="lg:hiddens sm:pr-4">
-            <SearchIcon
-              onClick={handleSearchDropdownToggle}
-              className={`${isSearchDropdownOpen ? "text-red-500" : "text-gray-500"} text-xl cursor-pointer`}
-            />
-          </span>
-
-          <div
-            className={`lg:hiddens absolute top-full left-4 md:left-10 lg:left-40 right-4 md:right-10 lg:right-40 bg-white border border-red-300 shadow-2xl rounded-md mt-1 z-10 overflow-hidden origin-top transition-all duration-300 ease-out delay-75 ${
-              isSearchDropdownOpen
-                ? "opacity-100 scale-y-100 translate-y-0 pointer-events-auto"
-                : "opacity-0 scale-y-95 -translate-y-2 pointer-events-none"
-            }`}
-          >
-            <div className="p-3 border-b border-gray-200">
-              <CustomFormInput
-                placeholder="Search what are you looking for?"
-                name="mobile-search"
-                value={search}
-                icon={true}
-                onChange={handleSearchChange}
-                required
-                className="w-full!"
-              />
-            </div>
-
-            <div
-              className={`transition-all duration-200 ease-in-out delay-100 ${
-                search
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 -translate-y-1"
-              }`}
-            >
-              {search ? (
-                searchData && searchData?.length !== 0 ? (
-                  <div className="py-2 px-1 overflow-y-auto max-h-100">
-                    {searchData?.map((item) => (
-                      <div
-                        key={item.id}
-                        onClick={() => handleNavigation(item.id)}
-                        className="flex p-2 hover:bg-red-50 cursor-pointer"
-                      >
-                        <div className="w-10 h-10 mr-3 shrink-0">
-                          <img
-                            src={item.image_Url[1].url}
-                            alt={item.name}
-                            className="w-full h-full object-cover rounded-full"
-                          />
-                        </div>
-                        <div className="text-sm text-gray-700 font-medium">
-                          {item.name}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-3 text-gray-500">No results found</div>
-                )
-              ) : null}
-            </div>
-          </div>
+        <div className="flex justify-between items-center gap-3 pl-4 text-black flex-1 max-w-2xl">
+          <GlobalSearch />
           <CustomButton
             buttonText={isSellerAuthenticated ? "My Shop" : "Become a Seller"}
             variant="secondary"

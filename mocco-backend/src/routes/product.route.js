@@ -8,6 +8,7 @@ import {
     getProductById,
     getShopProducts,
     toggleFeatured,
+    searchProducts,
 } from "../controllers/product.controller.js";
 import isSellerAuthenticated from "../middlewares/sellerAuth.js";
 import upload from "../../multer.js";
@@ -22,6 +23,7 @@ productRouter.post(
 );
 
 productRouter.get("/all", getAllProducts);
+productRouter.get("/search", searchProducts);
 productRouter.get("/featured", getFeaturedProducts);
 productRouter.get("/best-selling", getBestSellingProducts);
 productRouter.get("/detail/:id", getProductById);

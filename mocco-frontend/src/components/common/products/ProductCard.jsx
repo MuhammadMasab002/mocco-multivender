@@ -52,7 +52,7 @@ const ProductCard = ({ product, handleClick }) => {
     <>
       <div
         className="relative bg-white shadow-sm hover:shadow-lg hover:shadow-red-100 rounded-lg overflow-hidden cursor-pointer group transition"
-        onClick={() => handleClick(product?.id)}
+        onClick={() => handleClick(product?._id)}
       >
         {/* Discount Badge */}
         {product?.discount && (
