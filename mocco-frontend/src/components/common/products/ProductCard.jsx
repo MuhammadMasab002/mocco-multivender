@@ -6,10 +6,25 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import CloseIcon from "@mui/icons-material/Close";
 import CustomButton from "../CustomButton";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import toast from "react-hot-toast";
+import {
+  addToWishlist,
+  removeFromWishlist,
+  addToGuestWishlistAction,
+  removeFromGuestWishlistAction,
+} from "../../../services/store/actions/wishlist.js";
+import { CircularProgress } from "@mui/material";
 
 const ProductCard = ({ product, handleClick }) => {
   const navigate = useNavigate();
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const dispatch = useDispatch();
+
+  const { isUserAuthenticated } = useSelector((state) => state.user);
+  const { ids: wishlistIds } = useSelector((state) => state.wishlist);
+
+  const [isWishlistLoading, setIsWishlistLoading] = useState(false);
+
   const [productDetailView, setProductDetailView] = useState(false);
   const [quantity, setQuantity] = useState(1);
 
@@ -24,6 +39,45 @@ const ProductCard = ({ product, handleClick }) => {
   const addedDate = product?.createdAt
     ? new Date(product.createdAt).toLocaleDateString()
     : new Date().toLocaleDateString();
+
+  const isWishlisted = wishlistIds.includes(productId);
+
+  const handleWishlistToggle = async (e) => {
+    e.stopPropagation();
+
+    if (isWishlistLoading) return;
+
+    if (isUserAuthenticated) {
+      // Authenticated User flow
+      try {
+        setIsWishlistLoading(true);
+        if (isWishlisted) {
+          await dispatch(removeFromWishlist(productId));
+          toast.success("Removed from wishlist");
+        } else {
+          await dispatch(addToWishlist(productId));
+          toast.success("Added to wishlist");
+        }
+      } catch (err) {
+        toast.error(
+          err?.response?.data?.message ||
+            err?.message ||
+            "Failed to update wishlist",
+        );
+      } finally {
+        setIsWishlistLoading(false);
+      }
+    } else {
+      // Guest User flow
+      if (isWishlisted) {
+        dispatch(removeFromGuestWishlistAction(productId));
+        toast.success("Removed from local wishlist");
+      } else {
+        dispatch(addToGuestWishlistAction(productId));
+        toast.success("Added to local wishlist (Login to sync)");
+      }
+    }
+  };
 
   const handleDecrease = () => {
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
@@ -66,13 +120,13 @@ const ProductCard = ({ product, handleClick }) => {
           {/* Wishlist */}
           <button
             className="bg-white w-8 h-8 rounded-full shadow flex items-center justify-center hover:bg-gray-200"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsWishlisted(!isWishlisted);
-            }}
+            onClick={handleWishlistToggle}
             title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+            disabled={isWishlistLoading}
           >
-            {isWishlisted ? (
+            {isWishlistLoading ? (
+              <CircularProgress size={16} className="text-gray-500" />
+            ) : isWishlisted ? (
               <FavoriteIcon className="text-red-500 text-lg" />
             ) : (
               <FavoriteBorderIcon className="text-gray-500 text-lg" />

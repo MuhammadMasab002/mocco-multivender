@@ -28,21 +28,12 @@ const Header = () => {
   const { seller, isSellerAuthenticated } = useSelector(
     (state) => state.seller,
   );
+  const { ids: wishlistIds } = useSelector((state) => state.wishlist);
 
   // api call to get events for search
   useEffect(() => {
     dispatch(getAllEvents());
   }, [dispatch]);
-
-  const { products, isLoading: isProductsLoading } = useSelector(
-    (state) => state.product,
-  );
-  const { events, isLoading: isEventsLoading } = useSelector(
-    (state) => state.event,
-  );
-
-  console.log("products on search:-->", products);
-  console.log("events on search:-->", events);
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -70,13 +61,6 @@ const Header = () => {
     isActive
       ? "text-red-600 font-semibold border-b-2 border-red-600"
       : "hover:text-red-600";
-
-  // handle navigation
-  const handleNavigation = (productId) => {
-    if (!productId) return;
-    handleMenuClose();
-    navigate(`/product-detail/${productId}`);
-  };
 
   return (
     <header className="w-full sticky top-0 bg-white shadow-md py-4 sm:px-8 z-50">
@@ -174,7 +158,12 @@ const Header = () => {
                     onClick={handleMenuClose}
                     className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                   >
-                    <FavoriteBorderIcon fontSize="small" />
+                    <div className="relative">
+                      <FavoriteBorderIcon fontSize="small" />
+                      <span className="absolute -top-1.5 -right-2 bg-green-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center leading-none">
+                        {wishlistIds.length}
+                      </span>
+                    </div>
                     Wishlist
                   </Link>
                   <Link
@@ -259,11 +248,16 @@ const Header = () => {
             className="hidden md:inline-block text-sm max-w-34!"
           />
 
-          <Link className="hidden sm:block" to="/wishlist">
+          <Link className="hidden sm:block relative" to="/wishlist">
             <FavoriteBorderIcon
               className="rounded-full bg-gray-100 hover:text-red-600 cursor-pointer p-1"
               fontSize="large"
             />
+            {wishlistIds.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center leading-none">
+                {wishlistIds.length}
+              </span>
+            )}
           </Link>
 
           <Link className="hidden sm:block" to="/cart">
@@ -278,7 +272,7 @@ const Header = () => {
               <Link to="/my-profile">
                 {user?.avatar?.url ? (
                   <img
-                    src={`http://localhost:8000${user.avatar.url}`}
+                    src={`http://localhost:8000/api/v1${user.avatar.url}`}
                     alt="Profile"
                     className="w-10 h-10 rounded-full object-cover"
                   />

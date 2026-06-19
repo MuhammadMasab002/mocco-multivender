@@ -33,6 +33,7 @@ import Home from "./pages/Home.jsx";
 import Contact from "./pages/Contact.jsx";
 import ShopDashboard from "./pages/ShopDashboard.jsx";
 import MyShop from "./pages/MyShop.jsx";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const dispatch = useDispatch();
@@ -44,6 +45,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Toaster position="bottom-right" reverseOrder={false} />
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
@@ -57,9 +59,9 @@ function App() {
           <Route
             path="/wishlist"
             element={
-              <UserProtectedRoute>
+              // <UserProtectedRoute>
                 <Wishlist />
-              </UserProtectedRoute>
+              // </UserProtectedRoute>
             }
           />
 
@@ -74,9 +76,9 @@ function App() {
           <Route
             path="/cart"
             element={
-              <UserProtectedRoute>
+              // <UserProtectedRoute>
                 <Cart />
-              </UserProtectedRoute>
+              // </UserProtectedRoute>
             }
           />
 

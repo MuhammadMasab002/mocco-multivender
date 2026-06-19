@@ -1,6 +1,16 @@
 import CustomButton from "../CustomButton";
 import CustomFormInput from "../inputs/CustomFormInput";
-import { Plus, Minus, Star, ShieldCheck, Truck } from "lucide-react";
+import { Plus, Minus, Star, ShieldCheck, Truck, Heart } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import toast from "react-hot-toast";
+import { CircularProgress } from "@mui/material";
+import {
+  addToWishlist,
+  removeFromWishlist,
+  addToGuestWishlistAction,
+  removeFromGuestWishlistAction,
+} from "../../../services/store/actions/wishlist.js";
+import { useState } from "react";
 
 const ProductDetailInfo = ({
   title,
@@ -10,9 +20,54 @@ const ProductDetailInfo = ({
   quantity,
   setQuantity,
   stock = 100,
+  productId,
 }) => {
+  const dispatch = useDispatch();
+  const { isUserAuthenticated } = useSelector((state) => state.user);
+  const { ids: wishlistIds } = useSelector((state) => state.wishlist);
+
+  const [isWishlistLoading, setIsWishlistLoading] = useState(false);
+
+  const isWishlisted = wishlistIds.includes(productId);
+
+  const handleWishlistToggle = async (e) => {
+    e.stopPropagation();
+    if (!productId) return;
+
+    if (isWishlistLoading) return;
+
+    if (isUserAuthenticated) {
+      try {
+        setIsWishlistLoading(true);
+        if (isWishlisted) {
+          await dispatch(removeFromWishlist(productId));
+          toast.success("Removed from wishlist");
+        } else {
+          await dispatch(addToWishlist(productId));
+          toast.success("Added to wishlist");
+        }
+      } catch (err) {
+        toast.error(
+          err?.response?.data?.message ||
+            err?.message ||
+            "Failed to update wishlist",
+        );
+      } finally {
+        setIsWishlistLoading(false);
+      }
+    } else {
+      if (isWishlisted) {
+        dispatch(removeFromGuestWishlistAction(productId));
+        toast.success("Removed from local wishlist");
+      } else {
+        dispatch(addToGuestWishlistAction(productId));
+        toast.success("Added to local wishlist (Login to sync)");
+      }
+    }
+  };
+
   return (
-    <div className="w-full lg:w-1/2 space-y-6 flex flex-col justify-center">
+    <div className="w-full lg:w1/2 space-y-6 flex flex-col justify-center">
       {/* Title & Rating */}
       <div>
         <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 leading-tight">
@@ -22,12 +77,38 @@ const ProductDetailInfo = ({
           <div className="flex items-center gap-1.5 text-amber-500 bg-amber-50 px-2.5 py-1 rounded-full">
             <Star size={16} fill="currentColor" />
             <span className="font-semibold text-amber-600">4.5</span>
-            <span className="text-amber-600/80 ml-1">({reviews} Reviews)</span>
+            <span className="text-amber-600/80 ml-1">
+              ({reviews}
+              <span className="hidden sm:inline">Reviews</span>)
+            </span>
           </div>
           <span className="h-4 w-px bg-slate-300" />
           <div className="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
             <ShieldCheck size={16} />
             <span className="font-semibold">In Stock</span>
+          </div>
+          <div>
+            <button
+              onClick={handleWishlistToggle}
+              disabled={isWishlistLoading}
+              className={`h-9 w-9 flex items-center justify-center rounded border transition-all ${
+                isWishlisted
+                  ? "bg-red-50 border-red-200 text-red-500 hover:bg-red-100"
+                  : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-red-500"
+              }`}
+            >
+              {isWishlistLoading ? (
+                <CircularProgress
+                  size={20}
+                  className={isWishlisted ? "text-red-500" : "text-slate-400"}
+                />
+              ) : (
+                <Heart
+                  size={24}
+                  fill={isWishlisted ? "currentColor" : "none"}
+                />
+              )}
+            </button>
           </div>
         </div>
       </div>

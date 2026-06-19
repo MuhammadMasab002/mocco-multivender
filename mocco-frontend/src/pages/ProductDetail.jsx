@@ -113,15 +113,14 @@ export const ProductDetail = () => {
 
           {/* RIGHT: Details Info */}
           <ProductDetailInfo
-            title={currentProduct?.name}
-            reviews={currentProduct?.reviews?.length || 0}
-            description={currentProduct?.description}
-            price={Number(
-              currentProduct?.discount_price || currentProduct?.price || 0,
-            )}
+            title={currentProduct.name}
+            reviews={currentProduct.reviews?.length || 1}
+            description={currentProduct.description}
+            price={currentProduct.discount_price || currentProduct.price}
             quantity={quantity}
             setQuantity={setQuantity}
-            stock={currentProduct?.stock || 100}
+            stock={currentProduct.stock}
+            productId={currentProduct._id || currentProduct.id}
           />
         </div>
       </section>

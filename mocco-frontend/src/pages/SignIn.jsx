@@ -5,6 +5,11 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { loadUser } from "../services/store/actions/user";
+import {
+  getGuestWishlist,
+  clearGuestWishlistAction,
+  mergeWishlist,
+} from "../services/store/actions/wishlist";
 import LoginIcon from "@mui/icons-material/Login";
 
 const SignIn = () => {
@@ -45,6 +50,18 @@ const SignIn = () => {
 
       if (data?.success) {
         dispatch(loadUser());
+
+        // --- MERGE WISHLIST ---
+        const guestIds = getGuestWishlist();
+        if (guestIds.length > 0) {
+          try {
+            await dispatch(mergeWishlist(guestIds));
+            dispatch(clearGuestWishlistAction()); // Clear local storage after successful merge
+          } catch (mergeErr) {
+            console.error("Failed to merge guest wishlist", mergeErr);
+          }
+        }
+
         // Reset form
         setFormData({
           email: "",
@@ -58,12 +75,8 @@ const SignIn = () => {
         alert(data.message || "Login failed. Please try again.");
       }
     } catch (err) {
-      console.error("Login failed:", err);
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Unable to sign in. Please try again.";
-      alert(`Login failed: ${message}`);
+      console.error(err);
+      alert(err.response?.data?.message || "An error occurred");
     }
   };
 

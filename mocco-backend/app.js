@@ -10,6 +10,7 @@ import shopRouter from "./src/routes/shop.route.js";
 import productRouter from "./src/routes/product.route.js";
 import eventRouter from "./src/routes/event.route.js";
 import couponRouter from "./src/routes/coupon.route.js";
+import wishlistRouter from "./src/routes/wishlist.route.js";
 
 const app = express();
 const isProduction =
@@ -73,6 +74,7 @@ app.use("/api/v1/shop", shopRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/event", eventRouter);
 app.use("/api/v1/coupon", couponRouter);
+app.use("/api/v1/wishlist", wishlistRouter);
 app.use(errorMiddleware);
 
 export default app;

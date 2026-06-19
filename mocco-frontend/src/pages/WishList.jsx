@@ -1,194 +1,183 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ProductCard from "../components/common/products/ProductCard";
 import CustomButton from "../components/common/CustomButton";
-// import { ShoppingCart, Trash2, Eye, Star } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  clearGuestWishlistAction,
+  getGuestWishlist,
+  getWishlist,
+  clearWishlist,
+} from "../services/store/actions/wishlist.js";
+import { useNavigate } from "react-router-dom";
+import { HeartCrack, Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
+import axios from "axios";
+
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const Wishlist = () => {
-  const wishlistItems = [
-    {
-      id: 1,
-      title: "Gucci duffle bag",
-      price: "960",
-      oldPrice: "1160",
-      discount: "-35%",
-      badge: "New",
-      isWishlisted: true,
-      image:
-        "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=400&h=400&fit=crop",
-    },
-    {
-      id: 2,
-      title: "RGB liquid CPU Cooler",
-      price: "1960",
-      oldPrice: "0",
-      discount: "20",
-      badge: "New",
-      isWishlisted: true,
-      image:
-        "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400&h=400&fit=crop",
-    },
-    {
-      id: 3,
-      title: "GP11 Shooter USB Gamepad",
-      price: "550",
-      oldPrice: "0",
-      discount: "33",
-      badge: "New",
-      isWishlisted: true,
-      image:
-        "https://images.unsplash.com/photo-1661276503896-aa8b017f8914?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 4,
-      title: "Quilted Satin Jacket",
-      price: "750",
-      oldPrice: "0",
-      discount: "18",
-      badge: "New",
-      isWishlisted: true,
-      image:
-        "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=400&fit=crop",
-    },
-  ];
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isUserAuthenticated } = useSelector((state) => state.user);
+  const { items: authWishlistItems, isLoading: isAuthLoading } = useSelector(
+    (state) => state.wishlist,
+  );
 
-  const justForYouItems = [
-    {
-      id: 1,
-      title: "ASUS FHD Gaming Laptop",
-      image:
-        "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400&h=400&fit=crop",
-      price: "960",
-      oldPrice: "1012",
-      badge: "New",
-      discount: "14",
-      isWishlisted: true,
-      isNew: false,
-    },
-    {
-      id: 2,
-      title: "IPS LCD Gaming Monitor",
-      image:
-        "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&h=400&fit=crop",
-      price: "1160",
-      oldPrice: "1300",
-      badge: "New",
-      discount: "23",
-      isWishlisted: false,
-      isNew: true,
-    },
-    {
-      id: 3,
-      title: "HAVIT HV-G92 Gamepad",
-      image:
-        "https://images.unsplash.com/photo-1585298723682-7115561c51b7?w=400&h=400&fit=crop",
-      price: "560",
-      oldPrice: "621",
-      badge: "New",
-      discount: "12",
-      isWishlisted: false,
-      isNew: true,
-    },
-    {
-      id: 4,
-      title: "AK-900 Wired Keyboard",
-      image:
-        "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400&h=400&fit=crop",
-      price: "200",
-      oldPrice: "277",
-      badge: "New",
-      discount: "40",
-      isWishlisted: true,
-      isNew: true,
-    },
-  ];
+  // Guest State
+  const [guestItems, setGuestItems] = useState([]);
+  const [isGuestLoading, setIsGuestLoading] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
 
-  //   const handleMoveAllToBag = () => {
-  //     alert("Moving all items to bag!");
-  //   };
+  useEffect(() => {
+    // if (isUserAuthenticated) {
+      dispatch(getWishlist());
+    // }
+  }, [isUserAuthenticated, dispatch]);
 
-  //   const handleDeleteItem = (id) => {
-  //     console.log("Delete item:", id);
-  //   };
+  useEffect(() => {
+    // Fetch full product details for guests since local storage only has IDs
+    const fetchGuestProducts = async () => {
+      if (isUserAuthenticated) return;
 
-  //   const handleAddToCart = (name) => {
-  //     alert(`Added ${name} to cart!`);
-  //   };
+      const guestIds = getGuestWishlist();
+      if (guestIds.length === 0) {
+        setGuestItems([]);
+        return;
+      }
 
-  //   const renderStars = (rating) => {
-  //     return [...Array(5)].map((_, index) => (
-  //       <Star
-  //         key={index}
-  //         className={`w-4 h-4 ${
-  //           index < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-  //         }`}
-  //       />
-  //     ));
-  //   };
+      setIsGuestLoading(true);
+      try {
+        // Fetch all products to find the guest items.
+        // In a real production app with many products, you'd create an endpoint like `POST /products/bulk`
+        // to fetch exactly the array of IDs, but here we can reuse the `all` endpoint and filter.
+        const { data } = await axios.get(`${backendUrl}/product/all`);
+        const allProducts = data?.products || [];
+        const matchedProducts = allProducts.filter((p) =>
+          guestIds.includes(p._id),
+        );
+
+        // Wrap them in a structure similar to the DB wishlist to keep the UI consistent
+        const mappedGuestItems = matchedProducts.map((p) => ({
+          _id: `guest_${p._id}`,
+          productId: p,
+        }));
+
+        setGuestItems(mappedGuestItems);
+      } catch (error) {
+        console.error("Failed to fetch guest products", error);
+        toast.error("Failed to load local wishlist items");
+      } finally {
+        setIsGuestLoading(false);
+      }
+    };
+
+    fetchGuestProducts();
+  }, [isUserAuthenticated]);
+
+  const isLoading = isUserAuthenticated ? isAuthLoading : isGuestLoading;
+
+  // The backend returns { wishlist: [ { _id, productId: { ...productDetails } }, ... ] }
+  const displayItems = isUserAuthenticated
+    ? authWishlistItems || []
+    : guestItems;
+
+  const handleClearWishlist = async () => {
+    if (isUserAuthenticated) {
+      try {
+        setIsClearing(true);
+        await dispatch(clearWishlist());
+        toast.success("Wishlist cleared");
+      } catch (err) {
+        toast.error("Failed to clear wishlist");
+      } finally {
+        setIsClearing(false);
+      }
+    } else {
+      dispatch(clearGuestWishlistAction());
+      toast.success("Local wishlist cleared");
+    }
+  };
+
+  const handleProductClick = (id) => {
+    navigate(`/product-detail/${id}`);
+  };
 
   return (
-    <>
-      <div className="min-h-screen bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Wishlist Header */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
+              My Wishlist
+            </h1>
+            {!isLoading && (
+              <span className="bg-slate-200 text-slate-700 py-1 px-3 rounded-full text-sm font-semibold">
+                {displayItems.length} items
+              </span>
+            )}
+          </div>
+
+          {displayItems.length > 0 && (
             <div>
-              <h1 className="text-xl font-medium text-black">
-                Wishlist ({wishlistItems.length})
-              </h1>
-            </div>
-
-            <div className="flex justify-center items-center gap-4">
               <CustomButton
-                buttonText={"Move All To Bag"}
-                variant={"secondary"}
+                buttonText={isClearing ? "Clearing..." : "Clear Wishlist"}
+                variant="outline"
+                className="text-red-500 border-red-200 hover:bg-red-50"
+                onClick={handleClearWishlist}
+                disabled={isClearing}
               />
             </div>
-          </div>
-
-          {/* Wishlist Items Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            {wishlistItems.map((item) => (
-              <ProductCard
-                key={item.id}
-                {...item}
-                toggleWishlist={() => alert("Addedd to wishlist")}
-                onAddToCart={() => alert("Added to cart")}
-              />
-            ))}
-          </div>
-
-          {/* Just For You Section */}
-          <div className="mb-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-              <div>
-                <div className="flex items-center gap-4 text-black">
-                  <div className="w-1 h-10 bg-red-500 rounded"></div>
-                  <h1 className="text-xl font-medium text-black">
-                    Just For You
-                  </h1>
-                </div>
-              </div>
-
-              <div className="flex justify-center items-center gap-4">
-                <CustomButton buttonText={"See All"} variant={"textDanger"} />
-              </div>
-            </div>
-
-            {/* Just For You Items Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {justForYouItems.map((item) => (
-                <ProductCard
-                  key={item.id}
-                  {...item}
-                  toggleWishlist={() => alert("Addedd to wishlist")}
-                  onAddToCart={() => alert("Added to cart")}
-                />
-              ))}
-            </div>
-          </div>
+          )}
         </div>
+
+        {/* State: Loading */}
+        {isLoading && (
+          <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+            <Loader2 className="w-10 h-10 animate-spin mb-4" />
+            <p>Loading your wishlist...</p>
+          </div>
+        )}
+
+        {/* State: Empty */}
+        {!isLoading && displayItems.length === 0 && (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 flex flex-col items-center justify-center text-center">
+            <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+              <HeartCrack className="w-12 h-12 text-slate-300" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-800 mb-2">
+              Your wishlist is empty
+            </h2>
+            <p className="text-slate-500 max-w-md mb-8">
+              Looks like you haven't added anything to your wishlist yet.
+              Explore our products and find something you love!
+            </p>
+            <CustomButton
+              buttonText="Explore Products"
+              variant="dark"
+              onClick={() => navigate("/products")}
+              className="px-8"
+            />
+          </div>
+        )}
+
+        {/* State: Has Items */}
+        {!isLoading && displayItems.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {displayItems.map((item) => {
+              const product = item.productId;
+              if (!product) return null; // Safe guard
+              return (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  handleClick={handleProductClick}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 
