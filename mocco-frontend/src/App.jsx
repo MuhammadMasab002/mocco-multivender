@@ -1,8 +1,9 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { loadUser } from "./services/store/actions/user";
 import { loadSeller } from "./services/store/actions/seller";
+import { getCart, initGuestCart } from "./services/store/actions/cart";
 import { AdminProtectedRoute } from "./routes/AdminProtectedRoute.jsx";
 import {
   SellerAuthRoute,
@@ -34,14 +35,36 @@ import Contact from "./pages/Contact.jsx";
 import ShopDashboard from "./pages/ShopDashboard.jsx";
 import MyShop from "./pages/MyShop.jsx";
 import { Toaster } from "react-hot-toast";
+import {
+  getWishlist,
+  initGuestWishlist,
+} from "./services/store/actions/wishlist.js";
+import { getAllProducts } from "./services/store/actions/product.js";
+import { getAllEvents } from "./services/store/actions/event.js";
 
 function App() {
   const dispatch = useDispatch();
 
+  const { isUserAuthenticated } = useSelector((state) => state.user);
+
+  // Initial Load: User, Seller, Products, Events, Guest Cart/Wishlist
   useEffect(() => {
     dispatch(loadUser());
     dispatch(loadSeller());
+
+    dispatch(getAllEvents());
+    dispatch(getAllProducts());
+
+    dispatch(initGuestWishlist());
+    dispatch(initGuestCart());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (isUserAuthenticated) {
+      dispatch(getWishlist());
+      dispatch(getCart());
+    }
+  }, [isUserAuthenticated, dispatch]);
 
   return (
     <BrowserRouter>
@@ -60,7 +83,7 @@ function App() {
             path="/wishlist"
             element={
               // <UserProtectedRoute>
-                <Wishlist />
+              <Wishlist />
               // </UserProtectedRoute>
             }
           />
@@ -77,7 +100,7 @@ function App() {
             path="/cart"
             element={
               // <UserProtectedRoute>
-                <Cart />
+              <Cart />
               // </UserProtectedRoute>
             }
           />

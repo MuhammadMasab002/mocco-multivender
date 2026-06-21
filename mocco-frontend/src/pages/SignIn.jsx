@@ -7,9 +7,9 @@ import { useDispatch } from "react-redux";
 import { loadUser } from "../services/store/actions/user";
 import {
   getGuestWishlist,
-  clearGuestWishlistAction,
   mergeWishlist,
 } from "../services/store/actions/wishlist";
+import { getGuestCart, mergeCart } from "../services/store/actions/cart";
 import LoginIcon from "@mui/icons-material/Login";
 
 const SignIn = () => {
@@ -56,9 +56,24 @@ const SignIn = () => {
         if (guestIds.length > 0) {
           try {
             await dispatch(mergeWishlist(guestIds));
-            dispatch(clearGuestWishlistAction()); // Clear local storage after successful merge
+            // dispatch(clearGuestWishlistAction()); // Clear local storage after successful merge
           } catch (mergeErr) {
             console.error("Failed to merge guest wishlist", mergeErr);
+          }
+        }
+
+        // --- MERGE CART ---
+        const guestCart = getGuestCart();
+        if (guestCart.length > 0) {
+          try {
+            const mappedCart = guestCart.map((item) => ({
+              productId: item.productId._id,
+              quantity: item.quantity,
+            }));
+            await dispatch(mergeCart(mappedCart));
+            // dispatch(clearGuestCartAction());
+          } catch (mergeErr) {
+            console.error("Failed to merge guest cart", mergeErr);
           }
         }
 

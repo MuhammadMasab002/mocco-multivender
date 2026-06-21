@@ -9,26 +9,26 @@ import { useNavigate } from "react-router-dom";
  * the data is already filtered at the API level.
  *
  * Props:
- *  - productData  : array of featured products from Redux store
+ *  - products  : array of featured products from Redux store
  *  - limit        : max number to display (default 8, pass Infinity for all)
  *  - handleClick  : (productId) => void
  *  - isProductPage: boolean — changes CTA label
  */
 const FeatureProducts = ({
-  productData = [],
+  products = [],
   limit = 8,
   handleClick,
   isProductPage = false,
 }) => {
   const navigate = useNavigate();
 
-  const products = Array.isArray(productData) ? productData : [];
+  const productList = Array.isArray(products) ? products : [];
 
   // Apply optional limit
   const displayedProducts =
     typeof limit === "number" && isFinite(limit)
-      ? products.slice(0, limit)
-      : products;
+      ? productList.slice(0, limit)
+      : productList;
 
   return (
     <section className="w-full max-w-7xl px-5 py-8 mx-auto">

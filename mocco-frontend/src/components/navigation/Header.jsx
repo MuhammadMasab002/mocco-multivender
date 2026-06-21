@@ -17,6 +17,10 @@ import { loadUser } from "../../services/store/actions/user.js";
 import axios from "axios";
 import { getAllEvents } from "../../services/store/actions/event.js";
 import GlobalSearch from "./GlobalSearch.jsx";
+import { clearWishlistState } from "../../services/store/slices/wishlistSlice.js";
+import { clearCartState } from "../../services/store/slices/cartSlice.js";
+import { initGuestWishlist } from "../../services/store/actions/wishlist.js";
+import { initGuestCart } from "../../services/store/actions/cart.js";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -29,6 +33,10 @@ const Header = () => {
     (state) => state.seller,
   );
   const { ids: wishlistIds } = useSelector((state) => state.wishlist);
+  const { cartItems } = useSelector((state) => state.cart);
+
+  const cartTotalQuantity =
+    cartItems?.reduce((acc, item) => acc + item.quantity, 0) || 0;
 
   // api call to get events for search
   useEffect(() => {
@@ -45,6 +53,14 @@ const Header = () => {
     if (data?.success) {
       alert("Logged out successfully.");
       dispatch(loadUser());
+
+      // clear logged-in user wishlist/cart
+      dispatch(clearWishlistState());
+      dispatch(clearCartState());
+      // initialize guest wishlist/cart
+      dispatch(initGuestWishlist());
+      dispatch(initGuestCart());
+
       navigate("/login", { replace: true });
     }
   };
@@ -171,7 +187,12 @@ const Header = () => {
                     onClick={handleMenuClose}
                     className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                   >
-                    <ShoppingCartIcon fontSize="small" />
+                    <div className="relative">
+                      <ShoppingCartIcon fontSize="small" />
+                      <span className="absolute -top-1.5 -right-2 bg-green-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center leading-none">
+                        {cartTotalQuantity}
+                      </span>
+                    </div>
                     Cart
                   </Link>
                 </div>
@@ -260,11 +281,14 @@ const Header = () => {
             )}
           </Link>
 
-          <Link className="hidden sm:block" to="/cart">
+          <Link className="hidden sm:block relative" to="/cart">
             <ShoppingCartIcon
               className="rounded-full bg-gray-100 hover:text-red-600 cursor-pointer p-1"
               fontSize="large"
             />
+            <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center leading-none">
+              {cartTotalQuantity}
+            </span>
           </Link>
 
           {isUserAuthenticated ? (

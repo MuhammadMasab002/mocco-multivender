@@ -5,15 +5,11 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   clearGuestWishlistAction,
   getGuestWishlist,
-  getWishlist,
   clearWishlist,
 } from "../services/store/actions/wishlist.js";
 import { useNavigate } from "react-router-dom";
 import { HeartCrack, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import axios from "axios";
-
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const Wishlist = () => {
   const navigate = useNavigate();
@@ -22,17 +18,13 @@ const Wishlist = () => {
   const { items: authWishlistItems, isLoading: isAuthLoading } = useSelector(
     (state) => state.wishlist,
   );
+  const { ids: wishlistIds } = useSelector((state) => state.wishlist);
+  const { products } = useSelector((state) => state.product);
 
   // Guest State
   const [guestItems, setGuestItems] = useState([]);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
-
-  useEffect(() => {
-    // if (isUserAuthenticated) {
-      dispatch(getWishlist());
-    // }
-  }, [isUserAuthenticated, dispatch]);
 
   useEffect(() => {
     // Fetch full product details for guests since local storage only has IDs
@@ -49,9 +41,7 @@ const Wishlist = () => {
       try {
         // Fetch all products to find the guest items.
         // In a real production app with many products, you'd create an endpoint like `POST /products/bulk`
-        // to fetch exactly the array of IDs, but here we can reuse the `all` endpoint and filter.
-        const { data } = await axios.get(`${backendUrl}/product/all`);
-        const allProducts = data?.products || [];
+        const allProducts = products || []; // fallback to products from redux if available
         const matchedProducts = allProducts.filter((p) =>
           guestIds.includes(p._id),
         );
@@ -72,7 +62,7 @@ const Wishlist = () => {
     };
 
     fetchGuestProducts();
-  }, [isUserAuthenticated]);
+  }, [isUserAuthenticated, dispatch, products, wishlistIds]);
 
   const isLoading = isUserAuthenticated ? isAuthLoading : isGuestLoading;
 
@@ -88,7 +78,7 @@ const Wishlist = () => {
         await dispatch(clearWishlist());
         toast.success("Wishlist cleared");
       } catch (err) {
-        toast.error("Failed to clear wishlist");
+        toast.error("Failed to clear wishlist", err);
       } finally {
         setIsClearing(false);
       }

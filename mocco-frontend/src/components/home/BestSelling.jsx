@@ -4,18 +4,18 @@ import CustomButton from "../common/CustomButton";
 import { useNavigate } from "react-router-dom";
 
 const BestSelling = ({
-  productData = [],
+  products = [],
   limit = 4,
   isFullPage = false,
   handleClick,
 }) => {
   const navigate = useNavigate();
-  const products = Array.isArray(productData) ? productData : [];
+  const productList = Array.isArray(products) ? products : [];
 
   const bestSellingProducts =
     typeof limit === "number" && isFinite(limit)
-      ? products.slice(0, limit)
-      : products;
+      ? productList.slice(0, limit)
+      : productList;
 
   return (
     <div>

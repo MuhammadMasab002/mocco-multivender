@@ -7,10 +7,10 @@ import FeatureSection from "../components/home/FeatureSection";
 import NewArrivalProducts from "../components/home/NewArrivalProducts";
 import { useNavigate } from "react-router-dom";
 import CategoriesGrid from "../components/home/CategoriesGrid";
-import { productData } from "../static/data.jsx";
-import { getAllEvents } from "../services/store/actions/event";
+// import { productData } from "../static/data.jsx";
+// import { getAllEvents } from "../services/store/actions/event";
 import {
-  getAllProducts,
+  // getAllProducts,
   getFeaturedProducts,
   getBestSellingProducts,
 } from "../services/store/actions/product";
@@ -39,7 +39,7 @@ function Home() {
   const dispatch = useDispatch();
   const { events: storeEvents } = useSelector((state) => state.event);
   const {
-    products: storeProducts,
+    products: allProducts,
     featuredProducts,
     bestSellingProducts,
     isLoading: productLoading,
@@ -48,8 +48,8 @@ function Home() {
   } = useSelector((state) => state.product);
 
   useEffect(() => {
-    dispatch(getAllEvents());
-    dispatch(getAllProducts());
+    // dispatch(getAllEvents());
+    // dispatch(getAllProducts());
     dispatch(getFeaturedProducts());
     dispatch(getBestSellingProducts());
   }, [dispatch]);
@@ -84,18 +84,18 @@ function Home() {
       <CategoriesGrid handleCategoryClick={handleCategoryClick} />
 
       <section className="w-full max-w-7xl px-5 py-8 space-y-20">
-        <FlashSales
-          productData={productData}
+        {/* <FlashSales
+          products={productData}
           limit={8}
           handleClick={handleClick}
-        />
+        /> */}
         {isBestSellingLoading ? (
           <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
             Loading best-selling products...
           </div>
         ) : bestSellingProducts?.length > 0 ? (
           <BestSelling
-            productData={bestSellingProducts}
+            products={bestSellingProducts}
             limit={8}
             handleClick={handleClick}
           />
@@ -166,7 +166,7 @@ function Home() {
           </div>
         ) : (
           <FeatureProducts
-            productData={featuredProducts}
+            products={featuredProducts}
             limit={8}
             handleClick={handleClick}
           />
@@ -176,7 +176,7 @@ function Home() {
       <section className="w-full max-w-7xl py-10 space-y-8">
         <NewArrivalProducts
           productLoading={productLoading}
-          newArrivalProducts={storeProducts}
+          newArrivalProducts={allProducts}
         />
       </section>
 

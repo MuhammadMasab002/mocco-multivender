@@ -1,66 +1,99 @@
-import React, { useState } from "react";
+import React from "react";
 import CustomButton from "../components/common/CustomButton";
 import CustomFormInput from "../components/common/inputs/CustomFormInput";
 import CartTable from "../components/cart/CartTable";
 import CartSummaryBox from "../components/cart/CartSummaryBox";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  // getCart,
+  clearCart,
+  clearGuestCartAction,
+} from "../services/store/actions/cart";
+import { ShoppingCart } from "lucide-react";
+import toast from "react-hot-toast";
 
 const Cart = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      product: "LCD Monitor",
-      price: 650,
-      quantity: 1,
-      image:
-        "https://images.unsplash.com/photo-1656944227421-d0e8de487d9d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 2,
-      product: "HI Gamepad",
-      price: 550,
-      quantity: 2,
-      image:
-        "https://images.unsplash.com/photo-1634624943458-3e29f132d4d2?q=80&w=1331&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-  ]);
+  const { isUserAuthenticated } = useSelector((state) => state.user);
+  const { cartItems, isLoading } = useSelector((state) => state.cart);
 
-  const updateQuantity = (id, newQty) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: Number(newQty) } : item,
-      ),
+  // useEffect(() => {
+  //   if (isUserAuthenticated) {
+  //     dispatch(getCart());
+  //   }
+  // }, [isUserAuthenticated, dispatch]);
+
+  const subtotal =
+    cartItems?.reduce((acc, item) => {
+      const price =
+        item.productId?.discount_price || item.productId?.price || 0;
+      return acc + price * item.quantity;
+    }, 0) || 0;
+
+  const handleClearCart = async () => {
+    if (isUserAuthenticated) {
+      try {
+        await dispatch(clearCart());
+        toast.success("Cart cleared");
+      } catch (err) {
+        console.error(err);
+      }
+    } else {
+      dispatch(clearGuestCartAction());
+      toast.success("Cart cleared");
+    }
+  };
+
+  const totalItems =
+    cartItems?.reduce((acc, item) => acc + item.quantity, 0) || 0;
+
+  if (isLoading && cartItems.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+        <p>Loading your cart...</p>
+      </div>
     );
-  };
+  }
 
-  const removeItem = (id) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  const subtotal = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0,
-  );
+  if (cartItems.length === 0) {
+    return (
+      <div className="container max-w-6xl mx-auto py-16 sm:px-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 flex flex-col items-center justify-center text-center">
+          <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+            <ShoppingCart className="w-12 h-12 text-slate-300" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">
+            Your cart is empty
+          </h2>
+          <p className="text-slate-500 max-w-md mb-8">
+            Looks like you haven't added anything to your cart yet. Explore our
+            products and find something you love!
+          </p>
+          <CustomButton
+            buttonText="Explore Products"
+            variant="dark"
+            onClick={() => navigate("/products")}
+            className="px-8"
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-6xl mx-auto py-6 sm:px-6 space-y-8 text-black">
       {/* show total items in cart */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Your Shopping Cart</h2>
-        <p className="text-lg font-semibold">
-          Total Items: {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
-        </p>
+        <p className="text-lg font-semibold">Total Items: {totalItems}</p>
       </div>
 
       {/* Cart Table */}
       <div className="rounded border shadow-sm">
-        <CartTable
-          cartItems={cartItems}
-          onQuantityChange={updateQuantity}
-          onRemove={removeItem}
-        />
+        <CartTable cartItems={cartItems} />
       </div>
 
       {/* Buttons */}
@@ -70,13 +103,15 @@ const Cart = () => {
             buttonText="Return To Shop"
             variant="outline"
             className="text-sm sm:text-base w-auto px-6"
+            onClick={() => navigate("/products")}
           />
         </div>
         <div>
           <CustomButton
-            buttonText="Update Cart"
+            buttonText="Clear Cart"
             variant="outline"
-            className="text-sm sm:text-base w-auto px-6"
+            className="text-sm sm:text-base w-auto px-6 text-red-500 border-red-200 hover:bg-red-50"
+            onClick={handleClearCart}
           />
         </div>
       </div>

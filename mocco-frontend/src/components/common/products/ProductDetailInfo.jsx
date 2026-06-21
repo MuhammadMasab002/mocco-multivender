@@ -10,6 +10,10 @@ import {
   addToGuestWishlistAction,
   removeFromGuestWishlistAction,
 } from "../../../services/store/actions/wishlist.js";
+import {
+  addToCart,
+  addToGuestCartAction,
+} from "../../../services/store/actions/cart.js";
 import { useState } from "react";
 
 const ProductDetailInfo = ({
@@ -25,6 +29,7 @@ const ProductDetailInfo = ({
   const dispatch = useDispatch();
   const { isUserAuthenticated } = useSelector((state) => state.user);
   const { ids: wishlistIds } = useSelector((state) => state.wishlist);
+  const { isLoading: isCartLoading } = useSelector((state) => state.cart);
 
   const [isWishlistLoading, setIsWishlistLoading] = useState(false);
 
@@ -63,6 +68,30 @@ const ProductDetailInfo = ({
         dispatch(addToGuestWishlistAction(productId));
         toast.success("Added to local wishlist (Login to sync)");
       }
+    }
+  };
+
+  const handleAddToCart = async (e) => {
+    e.stopPropagation();
+    if (isCartLoading) return;
+
+    if (isUserAuthenticated) {
+      try {
+        await dispatch(addToCart(productId, quantity));
+        toast.success("Added to cart");
+      } catch (err) {
+        // Error toast handled in thunk
+      }
+    } else {
+      const productObj = {
+        _id: productId,
+        name: title,
+        price,
+        discount_price: price - (price * (discount || 0)) / 100, // or whatever discount logic
+        stock,
+        images,
+      };
+      dispatch(addToGuestCartAction(productObj, quantity));
     }
   };
 
@@ -187,6 +216,8 @@ const ProductDetailInfo = ({
             buttonText="Add To Cart"
             variant="dark"
             className="flex-1 py-3.5 text-base shadow-lg shadow-slate-900/20 hover:shadow-slate-900/30 transition-all hover:-translate-y-0.5"
+            onClick={handleAddToCart}
+            disabled={isCartLoading}
           />
         </div>
       </div>

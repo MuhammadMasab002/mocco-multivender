@@ -20,6 +20,10 @@ import PaymentMethodTab from "../components/profile/PaymentMethodTab";
 import LogoutTab from "../components/profile/LogoutTab";
 import { loadUser } from "../services/store/actions/user";
 import axios from "axios";
+import { clearWishlistState } from "../services/store/slices/wishlistSlice";
+import { clearCartState } from "../services/store/slices/cartSlice";
+import { initGuestWishlist } from "../services/store/actions/wishlist";
+import { initGuestCart } from "../services/store/actions/cart";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -432,6 +436,7 @@ const MyProfile = () => {
       withCredentials: true,
     });
     if (data?.success) {
+      // static cleanup of localStorage keys related to profile, addresses, refunds, and payment methods
       localStorage.removeItem(PROFILE_STORAGE_KEY);
       localStorage.removeItem(ADDRESS_STORAGE_KEY);
       localStorage.removeItem(REFUND_STORAGE_KEY);
@@ -439,6 +444,14 @@ const MyProfile = () => {
 
       alert("Logged out successfully.");
       dispatch(loadUser());
+
+      // clear logged-in user wishlist/cart
+      dispatch(clearWishlistState());
+      dispatch(clearCartState());
+      // initialize guest wishlist/cart
+      dispatch(initGuestWishlist());
+      dispatch(initGuestCart());
+
       navigate("/login", { replace: true });
     }
   };

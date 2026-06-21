@@ -15,7 +15,7 @@ const getTimeParts = (sec) => {
 
 const FLASH_SALES_DURATION = 3 * 24 * 3600 + 5 * 3600;
 
-const FlashSales = ({ productData = [], limit = 4, handleClick }) => {
+const FlashSales = ({ products = [], limit = 4, handleClick }) => {
   const navigate = useNavigate();
 
   const [remaining, setRemaining] = useState(FLASH_SALES_DURATION);
@@ -86,7 +86,7 @@ const FlashSales = ({ productData = [], limit = 4, handleClick }) => {
       </div>
 
       <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {productData?.slice(0, limit)?.map((product) => (
+        {products?.slice(0, limit)?.map((product) => (
           <ProductCard
             key={product.id}
             product={product}
