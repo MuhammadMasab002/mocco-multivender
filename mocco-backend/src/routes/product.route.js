@@ -22,7 +22,7 @@ productRouter.post(
     createProduct,
 );
 
-productRouter.get("/all", getAllProducts);
+productRouter.get("/all-products", getAllProducts);
 productRouter.get("/search", searchProducts);
 productRouter.get("/featured", getFeaturedProducts);
 productRouter.get("/best-selling", getBestSellingProducts);

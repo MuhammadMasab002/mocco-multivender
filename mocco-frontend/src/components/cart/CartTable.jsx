@@ -7,9 +7,7 @@ import {
   removeFromGuestCartAction,
 } from "../../services/store/actions/cart";
 import { CircularProgress } from "@mui/material";
-
-const backendUrl =
-  import.meta.env.VITE_BACKEND_URL || "http://localhost:8000/api/v1";
+import { Link } from "react-router-dom";
 
 const CartTable = ({ cartItems }) => {
   const dispatch = useDispatch();
@@ -62,22 +60,29 @@ const CartTable = ({ cartItems }) => {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => handleRemove(productId)}
-                className="text-red-500 text-xl hover:text-red-700"
+                className="w-5 h-5 flex items-center justify-center text-xl rounded cursor-pointer bg-red-100 text-red-500 hover:text-red-700"
                 disabled={isLoading}
               >
                 ×
               </button>
               <img
                 src={
-                  product?.images?.[0]
-                    ? `${backendUrl.replace("/api/v1", "")}${product.images[0]}`
-                    : "https://via.placeholder.com/150"
+                  // product?.images?.[0]
+                  //   ? `${backendUrl.replace("/api/v1", "")}${product.images[0]}`
+                  //   :
+                  // "https://dummyimage.com/600x400/e2e8f0/64748b.png&text=No+Image"
+                  "about-us.png"
                 }
                 alt={product.name}
                 className="w-14 h-14 object-cover rounded hidden sm:block"
               />
               <span className="text-sm sm:text-base text-gray-700 line-clamp-2">
-                {product.name}
+                <Link
+                  to={`/product-detail/${productId}`}
+                  className="hover:text-blue-600"
+                >
+                  {product.name}
+                </Link>
               </span>
             </div>
 
@@ -96,11 +101,14 @@ const CartTable = ({ cartItems }) => {
                 disabled={isLoading}
                 className="border px-2 py-1 rounded bg-white"
               >
-                {Array.from({ length: Math.min(product.stock, 10) }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1}
-                  </option>
-                ))}
+                {/* available quantity options */}
+                {Array.from({ length: product.stock }, (_, i) => i + 1).map(
+                  (qty) => (
+                    <option key={qty} value={qty}>
+                      {qty}
+                    </option>
+                  ),
+                )}
               </select>
             </div>
 

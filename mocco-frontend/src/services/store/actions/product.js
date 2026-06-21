@@ -75,7 +75,7 @@ const getAllProducts = () => async (dispatch) => {
     try {
         dispatch(getAllProductsRequest());
 
-        const { data } = await axios.get(`${backendUrl}/product/all`);
+        const { data } = await axios.get(`${backendUrl}/product/all-products`);
 
         const normalizedProducts = (
             Array.isArray(data?.products) ? data.products : []

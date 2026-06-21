@@ -15,7 +15,7 @@ const userRouter = express.Router();
 userRouter.post("/register", upload.single("file"), registerUser);
 userRouter.post("/activate", activateUserEmail);
 userRouter.post("/login", loginUser);
-userRouter.get("/get-user", isUserAuthenticated, getUser);
+userRouter.get("/", isUserAuthenticated, getUser);
 userRouter.get("/logout", isUserAuthenticated, logoutUser);
 
 export default userRouter;

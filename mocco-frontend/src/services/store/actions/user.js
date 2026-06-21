@@ -11,7 +11,7 @@ export const loadUser = () => async (dispatch) => {
     try {
         dispatch(loadUserRequest()); // Using the slice action
 
-        const { data } = await axios.get(`${backendUrl}/user/get-user`, {
+        const { data } = await axios.get(`${backendUrl}/user`, {
             withCredentials: true,
         });
 

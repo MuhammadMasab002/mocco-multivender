@@ -53,7 +53,7 @@ const getEvents = (shopId) => async (dispatch) => {
 const getAllEvents = () => async (dispatch) => {
     try {
         dispatch(getEventsRequest());
-        const { data } = await axios.get(`${backendUrl}/event/all`);
+        const { data } = await axios.get(`${backendUrl}/event/all-events`);
         dispatch(getEventsSuccess(data.events));
     } catch (error) {
         const message =

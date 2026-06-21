@@ -9,7 +9,7 @@ const shopRouter = express.Router();
 shopRouter.post("/register", upload.single("file"), registerShop);
 shopRouter.post("/activate", activateShopEmail);
 shopRouter.post("/login", loginShop);
-shopRouter.get("/get-seller", isSellerAuthenticated, getSeller);
+shopRouter.get("/seller", isSellerAuthenticated, getSeller);
 shopRouter.get("/info/:shopId", getShopInfo);
 shopRouter.get("/logout", isSellerAuthenticated, logoutShop);
 

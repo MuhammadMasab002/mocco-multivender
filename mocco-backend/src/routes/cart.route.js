@@ -14,7 +14,7 @@ const cartRouter = express.Router();
 cartRouter.use(isUserAuthenticated);
 
 cartRouter.get("/", getCart);
-cartRouter.post("/add", addToCart);
+cartRouter.post("/", addToCart);
 cartRouter.patch("/item/:productId", updateCartItem);
 cartRouter.delete("/item/:productId", removeFromCart);
 cartRouter.delete("/clear", clearCart);

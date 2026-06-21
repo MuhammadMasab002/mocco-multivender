@@ -8,7 +8,7 @@ export const loadSeller = () => async (dispatch) => {
     try {
         dispatch(loadSellerRequest()); // Using the slice action
 
-        const { data } = await axios.get(`${backendUrl}/shop/get-seller`, {
+        const { data } = await axios.get(`${backendUrl}/shop/seller`, {
             withCredentials: true,
         });
 

@@ -13,7 +13,7 @@ const GUEST_WISHLIST_KEY = "guest_wishlist";
 
 // --- API ACTIONS (Authenticated) ---
 
-export const getWishlist = () => async (dispatch) => {
+const getWishlist = () => async (dispatch) => {
     try {
         dispatch(wishlistRequest());
         const { data } = await axios.get(`${backendUrl}/wishlist`, {
@@ -28,7 +28,7 @@ export const getWishlist = () => async (dispatch) => {
     }
 };
 
-export const addToWishlist = (productId) => async (dispatch) => {
+const addToWishlist = (productId) => async (dispatch) => {
     const { data } = await axios.post(`${backendUrl}/wishlist`, { productId }, {
         withCredentials: true,
     });
@@ -37,23 +37,23 @@ export const addToWishlist = (productId) => async (dispatch) => {
     return data;
 };
 
-export const removeFromWishlist = (productId) => async (dispatch) => {
-    const { data } = await axios.delete(`${backendUrl}/wishlist/${productId}`, {
+const removeFromWishlist = (productId) => async (dispatch) => {
+    const { data } = await axios.delete(`${backendUrl}/wishlist/item/${productId}`, {
         withCredentials: true,
     });
     dispatch(getWishlist());
     return data;
 };
 
-export const clearWishlist = () => async (dispatch) => {
-    const { data } = await axios.delete(`${backendUrl}/wishlist`, {
+const clearWishlist = () => async (dispatch) => {
+    const { data } = await axios.delete(`${backendUrl}/wishlist/clear`, {
         withCredentials: true,
     });
     dispatch(wishlistSuccess([]));
     return data;
 };
 
-export const mergeWishlist = (productIds) => async (dispatch) => {
+const mergeWishlist = (productIds) => async (dispatch) => {
     const { data } = await axios.post(`${backendUrl}/wishlist/merge`, { productIds }, {
         withCredentials: true,
     });
@@ -63,7 +63,7 @@ export const mergeWishlist = (productIds) => async (dispatch) => {
 
 // --- GUEST HELPERS (localStorage) ---
 
-export const getGuestWishlist = () => {
+const getGuestWishlist = () => {
     try {
         const data = localStorage.getItem(GUEST_WISHLIST_KEY);
         return data ? JSON.parse(data) : [];
@@ -72,7 +72,7 @@ export const getGuestWishlist = () => {
     }
 };
 
-export const addToGuestWishlistAction = (productId) => (dispatch) => {
+const addToGuestWishlistAction = (productId) => (dispatch) => {
     const list = getGuestWishlist();
     if (!list.includes(productId)) {
         list.push(productId);
@@ -81,20 +81,33 @@ export const addToGuestWishlistAction = (productId) => (dispatch) => {
     }
 };
 
-export const removeFromGuestWishlistAction = (productId) => (dispatch) => {
+const removeFromGuestWishlistAction = (productId) => (dispatch) => {
     const list = getGuestWishlist();
     const updated = list.filter((id) => id !== productId);
     localStorage.setItem(GUEST_WISHLIST_KEY, JSON.stringify(updated));
     dispatch(removeGuestWishlistItem(productId));
 };
 
-export const clearGuestWishlistAction = () => (dispatch) => {
+const clearGuestWishlistAction = () => (dispatch) => {
     localStorage.removeItem(GUEST_WISHLIST_KEY);
     dispatch(clearWishlistState());
 };
 
 // Initialize Guest Wishlist on App Load (or when logging out)
-export const initGuestWishlist = () => (dispatch) => {
+const initGuestWishlist = () => (dispatch) => {
     const list = getGuestWishlist();
     list.forEach(id => dispatch(addGuestWishlistItem(id)));
+};
+
+export {
+    getWishlist,
+    addToWishlist,
+    removeFromWishlist,
+    clearWishlist,
+    mergeWishlist,
+    getGuestWishlist,
+    addToGuestWishlistAction,
+    removeFromGuestWishlistAction,
+    clearGuestWishlistAction,
+    initGuestWishlist,
 };

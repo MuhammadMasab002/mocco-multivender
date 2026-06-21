@@ -60,10 +60,13 @@ function App() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (isUserAuthenticated) {
-      dispatch(getWishlist());
-      dispatch(getCart());
-    }
+    const fetchUserData = async () => {
+      if (isUserAuthenticated) {
+        await dispatch(getWishlist());
+        await dispatch(getCart());
+      }
+    };
+    fetchUserData();
   }, [isUserAuthenticated, dispatch]);
 
   return (

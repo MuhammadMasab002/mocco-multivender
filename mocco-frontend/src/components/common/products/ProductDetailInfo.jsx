@@ -1,114 +1,40 @@
 import CustomButton from "../CustomButton";
 import CustomFormInput from "../inputs/CustomFormInput";
 import { Plus, Minus, Star, ShieldCheck, Truck, Heart } from "lucide-react";
-import { useSelector, useDispatch } from "react-redux";
-import toast from "react-hot-toast";
 import { CircularProgress } from "@mui/material";
-import {
-  addToWishlist,
-  removeFromWishlist,
-  addToGuestWishlistAction,
-  removeFromGuestWishlistAction,
-} from "../../../services/store/actions/wishlist.js";
-import {
-  addToCart,
-  addToGuestCartAction,
-} from "../../../services/store/actions/cart.js";
-import { useState } from "react";
 
 const ProductDetailInfo = ({
-  title,
+  name,
   reviews,
   description,
   price,
+  discount_price,
+  stock = 100,
+
   quantity,
   setQuantity,
-  stock = 100,
-  productId,
+
+  isWishlisted,
+  isCartLoading,
+  isWishlistLoading,
+  onWishlistToggle,
+  onAddToCart,
+  onBuyNow,
 }) => {
-  const dispatch = useDispatch();
-  const { isUserAuthenticated } = useSelector((state) => state.user);
-  const { ids: wishlistIds } = useSelector((state) => state.wishlist);
-  const { isLoading: isCartLoading } = useSelector((state) => state.cart);
-
-  const [isWishlistLoading, setIsWishlistLoading] = useState(false);
-
-  const isWishlisted = wishlistIds.includes(productId);
-
-  const handleWishlistToggle = async (e) => {
-    e.stopPropagation();
-    if (!productId) return;
-
-    if (isWishlistLoading) return;
-
-    if (isUserAuthenticated) {
-      try {
-        setIsWishlistLoading(true);
-        if (isWishlisted) {
-          await dispatch(removeFromWishlist(productId));
-          toast.success("Removed from wishlist");
-        } else {
-          await dispatch(addToWishlist(productId));
-          toast.success("Added to wishlist");
-        }
-      } catch (err) {
-        toast.error(
-          err?.response?.data?.message ||
-            err?.message ||
-            "Failed to update wishlist",
-        );
-      } finally {
-        setIsWishlistLoading(false);
-      }
-    } else {
-      if (isWishlisted) {
-        dispatch(removeFromGuestWishlistAction(productId));
-        toast.success("Removed from local wishlist");
-      } else {
-        dispatch(addToGuestWishlistAction(productId));
-        toast.success("Added to local wishlist (Login to sync)");
-      }
-    }
-  };
-
-  const handleAddToCart = async (e) => {
-    e.stopPropagation();
-    if (isCartLoading) return;
-
-    if (isUserAuthenticated) {
-      try {
-        await dispatch(addToCart(productId, quantity));
-        toast.success("Added to cart");
-      } catch (err) {
-        // Error toast handled in thunk
-      }
-    } else {
-      const productObj = {
-        _id: productId,
-        name: title,
-        price,
-        discount_price: price - (price * (discount || 0)) / 100, // or whatever discount logic
-        stock,
-        images,
-      };
-      dispatch(addToGuestCartAction(productObj, quantity));
-    }
-  };
-
   return (
     <div className="w-full lg:w1/2 space-y-6 flex flex-col justify-center">
       {/* Title & Rating */}
       <div>
         <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 leading-tight">
-          {title}
+          {name}
         </h2>
         <div className="mt-4 flex flex-wrap items-center gap-4 text-sm">
           <div className="flex items-center gap-1.5 text-amber-500 bg-amber-50 px-2.5 py-1 rounded-full">
             <Star size={16} fill="currentColor" />
             <span className="font-semibold text-amber-600">4.5</span>
             <span className="text-amber-600/80 ml-1">
-              ({reviews}
-              <span className="hidden sm:inline">Reviews</span>)
+              ({reviews?.length || 1})
+              <span className="hidden sm:inline">Reviews</span>
             </span>
           </div>
           <span className="h-4 w-px bg-slate-300" />
@@ -118,7 +44,7 @@ const ProductDetailInfo = ({
           </div>
           <div>
             <button
-              onClick={handleWishlistToggle}
+              onClick={onWishlistToggle}
               disabled={isWishlistLoading}
               className={`h-9 w-9 flex items-center justify-center rounded border transition-all ${
                 isWishlisted
@@ -144,8 +70,11 @@ const ProductDetailInfo = ({
 
       {/* Pricing */}
       <div className="flex items-end gap-3 pb-4 border-b border-slate-100">
-        <p className="text-4xl sm:text-5xl font-extrabold text-slate-900">
+        <p className="text-xl font-medium text-gray-500 line-through">
           ${price}
+        </p>
+        <p className="text-4xl sm:text-5xl font-extrabold text-slate-900">
+          ${discount_price}
         </p>
         <p className="text-sm font-medium text-slate-500 mb-1.5">
           Free shipping included
@@ -211,12 +140,13 @@ const ProductDetailInfo = ({
             buttonText="Buy Now"
             variant="danger"
             className="flex-1 py-3.5 text-base shadow-lg shadow-red-500/20 hover:shadow-red-500/30 transition-all hover:-translate-y-0.5"
+            onClick={onBuyNow}
           />
           <CustomButton
             buttonText="Add To Cart"
             variant="dark"
             className="flex-1 py-3.5 text-base shadow-lg shadow-slate-900/20 hover:shadow-slate-900/30 transition-all hover:-translate-y-0.5"
-            onClick={handleAddToCart}
+            onClick={onAddToCart}
             disabled={isCartLoading}
           />
         </div>

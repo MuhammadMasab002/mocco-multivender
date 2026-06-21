@@ -15,7 +15,7 @@ const GUEST_CART_KEY = "guest_cart";
 
 // --- API ACTIONS (Authenticated) ---
 
-export const getCart = () => async (dispatch) => {
+const getCart = () => async (dispatch) => {
   try {
     dispatch(cartRequest());
     const { data } = await axios.get(`${backendUrl}/cart`, {
@@ -29,10 +29,10 @@ export const getCart = () => async (dispatch) => {
   }
 };
 
-export const addToCart = (productId, quantity = 1) => async (dispatch) => {
+const addToCart = (productId, quantity = 1) => async (dispatch) => {
   try {
     const { data } = await axios.post(
-      `${backendUrl}/cart/add`,
+      `${backendUrl}/cart`,
       { productId, quantity },
       { withCredentials: true }
     );
@@ -45,7 +45,7 @@ export const addToCart = (productId, quantity = 1) => async (dispatch) => {
   }
 };
 
-export const updateCartItemQty = (productId, quantity) => async (dispatch) => {
+const updateCartItemQty = (productId, quantity) => async (dispatch) => {
   try {
     const { data } = await axios.patch(
       `${backendUrl}/cart/item/${productId}`,
@@ -61,7 +61,7 @@ export const updateCartItemQty = (productId, quantity) => async (dispatch) => {
   }
 };
 
-export const removeFromCart = (productId) => async (dispatch) => {
+const removeFromCart = (productId) => async (dispatch) => {
   try {
     const { data } = await axios.delete(
       `${backendUrl}/cart/item/${productId}`,
@@ -76,9 +76,9 @@ export const removeFromCart = (productId) => async (dispatch) => {
   }
 };
 
-export const clearCart = () => async (dispatch) => {
+const clearCart = () => async (dispatch) => {
   try {
-    const { data } = await axios.delete(`${backendUrl}/cart`, {
+    const { data } = await axios.delete(`${backendUrl}/cart/clear`, {
       withCredentials: true,
     });
     dispatch(cartSuccess([]));
@@ -90,7 +90,7 @@ export const clearCart = () => async (dispatch) => {
   }
 };
 
-export const mergeCart = (items) => async (dispatch) => {
+const mergeCart = (items) => async (dispatch) => {
   try {
     const { data } = await axios.post(
       `${backendUrl}/cart/merge`,
@@ -107,7 +107,7 @@ export const mergeCart = (items) => async (dispatch) => {
 
 // --- GUEST HELPERS (localStorage) ---
 
-export const getGuestCart = () => {
+const getGuestCart = () => {
   try {
     const data = localStorage.getItem(GUEST_CART_KEY);
     return data ? JSON.parse(data) : [];
@@ -117,7 +117,7 @@ export const getGuestCart = () => {
 };
 
 // product object is passed here so the UI has all data (price, image, name)
-export const addToGuestCartAction = (product, quantity = 1) => (dispatch) => {
+const addToGuestCartAction = (product, quantity = 1) => (dispatch) => {
   const list = getGuestCart();
   const existingIndex = list.findIndex(i => i.productId._id === product._id);
 
@@ -141,7 +141,7 @@ export const addToGuestCartAction = (product, quantity = 1) => (dispatch) => {
   toast.success("Added to local cart");
 };
 
-export const updateGuestCartQtyAction = (productId, quantity, stock) => (dispatch) => {
+const updateGuestCartQtyAction = (productId, quantity, stock) => (dispatch) => {
   if (quantity > stock) {
     toast.error(`Only ${stock} items left in stock`);
     return;
@@ -158,7 +158,7 @@ export const updateGuestCartQtyAction = (productId, quantity, stock) => (dispatc
   }
 };
 
-export const removeFromGuestCartAction = (productId) => (dispatch) => {
+const removeFromGuestCartAction = (productId) => (dispatch) => {
   const list = getGuestCart();
   const updated = list.filter((i) => i.productId._id !== productId);
   localStorage.setItem(GUEST_CART_KEY, JSON.stringify(updated));
@@ -166,13 +166,28 @@ export const removeFromGuestCartAction = (productId) => (dispatch) => {
   toast.success("Removed from local cart");
 };
 
-export const clearGuestCartAction = () => (dispatch) => {
+const clearGuestCartAction = () => (dispatch) => {
   localStorage.removeItem(GUEST_CART_KEY);
   dispatch(clearCartState());
 };
 
 // Initialize Guest Cart on App Load
-export const initGuestCart = () => (dispatch) => {
+const initGuestCart = () => (dispatch) => {
   const list = getGuestCart();
   dispatch(cartSuccess(list)); // Populates state.cartItems
+};
+
+export {
+  getCart,
+  addToCart,
+  updateCartItemQty,
+  removeFromCart,
+  clearCart,
+  mergeCart,
+  getGuestCart,
+  addToGuestCartAction,
+  updateGuestCartQtyAction,
+  removeFromGuestCartAction,
+  clearGuestCartAction,
+  initGuestCart,
 };

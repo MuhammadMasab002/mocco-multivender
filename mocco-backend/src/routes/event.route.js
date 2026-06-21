@@ -12,7 +12,7 @@ eventRouter.post(
     createEvent,
 );
 // global active events (homepage)
-eventRouter.get("/all", getAllEvents);
+eventRouter.get("/all-events", getAllEvents);
 // shop scoped events
 eventRouter.get("/all/:shopId", getShopEvents);
 eventRouter.delete("/delete/:id", isSellerAuthenticated, deleteEvent);

@@ -3,18 +3,39 @@ import ProductDetailInfo from "../components/common/products/ProductDetailInfo";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import ProductCard from "../components/common/products/ProductCard";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addToGuestWishlistAction,
+  addToWishlist,
+  removeFromGuestWishlistAction,
+  removeFromWishlist,
+} from "../services/store/actions/wishlist";
+import toast from "react-hot-toast";
+import {
+  addToCart,
+  addToGuestCartAction,
+} from "../services/store/actions/cart";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const ProductDetail = () => {
+  const dispatch = useDispatch();
   const { productId } = useParams();
   const navigate = useNavigate();
+
+  const { isUserAuthenticated } = useSelector((state) => state.user);
+  const { isLoading: isCartLoading } = useSelector((state) => state.cart);
+  const { ids: wishlistIds } = useSelector((state) => state.wishlist);
+
+  const isWishlisted = wishlistIds.includes(productId);
 
   const [quantity, setQuantity] = useState(1);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("details"); // 'details', 'reviews', 'seller'
+
+  const [isWishlistLoading, setIsWishlistLoading] = useState(false);
 
   // Fetch single product dynamically
   useEffect(() => {
@@ -39,6 +60,76 @@ export const ProductDetail = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [productId]);
+
+  const handleWishlistToggle = async (e) => {
+    e.stopPropagation();
+    if (!productId) return;
+
+    if (isWishlistLoading) return;
+
+    if (isUserAuthenticated) {
+      try {
+        setIsWishlistLoading(true);
+        if (isWishlisted) {
+          await dispatch(removeFromWishlist(productId));
+          toast.success("Removed from wishlist");
+        } else {
+          await dispatch(addToWishlist(productId));
+          toast.success("Added to wishlist");
+        }
+      } catch (err) {
+        toast.error(
+          err?.response?.data?.message ||
+            err?.message ||
+            "Failed to update wishlist",
+        );
+      } finally {
+        setIsWishlistLoading(false);
+      }
+    } else {
+      if (isWishlisted) {
+        dispatch(removeFromGuestWishlistAction(productId));
+        toast.success("Removed from local wishlist");
+      } else {
+        dispatch(addToGuestWishlistAction(productId));
+        toast.success("Added to local wishlist (Login to sync)");
+      }
+    }
+  };
+
+  const handleAddToCart = async (e) => {
+    e.stopPropagation();
+    if (isCartLoading) return;
+
+    if (isUserAuthenticated) {
+      try {
+        await dispatch(addToCart(productId, quantity));
+        toast.success("Added to cart");
+      } catch (err) {
+        // Error toast handled in thunk
+        toast.error(
+          err?.response?.data?.message ||
+            err?.message ||
+            "Failed to add to cart",
+        );
+        console.error("Add to cart error:", err);
+      }
+    } else {
+      const productObj = {
+        productId,
+        name: currentProduct?.name,
+        price: currentProduct?.discount_price || currentProduct?.price,
+        images: currentProduct?.images,
+      };
+
+      dispatch(addToGuestCartAction(productObj, quantity));
+    }
+  };
+
+  const handleBuyNow = () => {
+    // For simplicity, we'll just navigate to checkout page
+    navigate("/checkout");
+  };
 
   // We no longer need to compute related products locally since the backend reliably returns them.
 
@@ -78,8 +169,8 @@ export const ProductDetail = () => {
   }
 
   const imageUrl =
-    currentProduct?.images?.[0]?.url ||
-    currentProduct?.images?.[0]?.public_id ||
+    // currentProduct?.images?.[0]?.url ||
+    // currentProduct?.images?.[0]?.public_id ||
     "https://dummyimage.com/600x400/e2e8f0/64748b.png&text=No+Image";
 
   return (
@@ -113,14 +204,15 @@ export const ProductDetail = () => {
 
           {/* RIGHT: Details Info */}
           <ProductDetailInfo
-            title={currentProduct.name}
-            reviews={currentProduct.reviews?.length || 1}
-            description={currentProduct.description}
-            price={currentProduct.discount_price || currentProduct.price}
+            {...currentProduct}
             quantity={quantity}
             setQuantity={setQuantity}
-            stock={currentProduct.stock}
-            productId={currentProduct._id || currentProduct.id}
+            isWishlisted={isWishlisted}
+            isCartLoading={isCartLoading}
+            isWishlistLoading={isWishlistLoading}
+            onWishlistToggle={handleWishlistToggle}
+            onAddToCart={handleAddToCart}
+            onBuyNow={handleBuyNow}
           />
         </div>
       </section>
