@@ -9,8 +9,6 @@ const ProfileTab = ({
   onAvatarChange,
   onInputChange,
   onSubmit,
-  countries,
-  addressTypes,
 }) => {
   return (
     <div className="space-y-6">
@@ -55,8 +53,8 @@ const ProfileTab = ({
         </div>
       </div>
 
-      <form className="space-y-4 text-black" onSubmit={onSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="w-full mx-auto flex justify-center border-t border-gray-200 pt-6">
+        <form className="space-y-4 text-black" onSubmit={onSubmit}>
           <CustomFormInput
             label="Name"
             name="name"
@@ -64,6 +62,7 @@ const ProfileTab = ({
             onChange={onInputChange}
             required
           />
+          
           <CustomFormInput
             label="Email"
             type="email"
@@ -72,23 +71,7 @@ const ProfileTab = ({
             onChange={onInputChange}
             required
           />
-        </div>
 
-        <CustomFormInput
-          label="Current Password"
-          type="password"
-          name="currentPassword"
-          value={profileForm.currentPassword}
-          onChange={onInputChange}
-          placeholder="Enter your current password to confirm changes"
-          required
-        />
-
-        <p className="text-xs sm:text-sm italic text-gray-500 pb-3">
-          Required to verify your identity before updating profile.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <CustomFormInput
             label="Phone Number"
             name="phoneNumber"
@@ -97,86 +80,29 @@ const ProfileTab = ({
             placeholder="Phone Number"
           />
 
-          <div className="w-full">
-            <label className="block text-gray-700 font-medium mb-1">
-              Country
-            </label>
-            <select
-              name="country"
-              value={profileForm.country}
-              onChange={onInputChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-300"
-            >
-              <option value="">Select Country</option>
-              {countries.map((country) => (
-                <option key={country} value={country}>
-                  {country}
-                </option>
-              ))}
-            </select>
+          <CustomFormInput
+            label="Current Password"
+            type="password"
+            name="currentPassword"
+            value={profileForm.currentPassword}
+            onChange={onInputChange}
+            placeholder="Enter your current password to confirm changes"
+            required
+          />
+
+          <p className="text-xs sm:text-sm italic text-gray-500 pb-3">
+            Required to verify your identity before updating profile.
+          </p>
+
+          <div className="w-full sm:max-w-52">
+            <CustomButton
+              buttonText="Update Profile"
+              type="submit"
+              variant="dark"
+            />
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <CustomFormInput
-            label="City"
-            name="city"
-            value={profileForm.city}
-            onChange={onInputChange}
-            placeholder="City"
-          />
-          <CustomFormInput
-            label="Zip Code"
-            name="zipCode"
-            value={profileForm.zipCode}
-            onChange={onInputChange}
-            placeholder="Zip Code"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <CustomFormInput
-            label="Street Address 1"
-            name="streetAddress1"
-            value={profileForm.streetAddress1}
-            onChange={onInputChange}
-            placeholder="Street Address 1"
-          />
-          <CustomFormInput
-            label="Street Address 2"
-            name="streetAddress2"
-            value={profileForm.streetAddress2}
-            onChange={onInputChange}
-            placeholder="Street Address 2"
-          />
-        </div>
-
-        <div className="w-full md:max-w-md">
-          <label className="block text-gray-700 font-medium mb-1">
-            Address Type
-          </label>
-          <select
-            name="addressType"
-            value={profileForm.addressType}
-            onChange={onInputChange}
-            className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-300"
-          >
-            {addressTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="w-full sm:max-w-52">
-          <CustomButton
-            buttonText="Update Profile"
-            type="submit"
-            variant="dark"
-          />
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

@@ -227,10 +227,20 @@ const Header = () => {
           </Drawer>
 
           <Link to="/">
-            <div className="flex w-42">
+            <div className="hidden sm:flex w-42">
               <img
                 className="w-full h-full"
                 src="../mocco-large-logo.png"
+                alt="logo"
+              />
+              <span className="text-xl font-bold text-red-400 rounded-2xl">
+                .
+              </span>
+            </div>
+            <div className="sm:hidden flex w-10">
+              <img
+                className="w-full h-full"
+                src="../mocco-favicon.png"
                 alt="logo"
               />
               <span className="text-xl font-bold text-red-400 rounded-2xl">
@@ -269,7 +279,7 @@ const Header = () => {
             className="hidden md:inline-block text-sm max-w-34!"
           />
 
-          <Link className="hidden sm:block relative" to="/wishlist">
+          <Link className="hiddensm:block relative rounded-full" to="/wishlist">
             <FavoriteBorderIcon
               className="rounded-full bg-gray-100 hover:text-red-600 cursor-pointer p-1"
               fontSize="large"
@@ -281,7 +291,7 @@ const Header = () => {
             )}
           </Link>
 
-          <Link className="hidden sm:block relative" to="/cart">
+          <Link className="hiddensm:block relative rounded-full" to="/cart">
             <ShoppingCartIcon
               className="rounded-full bg-gray-100 hover:text-red-600 cursor-pointer p-1"
               fontSize="large"
@@ -293,13 +303,19 @@ const Header = () => {
 
           {isUserAuthenticated ? (
             <>
-              <Link to="/my-profile">
+              <Link
+                to="/my-profile"
+                className="hidden lg:block rounded-full relative"
+              >
                 {user?.avatar?.url ? (
-                  <img
-                    src={`http://localhost:8000/api/v1${user.avatar.url}`}
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
+                  <div className="w-9 h-9 rounded-full overflow-hidden border border-red-200 shadow-sm">
+                    <img
+                      // src={`http://localhost:8000/api/v1${user.avatar.url}`}
+                      src="about-us.png"
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 ) : (
                   <PersonOutlineIcon
                     className="rounded-full bg-red-100 text-red-600 cursor-pointer p-1"
@@ -307,13 +323,11 @@ const Header = () => {
                   />
                 )}
               </Link>
-              <Link to="/login">
-                <LogoutRoundedIcon
-                  className="rounded-full bg-red-100 text-red-600 cursor-pointer p-1"
-                  fontSize="large"
-                  onClick={handleLogout}
-                />
-              </Link>
+              <LogoutRoundedIcon
+                className="hidden! lg:block! rounded-full bg-red-100 text-red-600 cursor-pointer p-1"
+                fontSize="large"
+                onClick={handleLogout}
+              />
             </>
           ) : (
             <CustomButton

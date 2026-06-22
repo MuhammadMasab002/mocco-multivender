@@ -467,8 +467,6 @@ const MyProfile = () => {
           onAvatarChange={handleAvatarChange}
           onInputChange={handleProfileInputChange}
           onSubmit={handleProfileSubmit}
-          countries={countries}
-          addressTypes={addressTypes}
         />
       );
     }
