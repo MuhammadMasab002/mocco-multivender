@@ -275,7 +275,6 @@ const MyProfile = () => {
 
   const handleAddAddress = async (e) => {
     e.preventDefault();
-    console.log("submitted form:-->", addressForm);
 
     if (
       !addressForm.country ||

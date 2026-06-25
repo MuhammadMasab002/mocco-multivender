@@ -41,6 +41,7 @@ import {
 } from "./services/store/actions/wishlist.js";
 import { getAllProducts } from "./services/store/actions/product.js";
 import { getAllEvents } from "./services/store/actions/event.js";
+import ScrollToTop from "./components/common/ScrollToTop.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -69,9 +70,19 @@ function App() {
     fetchUserData();
   }, [isUserAuthenticated, dispatch]);
 
+  // scroll to top on each route change
+  useEffect(() => {
+    const handleRouteChange = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    handleRouteChange();
+  }, []);
+
   return (
     <BrowserRouter>
       <Toaster position="bottom-right" reverseOrder={false} />
+      {/* Visual Anchor: Scroll reset component sits at the root */}
+      <ScrollToTop />
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
