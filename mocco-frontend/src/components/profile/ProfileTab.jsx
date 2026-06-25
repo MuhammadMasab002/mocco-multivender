@@ -5,10 +5,12 @@ import CustomFormInput from "../common/inputs/CustomFormInput";
 
 const ProfileTab = ({
   profileForm,
+  derivedProfile,
   avatarPreview,
   onAvatarChange,
   onInputChange,
   onSubmit,
+  isLoading,
 }) => {
   return (
     <div className="space-y-6">
@@ -53,53 +55,72 @@ const ProfileTab = ({
         </div>
       </div>
 
-      <div className="w-full mx-auto flex justify-center border-t border-gray-200 pt-6">
-        <form className="space-y-4 text-black" onSubmit={onSubmit}>
-          <CustomFormInput
-            label="Name"
-            name="name"
-            value={profileForm.name}
-            onChange={onInputChange}
-            required
-          />
-          
-          <CustomFormInput
-            label="Email"
-            type="email"
-            name="email"
-            value={profileForm.email}
-            onChange={onInputChange}
-            required
-          />
-
-          <CustomFormInput
-            label="Phone Number"
-            name="phoneNumber"
-            value={profileForm.phoneNumber}
-            onChange={onInputChange}
-            placeholder="Phone Number"
-          />
-
-          <CustomFormInput
-            label="Current Password"
-            type="password"
-            name="currentPassword"
-            value={profileForm.currentPassword}
-            onChange={onInputChange}
-            placeholder="Enter your current password to confirm changes"
-            required
-          />
-
-          <p className="text-xs sm:text-sm italic text-gray-500 pb-3">
-            Required to verify your identity before updating profile.
-          </p>
-
-          <div className="w-full sm:max-w-52">
-            <CustomButton
-              buttonText="Update Profile"
-              type="submit"
-              variant="dark"
+      <div className="w-full max-w-md mx-auto flex justify-center border-t border-gray-200 pt-8 mt-8">
+        <form className="w-full space-y-6 text-black" onSubmit={onSubmit}>
+          <div className="flex items-center gap-2">
+            <span className="text-red-500">* </span>
+            <CustomFormInput
+              // label="Name"
+              name="name"
+              value={profileForm.name || derivedProfile.name}
+              onChange={onInputChange}
+              placeholder="Name"
+              required
             />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-red-500">* </span>
+            <CustomFormInput
+              // label="Email"
+              type="email"
+              name="email"
+              value={profileForm.email || derivedProfile.email}
+              onChange={onInputChange}
+              placeholder="Email"
+              required
+            />
+          </div>
+
+          <div className="flex items-center gap-2 pl-3.5">
+            <CustomFormInput
+              // label="Phone Number"
+              name="phoneNumber"
+              value={profileForm.phoneNumber || derivedProfile.phoneNumber}
+              onChange={onInputChange}
+              placeholder="Phone Number"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-red-500">* </span>
+
+            <CustomFormInput
+              // label="Current Password"
+              type="password"
+              name="currentPassword"
+              value={profileForm.currentPassword}
+              onChange={onInputChange}
+              placeholder="Enter your current password to confirm changes"
+              required
+            />
+          </div>
+
+          <div className="flex justify-start itemscenter gap-2">
+            <span className="text-red-500">* </span>
+            <p className="text-xs sm:text-sm italic text-gray-500 pb-3">
+              Required fields. You will be Required to verify your identity
+              before updating profile.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 pl-3.5">
+            <div className="w-full">
+              <CustomButton
+                buttonText={isLoading ? "Updating..." : "Update Profile"}
+                type="submit"
+                variant="dark"
+                disabled={isLoading}
+              />
+            </div>
           </div>
         </form>
       </div>

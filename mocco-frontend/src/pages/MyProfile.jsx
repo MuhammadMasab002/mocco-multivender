@@ -18,19 +18,21 @@ import ChangePasswordTab from "../components/profile/ChangePasswordTab";
 import AddressTab from "../components/profile/AddressTab";
 import PaymentMethodTab from "../components/profile/PaymentMethodTab";
 import LogoutTab from "../components/profile/LogoutTab";
-import { loadUser } from "../services/store/actions/user";
+import {
+  loadUser,
+  updateProfile,
+  updatePassword,
+  addAddress,
+  deleteAddress,
+} from "../services/store/actions/user";
 import axios from "axios";
 import { clearWishlistState } from "../services/store/slices/wishlistSlice";
 import { clearCartState } from "../services/store/slices/cartSlice";
 import { initGuestWishlist } from "../services/store/actions/wishlist";
 import { initGuestCart } from "../services/store/actions/cart";
+import toast from "react-hot-toast";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-const PROFILE_STORAGE_KEY = "mocco_profile_form";
-const ADDRESS_STORAGE_KEY = "mocco_profile_addresses";
-const REFUND_STORAGE_KEY = "mocco_profile_refunds";
-const PAYMENT_STORAGE_KEY = "mocco_profile_payment_methods";
 
 const tabs = [
   { id: "profile", label: "Profile", icon: AccountCircleIcon },
@@ -43,73 +45,12 @@ const tabs = [
   { id: "logout", label: "Logout", icon: LogoutIcon },
 ];
 
-const defaultOrders = [
-  {
-    id: "A4472E01",
-    date: "March 7, 2026",
-    shop: "eFlyer",
-    paymentMethod: "COD",
-    paymentStatus: "pending",
-    status: "shipping",
-    items: [
-      { name: "Enim assumenda ullam", qty: 1, amount: 79 },
-      { name: "Gaming pad (mouse pad) Dolore qui", qty: 2, amount: 156 },
-    ],
-    total: 178,
-    shippingAddress: {
-      line1: "Deserunt suscipit co",
-      city: "Lahore",
-      zipCode: "54782",
-      phone: "+1 (968) 458-1307",
-    },
-  },
-  {
-    id: "A4472D34",
-    date: "March 7, 2026",
-    shop: "MultiMart",
-    paymentMethod: "CARD",
-    paymentStatus: "paid",
-    status: "processing",
-    items: [
-      { name: "Wireless speaker", qty: 1, amount: 299 },
-      { name: "Bluetooth earbuds", qty: 2, amount: 589 },
-    ],
-    total: 888,
-    shippingAddress: {
-      line1: "Block A, Johar Town",
-      city: "Lahore",
-      zipCode: "54700",
-      phone: "+92 300 0000000",
-    },
-  },
-];
-
-const addressTypes = ["Home", "Office", "Other"];
-const countries = ["Pakistan", "United Arab Emirates", "Saudi Arabia", "Qatar"];
-
-const statesByCountry = {
-  Pakistan: [
-    "Punjab",
-    "Sindh",
-    "Khyber Pakhtunkhwa",
-    "Balochistan",
-    "Islamabad",
-  ],
-  "United Arab Emirates": ["Dubai", "Abu Dhabi", "Sharjah"],
-  "Saudi Arabia": ["Riyadh", "Makkah", "Madinah"],
-  Qatar: ["Doha", "Al Rayyan", "Al Wakrah"],
-};
+const addressTypes = ["Home", "Office", "Default"];
 
 const initialProfileForm = (user) => ({
   name: user?.name || "",
   email: user?.email || "",
   phoneNumber: user?.phoneNumber || "",
-  country: user?.addresses?.[0]?.country || "",
-  city: user?.addresses?.[0]?.city || "",
-  zipCode: user?.addresses?.[0]?.zipCode || "",
-  streetAddress1: user?.addresses?.[0]?.address1 || "",
-  streetAddress2: user?.addresses?.[0]?.address2 || "",
-  addressType: user?.addresses?.[0]?.addressType || "Home",
   currentPassword: "",
 });
 
@@ -118,8 +59,8 @@ const initialAddressForm = {
   state: "",
   city: "",
   zipCode: "",
-  streetAddress1: "",
-  streetAddress2: "",
+  address1: "",
+  address2: "",
   addressType: "Home",
 };
 
@@ -130,17 +71,6 @@ const initialPaymentForm = {
   expiryMonth: "",
   expiryYear: "",
 };
-
-const defaultPaymentMethods = [
-  {
-    id: "visa-default",
-    cardType: "VISA",
-    cardHolder: "Masab Ashraf",
-    last4: "1234",
-    expiryMonth: "08",
-    expiryYear: "2022",
-  },
-];
 
 const titleByTab = {
   profile: "Profile",
@@ -153,21 +83,12 @@ const titleByTab = {
   logout: "Logout",
 };
 
-const readStoredJson = (storageKey) => {
-  try {
-    const rawValue = localStorage.getItem(storageKey);
-    return rawValue ? JSON.parse(rawValue) : null;
-  } catch {
-    return null;
-  }
-};
-
 const MyProfile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { tab: routeTab } = useParams();
-  const { user } = useSelector((state) => state.user);
+  const { user, isLoading: isUserLoading } = useSelector((state) => state.user);
 
   const queryTab = new URLSearchParams(location.search).get("tab");
   const resolvedTab = routeTab || queryTab;
@@ -175,36 +96,25 @@ const MyProfile = () => {
     ? resolvedTab
     : "profile";
 
-  const [profileForm, setProfileForm] = useState(() => {
-    const storedProfile = readStoredJson(PROFILE_STORAGE_KEY);
-    return storedProfile
-      ? { ...initialProfileForm(user), ...storedProfile }
-      : initialProfileForm(user);
-  });
-  const [avatarPreview, setAvatarPreview] = useState(() => {
-    const storedProfile = readStoredJson(PROFILE_STORAGE_KEY);
-    return storedProfile?.avatarPreview || user?.avatar?.url || "";
-  });
-  const [orders] = useState(defaultOrders);
+  const [profileForm, setProfileForm] = useState(() =>
+    initialProfileForm(user),
+  );
+  const [avatarPreview, setAvatarPreview] = useState(
+    () => user?.avatar?.url || "",
+  );
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [orders] = useState([]);
   const [refundOrderId, setRefundOrderId] = useState("");
   const [refundReason, setRefundReason] = useState("");
-  const [refundRequests, setRefundRequests] = useState(
-    () => readStoredJson(REFUND_STORAGE_KEY) || [],
-  );
+  const [refundRequests, setRefundRequests] = useState([]);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-  const [addresses, setAddresses] = useState(
-    () => readStoredJson(ADDRESS_STORAGE_KEY) || [],
-  );
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [addressForm, setAddressForm] = useState(initialAddressForm);
-  const [paymentMethods, setPaymentMethods] = useState(() => {
-    const storedMethods = readStoredJson(PAYMENT_STORAGE_KEY);
-    return storedMethods ?? defaultPaymentMethods;
-  });
+  const [paymentMethods, setPaymentMethods] = useState([]);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [paymentForm, setPaymentForm] = useState(initialPaymentForm);
 
@@ -212,8 +122,16 @@ const MyProfile = () => {
     () => ({
       name: profileForm.name || user?.name || "Guest User",
       email: profileForm.email || user?.email || "example@email.com",
+      phoneNumber: profileForm.phoneNumber || user?.phoneNumber || "",
     }),
-    [profileForm.email, profileForm.name, user?.email, user?.name],
+    [
+      profileForm.email,
+      profileForm.name,
+      profileForm.phoneNumber,
+      user?.email,
+      user?.name,
+      user?.phoneNumber,
+    ],
   );
 
   const handleTabChange = (tabId) => {
@@ -234,23 +152,41 @@ const MyProfile = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setAvatarFile(file); // Save file for FormData
+
     const fileReader = new FileReader();
     fileReader.onload = () => setAvatarPreview(String(fileReader.result || ""));
     fileReader.readAsDataURL(file);
   };
 
-  const handleProfileSubmit = (e) => {
+  const handleProfileSubmit = async (e) => {
     e.preventDefault();
 
     if (!profileForm.currentPassword.trim()) {
-      alert("Please enter your current password to update profile details.");
+      toast.error(
+        "Please enter your current password to update profile details.",
+      );
       return;
     }
 
-    const payload = { ...profileForm, avatarPreview };
-    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(payload));
-    setProfileForm((prev) => ({ ...prev, currentPassword: "" }));
-    alert("Profile updated successfully.");
+    const formData = new FormData();
+    formData.append("name", profileForm.name);
+    formData.append("email", profileForm.email);
+    formData.append("phoneNumber", profileForm.phoneNumber);
+    formData.append("currentPassword", profileForm.currentPassword);
+    if (avatarFile) {
+      formData.append("file", avatarFile);
+    }
+
+    const res = await dispatch(updateProfile(formData));
+    if (res.success) {
+      toast.success(res.message);
+      setProfileForm((prev) => ({ ...prev, currentPassword: "" }));
+      setAvatarFile(null);
+      dispatch(loadUser());
+    } else {
+      toast.error(res.message);
+    }
   };
 
   const handlePasswordInputChange = (e) => {
@@ -258,25 +194,35 @@ const MyProfile = () => {
     setPasswordForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
 
     if (passwordForm.newPassword.length < 6) {
-      alert("Password must be at least 6 characters long.");
+      toast.error("Password must be at least 6 characters long.");
       return;
     }
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      alert("New password and confirm password do not match.");
+      toast.error("New password and confirm password do not match.");
       return;
     }
 
-    setPasswordForm({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
-    alert("Password changed successfully.");
+    const payload = {
+      oldPassword: passwordForm.currentPassword,
+      newPassword: passwordForm.newPassword,
+    };
+
+    const res = await dispatch(updatePassword(payload));
+    if (res.success) {
+      toast.success(res.message);
+      setPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } else {
+      toast.error(res.message);
+    }
   };
 
   const handleRefundSubmit = (e) => {
@@ -311,10 +257,9 @@ const MyProfile = () => {
 
     const nextRefunds = [nextRefund, ...refundRequests];
     setRefundRequests(nextRefunds);
-    localStorage.setItem(REFUND_STORAGE_KEY, JSON.stringify(nextRefunds));
     setRefundOrderId("");
     setRefundReason("");
-    alert("Refund request submitted.");
+    toast.success("Refund request submitted.");
   };
 
   const handleAddressInputChange = (e) => {
@@ -328,33 +273,40 @@ const MyProfile = () => {
     setAddressForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddAddress = (e) => {
+  const handleAddAddress = async (e) => {
     e.preventDefault();
+    console.log("submitted form:-->", addressForm);
 
     if (
       !addressForm.country ||
       !addressForm.state ||
       !addressForm.city ||
       !addressForm.zipCode ||
-      !addressForm.streetAddress1
+      !addressForm.address1
     ) {
-      alert("Please fill all required address fields.");
+      toast.error("Please fill all required address fields.");
       return;
     }
 
-    const nextAddress = { ...addressForm, id: Date.now() };
-    const nextAddresses = [...addresses, nextAddress];
-    setAddresses(nextAddresses);
-    localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(nextAddresses));
-    setAddressForm(initialAddressForm);
-    setShowAddressForm(false);
-    alert("Address added successfully.");
+    const res = await dispatch(addAddress(addressForm));
+    if (res.success) {
+      toast.success(res.message);
+      setAddressForm(initialAddressForm);
+      setShowAddressForm(false);
+      dispatch(loadUser());
+    } else {
+      toast.error(res.message);
+    }
   };
 
-  const handleDeleteAddress = (id) => {
-    const nextAddresses = addresses.filter((address) => address.id !== id);
-    setAddresses(nextAddresses);
-    localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(nextAddresses));
+  const handleDeleteAddress = async (id) => {
+    const res = await dispatch(deleteAddress(id));
+    if (res.success) {
+      toast.success(res.message);
+      dispatch(loadUser());
+    } else {
+      toast.error(res.message);
+    }
   };
 
   const handlePaymentInputChange = (e) => {
@@ -402,47 +354,30 @@ const MyProfile = () => {
       return;
     }
 
-    const nextPaymentMethod = {
-      ...paymentForm,
-      cardHolder: paymentForm.cardHolder.trim(),
+    const newMethod = {
       id: Date.now(),
+      ...paymentForm,
     };
-
-    const nextPaymentMethods = [nextPaymentMethod, ...paymentMethods];
-    setPaymentMethods(nextPaymentMethods);
-    localStorage.setItem(
-      PAYMENT_STORAGE_KEY,
-      JSON.stringify(nextPaymentMethods),
-    );
+    const nextMethods = [...paymentMethods, newMethod];
+    setPaymentMethods(nextMethods);
     setPaymentForm(initialPaymentForm);
     setShowPaymentForm(false);
-    alert("Payment method added successfully.");
+    toast.success("Payment method added.");
   };
 
   const handleDeletePaymentMethod = (id) => {
-    const nextPaymentMethods = paymentMethods.filter(
-      (method) => method.id !== id,
-    );
-    setPaymentMethods(nextPaymentMethods);
-    localStorage.setItem(
-      PAYMENT_STORAGE_KEY,
-      JSON.stringify(nextPaymentMethods),
-    );
+    const nextMethods = paymentMethods.filter((method) => method.id !== id);
+    setPaymentMethods(nextMethods);
   };
 
   // handle logout API
   const handleLogout = async () => {
-    const { data } = await axios.get(`${backendUrl}/user/logout`, {
-      withCredentials: true,
-    });
-    if (data?.success) {
-      // static cleanup of localStorage keys related to profile, addresses, refunds, and payment methods
-      localStorage.removeItem(PROFILE_STORAGE_KEY);
-      localStorage.removeItem(ADDRESS_STORAGE_KEY);
-      localStorage.removeItem(REFUND_STORAGE_KEY);
-      localStorage.removeItem(PAYMENT_STORAGE_KEY);
+    if (window.confirm("Are you sure you want to log out?")) {
+      const res = await axios.get(`${backendUrl}/user/logout`, {
+        withCredentials: true,
+      });
 
-      alert("Logged out successfully.");
+      toast.success(res.data.message || "Logged out successfully.");
       dispatch(loadUser());
 
       // clear logged-in user wishlist/cart
@@ -463,10 +398,12 @@ const MyProfile = () => {
       return (
         <ProfileTab
           profileForm={profileForm}
+          derivedProfile={derivedProfile}
           avatarPreview={avatarPreview}
           onAvatarChange={handleAvatarChange}
           onInputChange={handleProfileInputChange}
           onSubmit={handleProfileSubmit}
+          isLoading={isUserLoading}
         />
       );
     }
@@ -499,6 +436,7 @@ const MyProfile = () => {
           passwordForm={passwordForm}
           onInputChange={handlePasswordInputChange}
           onSubmit={handlePasswordSubmit}
+          isLoading={isUserLoading}
         />
       );
     }
@@ -511,15 +449,14 @@ const MyProfile = () => {
           addressForm={addressForm}
           onInputChange={handleAddressInputChange}
           onAddAddress={handleAddAddress}
-          countries={countries}
-          statesByCountry={statesByCountry}
           addressTypes={addressTypes}
-          addresses={addresses}
+          addresses={user?.addresses || []}
           onDeleteAddress={handleDeleteAddress}
           onCancelAddressForm={() => {
             setShowAddressForm(false);
             setAddressForm(initialAddressForm);
           }}
+          isLoading={isUserLoading}
         />
       );
     }

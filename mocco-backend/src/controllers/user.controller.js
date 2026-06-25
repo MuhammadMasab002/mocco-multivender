@@ -5,8 +5,9 @@ import User from "../models/user.model.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import sendToken from "../utils/jwtToken.js";
 import { createActivationToken } from "../utils/createToken.js";
+import catchAsyncErrors from "../middlewares/CatchAsyncErrors.js";
 
-const registerUser = async (req, res, next) => {
+const registerUser = catchAsyncErrors(async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
@@ -71,10 +72,10 @@ const registerUser = async (req, res, next) => {
       new ErrorHandler("Failed to register user! " + error.message, 500),
     );
   }
-};
+});
 
 // activate user account
-const activateUserEmail = async (req, res, next) => {
+const activateUserEmail = catchAsyncErrors(async (req, res, next) => {
   try {
     const { token } = req.body;
 
@@ -110,7 +111,7 @@ const activateUserEmail = async (req, res, next) => {
       ),
     );
   }
-};
+});
 
 // login user controller is handled in auth.controller.js
 const loginUser = async (req, res, next) => {
@@ -198,4 +199,189 @@ const logoutUser = async (req, res, next) => {
   }
 };
 
-export { registerUser, activateUserEmail, loginUser, getUser, logoutUser };
+// update user profile
+const updateProfile = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const { name, email, phoneNumber, currentPassword } = req.body;
+
+    if (!currentPassword) {
+      return next(new ErrorHandler("Please enter your current password to update profile", 400));
+    }
+
+    const user = await User.findById(req.user._id).select("+password");
+
+    const isPasswordValid = await user.comparePassword(currentPassword);
+    if (!isPasswordValid) {
+      return next(new ErrorHandler("Invalid current password", 400));
+    }
+
+    // if (req.file) {
+    //   const fileName = req.file.filename;
+    //   user.avatar = {
+    //     public_id: fileName,
+    //     url: `/uploads/${fileName}`,
+    //   };
+    // }
+
+    // Update only the fields that are provided in the request body
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        name,
+        email,
+        phoneNumber,
+      },
+      { returnDocument: 'after', runValidators: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error in updateProfile:", error);
+    return next(new ErrorHandler("Failed to update profile! " + error.message, 500));
+  }
+});
+
+// update user password
+const updatePassword = async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    // 1. Validate incoming fields
+    if (!oldPassword || !newPassword) {
+      return next(new ErrorHandler("Please enter old and new password", 400));
+    }
+
+    // 2. Fetch user explicitly selecting the hidden password field
+    const user = await User.findById(req.user._id).select("+password");
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404));
+    }
+
+    // 3. Verify old password matches current hash
+    const isPasswordValid = await user.comparePassword(oldPassword);
+    if (!isPasswordValid) {
+      return next(new ErrorHandler("Invalid old password", 400));
+    }
+
+    // 4. Update the password field
+    user.password = newPassword;
+
+    // 5. Save document (Triggers the pre-save schema bcrypt hook)
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+
+  } catch (error) {
+    // Forward database errors directly to global middleware
+    return next(error);
+  }
+};
+
+// add user address
+const addAddress = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const { country, state, city, address1, address2, zipCode, addressType } = req.body;
+
+    // Validate required fields
+    if (!country || !state || !city || !address1 || !zipCode || !addressType) {
+      return next(new ErrorHandler("Please enter all required address fields", 400));
+    }
+
+    // Check for an existing duplicate address matching critical fields
+    const isDuplicate = await User.findOne({
+      _id: req.user._id,
+      addresses: {
+        $elemMatch: {
+          country,
+          state,
+          city,
+          address1,
+          zipCode,
+        },
+      },
+    });
+
+    if (isDuplicate) {
+      return next(new ErrorHandler("Address already exists", 400));
+    }
+
+    const newAddress = {
+      country,
+      state,
+      city,
+      address1,
+      address2: address2 || "",
+      zipCode,
+      addressType,
+    };
+
+    // Atomically push the new address and return the updated user document
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { $push: { addresses: newAddress } },
+      { returnDocument: 'after', runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return next(new ErrorHandler("User not found", 404));
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Address added successfully",
+      user: updatedUser,
+    });
+
+  } catch (error) {
+    // Pass the database/runtime error directly to your global error handler
+    return next(new ErrorHandler("Failed to add address! " + error.message, 500));
+  }
+});
+
+// delete user address
+const deleteAddress = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const addressId = req.params.id;
+
+    // Atomically pull the address object matching the subdocument ID
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { $pull: { addresses: { _id: addressId } } },
+      { returnDocument: 'after', runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return next(new ErrorHandler("User not found", 404));
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Address deleted successfully",
+      user: updatedUser,
+    });
+
+  } catch (error) {
+    // Pass any errors safely to your error handling middleware
+    return next(new ErrorHandler("Failed to delete address! " + error.message, 500));
+  }
+});
+
+
+export {
+  registerUser,
+  activateUserEmail,
+  loginUser,
+  getUser,
+  logoutUser,
+  updateProfile,
+  updatePassword,
+  addAddress,
+  deleteAddress
+};

@@ -25,6 +25,20 @@ const userSlice = createSlice({
       state.error = action.payload;
       state.isUserAuthenticated = false;
     },
+    // Update Profile Reducers
+    updateProfileRequest: (state) => {
+      state.isLoading = true;
+    },
+    updateProfileSuccess: (state, action) => {
+      state.isLoading = false;
+      if (action.payload) {
+        state.user = action.payload; // Update user object in state
+      }
+    },
+    updateProfileFail: (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload;
+    },
     // Clear error utility
     clearErrors: (state) => {
       state.error = null;
@@ -36,6 +50,9 @@ export const {
   loadUserRequest,
   loadUserSuccess,
   loadUserFail,
+  updateProfileRequest,
+  updateProfileSuccess,
+  updateProfileFail,
   clearErrors
 } = userSlice.actions;
 

@@ -25,21 +25,32 @@ const userSchema = new Schema(
       {
         country: {
           type: String,
+          required: [true, "Please enter your country!"],
+        },
+        state: {
+          type: String,
+          required: [true, "Please enter your state!"],
         },
         city: {
           type: String,
+          required: [true, "Please enter your city!"],
         },
         address1: {
           type: String,
+          required: [true, "Please enter your address!"],
         },
         address2: {
           type: String,
+          default: "",
         },
         zipCode: {
           type: Number,
+          required: [true, "Please enter your zip code!"],
         },
         addressType: {
           type: String,
+          enum: ["Home", "Office", "Default"],
+          required: [true, "Please enter your address type!"],
         },
       },
     ],
