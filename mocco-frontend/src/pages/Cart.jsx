@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import CustomButton from "../components/common/CustomButton";
 import CustomFormInput from "../components/common/inputs/CustomFormInput";
 import CartTable from "../components/cart/CartTable";
@@ -6,7 +6,6 @@ import CartSummaryBox from "../components/cart/CartSummaryBox";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
-  // getCart,
   clearCart,
   clearGuestCartAction,
 } from "../services/store/actions/cart";
@@ -20,11 +19,7 @@ const Cart = () => {
   const { isUserAuthenticated } = useSelector((state) => state.user);
   const { cartItems, isLoading } = useSelector((state) => state.cart);
 
-  // useEffect(() => {
-  //   if (isUserAuthenticated) {
-  //     dispatch(getCart());
-  //   }
-  // }, [isUserAuthenticated, dispatch]);
+  const [isClearing, setIsClearing] = useState(false);
 
   const subtotal =
     cartItems?.reduce((acc, item) => {
@@ -36,10 +31,13 @@ const Cart = () => {
   const handleClearCart = async () => {
     if (isUserAuthenticated) {
       try {
+        setIsClearing(true);
         await dispatch(clearCart());
         toast.success("Cart cleared");
       } catch (err) {
         console.error(err);
+      } finally {
+        setIsClearing(false);
       }
     } else {
       dispatch(clearGuestCartAction());
@@ -86,9 +84,29 @@ const Cart = () => {
   return (
     <div className="container max-w-6xl mx-auto py-6 sm:px-6 space-y-8 text-black">
       {/* show total items in cart */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Your Shopping Cart</h2>
-        <p className="text-lg font-semibold">Total Items: {totalItems}</p>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-2 pt-4">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+            Your Shopping Cart
+          </h1>
+          {!isLoading && (
+            <span className="bg-slate-200 text-slate-700 py-1 px-3 rounded-full text-sm font-semibold">
+              {totalItems} items
+            </span>
+          )}
+        </div>
+
+        {totalItems > 0 && (
+          <div className="hidden sm:block">
+            <CustomButton
+              buttonText={isClearing ? "Clearing..." : "Clear Cart"}
+              variant="outline"
+              className="text-red-500 border-red-200 hover:bg-red-50"
+              onClick={handleClearCart}
+              disabled={isClearing}
+            />
+          </div>
+        )}
       </div>
 
       {/* Cart Table */}
@@ -97,41 +115,29 @@ const Cart = () => {
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-between items-center">
-        <div>
-          <CustomButton
-            buttonText="Return To Shop"
-            variant="outline"
-            className="text-sm sm:text-base w-auto px-6"
-            onClick={() => navigate("/products")}
-          />
-        </div>
-        <div>
-          <CustomButton
-            buttonText="Clear Cart"
-            variant="outline"
-            className="text-sm sm:text-base w-auto px-6 text-red-500 border-red-200 hover:bg-red-50"
-            onClick={handleClearCart}
-          />
-        </div>
-      </div>
-
-      {/* Bottom Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
-        {/* Coupon */}
-        <div className="flex flex-row md:flex-col lg:flex-row gap-3 items-start">
-          <CustomFormInput
-            placeholder="Coupon Code"
-            className="text-sm sm:text-base w-full w64"
-          />
-          <CustomButton
-            buttonText="Apply Coupon"
-            variant="danger"
-            className="text-sm sm:text-base w-auto px-0! sm:px-6!"
-          />
+      <div className="flex flex-col sm:flex-row justify-between gap-4 itemscenter">
+        <div className="w-full flex sm:block justify-between gap-4 items-center">
+          <div className="sm:w-full sm:max-w-50">
+            <CustomButton
+              buttonText="Return To Shop"
+              variant="outline"
+              className="text-sm sm:text-base w-auto px-6"
+              onClick={() => navigate("/products")}
+            />
+          </div>
+          {totalItems > 0 && (
+            <div className="block sm:hidden">
+              <CustomButton
+                buttonText={isClearing ? "Clearing..." : "Clear Cart"}
+                variant="outline"
+                className="text-red-500 border-red-200 hover:bg-red-50"
+                onClick={handleClearCart}
+                disabled={isClearing}
+              />
+            </div>
+          )}
         </div>
 
-        {/* Cart Summary */}
         <div className="flex w-full justify-end">
           <CartSummaryBox
             subtotal={subtotal}

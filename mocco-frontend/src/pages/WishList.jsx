@@ -95,10 +95,10 @@ const Wishlist = () => {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-2">
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
-              My Wishlist
+            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+              Your Wishlist
             </h1>
             {!isLoading && (
               <span className="bg-slate-200 text-slate-700 py-1 px-3 rounded-full text-sm font-semibold">
