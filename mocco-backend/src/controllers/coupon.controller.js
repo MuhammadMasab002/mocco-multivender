@@ -95,4 +95,33 @@ const deleteCoupon = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-export { createCoupon, getCoupons, deleteCoupon };
+// validate coupon code at checkout — returns discount value and type
+const validateCoupon = catchAsyncErrors(async (req, res, next) => {
+    console.log("req.params.couponCode:-->", req.params.couponCode)
+    try {
+        const code = req.params.couponCode;
+
+        if (!code) {
+            return next(new ErrorHandler("Please provide a coupon code", 400));
+        }
+
+        const coupon = await Coupon.findOne({ code: code.toLowerCase().trim() })
+            .populate("product", "name")
+            .populate("shop", "name");
+
+        if (!coupon) {
+            return next(new ErrorHandler("Invalid coupon code", 404));
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Coupon validated successfully",
+            coupon,
+        });
+    } catch (error) {
+        console.error("Error in validateCoupon:", error);
+        return next(new ErrorHandler("Failed to validate coupon! " + error.message, 500));
+    }
+});
+
+export { createCoupon, getCoupons, deleteCoupon, validateCoupon };

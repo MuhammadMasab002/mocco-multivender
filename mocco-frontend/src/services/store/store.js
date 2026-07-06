@@ -7,6 +7,7 @@ import eventReducer from "./slices/eventSlice";
 import couponReducer from "./slices/couponSlice";
 import wishlistReducer from "./slices/wishlistSlice";
 import cartReducer from "./slices/cartSlice";
+import checkoutReducer from "./slices/checkoutSlice";
 
 export const store = configureStore({
   reducer: {
@@ -18,7 +19,9 @@ export const store = configureStore({
     coupon: couponReducer,
     wishlist: wishlistReducer,
     cart: cartReducer,
+    checkout: checkoutReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(MoccoMartApi.middleware),
 });
+

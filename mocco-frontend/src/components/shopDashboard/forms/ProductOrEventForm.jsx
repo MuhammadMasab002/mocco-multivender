@@ -456,7 +456,7 @@ const ProductOrEventForm = ({ mode = "product", onSubmit }) => {
               role="switch"
               aria-checked={isFeatured}
               onClick={() => setIsFeatured((prev) => !prev)}
-              className={`relative mt-0.5 inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+              className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 isFeatured ? "bg-amber-400" : "bg-slate-300"
               }`}
             >

@@ -47,7 +47,7 @@ const OrderDetails = ({ coupon, setCoupon, handlePlaceOrder }) => {
         </div>
 
         {/* Coupon Code */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-col gap-3 pt-4 mb-4">
           <CustomFormInput
             type="text"
             placeholder="Coupon Code"
@@ -61,14 +61,9 @@ const OrderDetails = ({ coupon, setCoupon, handlePlaceOrder }) => {
             className={"text-sm sm:text-base"}
             buttonText="Apply Coupon"
             variant="dark"
+            onClick={() => alert("Apply Coupon")}
           />
         </div>
-
-        <CustomButton
-          buttonText="Place Order"
-          variant="danger"
-          onClick={handlePlaceOrder}
-        />
       </div>
     </>
   );

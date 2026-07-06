@@ -118,7 +118,7 @@ const CouponForm = () => {
             value={formData.code}
             onChange={handleInputChange}
             placeholder="e.g. OFF20"
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+            className="w-full rounded-xl uppercase border border-slate-300 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
           />
           {errors.code && <p className="text-sm text-red-500">{errors.code}</p>}
         </label>
