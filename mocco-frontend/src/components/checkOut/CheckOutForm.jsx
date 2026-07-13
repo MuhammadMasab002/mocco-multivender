@@ -2,172 +2,157 @@ import React from "react";
 import CustomFormInput from "../common/inputs/CustomFormInput";
 import { Country, State } from "country-state-city";
 import CustomButton from "../common/CustomButton";
+import { Loader2 } from "lucide-react";
 
-const CheckOutForm = ({ formData, handleChange }) => {
+const ADDRESS_TYPES = ["Home", "Office", "Default"];
+
+const CheckOutForm = ({
+  form,
+  formLoading,
+  emptyForm,
+  setForm,
+  setShowForm,
+  handleAddAddress,
+  handleFormChange,
+}) => {
   return (
-    <div>
-      <div className="flex-1 bg-white p-6 rounded shadow">
-        <h2 className="text-xl font-semibold mb-6">Shipping Address</h2>
-        <form
-          // onSubmit={handleChange}
-          className="bg-white text-black rounded-3xl p-4 sm:p-5 space-y-4"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <CustomFormInput
-              label="Name"
-              name="name"
-              // value={name}
-              // onChange={onInputChange}
-              placeholder="Enter your name"
-              required
-            />
-            <CustomFormInput
-              label="Phone Number"
-              name="phone"
-              // value={phone}
-              // onChange={onInputChange}
-              placeholder="Enter your phone number"
-              required
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols2 gap-4">
-            <CustomFormInput
-              label="Email"
-              name="email"
-              // value={email}
-              // onChange={onInputChange}
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Country <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="country"
-                // value={addressForm.country}
-                // onChange={onInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-300"
-              >
-                <option value="">Select Country</option>
-                {Country &&
-                  Country.getAllCountries().map((country, index) => (
-                    <option
-                      key={`${country.isoCode}-${country.name}-${index}`}
-                      value={country.isoCode}
-                    >
-                      {country.name}
-                    </option>
-                  ))}
-              </select>
-            </div>
+    <form
+      onSubmit={handleAddAddress}
+      className="mt-3 border border-gray-200 rounded-xl p-4 bg-gray-50/50 space-y-3"
+    >
+      <h3 className="text-sm font-semibold text-gray-800">New Address</h3>
 
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                State
-              </label>
-              <select
-                name="state"
-                // value={addressForm.state}
-                // onChange={onInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-300"
-              >
-                <option value="">Select State</option>
-                {
-                  // addressForm.country &&
-                  State.getStatesOfCountry().map((state, index) => (
-                    <option
-                      key={`${state.isoCode}-${state.name}-${index}`}
-                      value={state.isoCode}
-                    >
-                      {state.name}
-                    </option>
-                  ))
-                }
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <CustomFormInput
-              label="City"
-              name="city"
-              // value={addressForm.city}
-              // onChange={onInputChange}
-              placeholder="Enter city name"
-              required
-            />
-            <CustomFormInput
-              label="Zip Code"
-              name="zipCode"
-              // value={addressForm.zipCode}
-              // onChange={onInputChange}
-              placeholder="Zip Code"
-              required
-            />
-          </div>
-
-          <CustomFormInput
-            label="Street Address 1"
-            name="address1"
-            // value={addressForm.address1}
-            // onChange={onInputChange}
-            placeholder="Street Address 1"
-            required
-          />
-          <CustomFormInput
-            label="Street Address 2"
-            name="address2"
-            // value={addressForm.address2}
-            // onChange={onInputChange}
-            placeholder="Street Address 2 (Optional)"
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="w-full">
-              <label className="block text-gray-700 font-medium mb-1">
-                Choose from the saved addresses:{" "}
-                <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="addressType"
-                // value={addressForm.addressType}
-                // onChange={onInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-300"
-              >
-                {/* {addressTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))} */}
-                <option value="Home">Home</option>
-                <option value="Work">Work</option>
-                <option value="Other">Default</option>
-              </select>
-            </div>
-          </div>
-          {/* <div className="flex items-center mt-4">
-            <input type="checkbox" id="saveInfo" className="mr-2" />
-            <label htmlFor="saveInfo" className="text-gray-600 select-none">
-              Save this information for faster check-out next time
-            </label>
-          </div> */}
-        </form>
-      </div>
-      {/* go to payment */}
-      <div className="flex justify-end mt-6 sm:mt-10">
+      {/* Country + State */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <CustomButton
-            buttonText="Proceed to Payment"
-            variant="danger"
-            className="px-6 py-2"
-            // onClick={handleProceedToPayment}
-          />
+          <label className="block text-xs font-medium text-gray-700 mb-1">
+            Country <span className="text-red-500">*</span>
+          </label>
+          <select
+            name="country"
+            value={form.country}
+            onChange={handleFormChange}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-300"
+          >
+            <option value="">Select Country</option>
+            {Country.getAllCountries().map((c) => (
+              <option key={c.isoCode} value={c.isoCode}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-medium text-gray-700 mb-1">
+            State <span className="text-red-500">*</span>
+          </label>
+          <select
+            name="state"
+            value={form.state}
+            onChange={handleFormChange}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-300"
+          >
+            <option value="">Select State</option>
+            {form.country &&
+              State.getStatesOfCountry(form.country).map((s) => (
+                <option key={s.isoCode} value={s.isoCode}>
+                  {s.name}
+                </option>
+              ))}
+          </select>
         </div>
       </div>
-    </div>
+
+      {/* City + Zip */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <CustomFormInput
+          label="City"
+          name="city"
+          placeholder="e.g. Lahore"
+          value={form.city}
+          onChange={handleFormChange}
+          required
+        />
+        <CustomFormInput
+          label="Zip Code"
+          name="zipCode"
+          placeholder="e.g. 54000"
+          value={form.zipCode}
+          onChange={handleFormChange}
+          required
+        />
+      </div>
+
+      {/* Street Address 1 */}
+      <CustomFormInput
+        label="Street Address 1"
+        name="address1"
+        placeholder="House no, street name"
+        value={form.address1}
+        onChange={handleFormChange}
+        required
+      />
+
+      {/* Street Address 2 */}
+      <CustomFormInput
+        label="Street Address 2"
+        name="address2"
+        placeholder="Apartment, suite, etc. (optional)"
+        value={form.address2}
+        onChange={handleFormChange}
+      />
+
+      {/* Address Type */}
+      <div>
+        <label className="block text-xs font-medium text-gray-700 mb-1">
+          Address Type
+        </label>
+        <div className="flex gap-2 flex-wrap">
+          {ADDRESS_TYPES.map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => setForm((p) => ({ ...p, addressType: type }))}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition cursor-pointer ${
+                form.addressType === type
+                  ? "bg-gray-900 text-white border-gray-900"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+              }`}
+            >
+              {type}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Form actions */}
+      <div className="flex gap-2 pt-1">
+        <button
+          type="submit"
+          disabled={formLoading}
+          className="flex-1 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-60 transition flex items-center justify-center gap-2 cursor-pointer"
+        >
+          {formLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" /> Saving...
+            </>
+          ) : (
+            "Save Address"
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setShowForm(false);
+            setForm(emptyForm);
+          }}
+          className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition cursor-pointer"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
   );
 };
 

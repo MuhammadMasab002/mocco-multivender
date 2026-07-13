@@ -12,6 +12,9 @@ const initialState = {
   shippingMethod: "free",   // "free" | "express"
   shippingPrice: 0,
 
+  // Payment step
+  paymentMethod: "card",    // "card" | "paypal" | "cod"
+
   // Coupon
   couponCode: "",
   appliedCoupon: null,      // { _id, code, value, shop, product, ... }
@@ -44,6 +47,11 @@ const checkoutSlice = createSlice({
         state.shippingMethod = method.id;
         state.shippingPrice = method.price;
       }
+    },
+
+    // Payment method
+    setPaymentMethod(state, action) {
+      state.paymentMethod = action.payload;
     },
 
     // Coupon code input change
@@ -148,6 +156,7 @@ const checkoutSlice = createSlice({
 export const {
   setSelectedAddress,
   setShippingMethod,
+  setPaymentMethod,
   setCouponCode,
   applyCouponRequest,
   applyCouponSuccess,

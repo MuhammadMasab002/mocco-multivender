@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loadUser } from "./services/store/actions/user";
 import { loadSeller } from "./services/store/actions/seller";
@@ -12,7 +12,10 @@ import {
 } from "./routes/SellerProtectedRoute.jsx";
 import { AuthRoute, UserProtectedRoute } from "./routes/UserProtectedRoute.jsx";
 import MainLayout from "./layouts/MainLayout.jsx";
+import CheckoutLayout from "./layouts/CheckoutLayout.jsx";
 import Checkout from "./pages/CheckOut.jsx";
+import Payment from "./pages/Payment.jsx";
+import OrderSuccess from "./pages/OrderSuccess.jsx";
 import Cart from "./pages/Cart.jsx";
 import Products from "./pages/Products.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
@@ -42,11 +45,40 @@ import {
 import { getAllProducts } from "./services/store/actions/product.js";
 import { getAllEvents } from "./services/store/actions/event.js";
 import ScrollToTop from "./components/common/ScrollToTop.jsx";
+import axios from "axios";
+import { backendUrl } from "./components/myShop/utils.js";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 
 function App() {
   const dispatch = useDispatch();
 
   const { isUserAuthenticated } = useSelector((state) => state.user);
+
+  const [stripeApiKey, setStripeApiKey] = useState("");
+
+  // function to get stripe api key from backend
+  useEffect(() => {
+    const fetchStripeApiKey = async () => {
+      try {
+        const { data } = await axios.get(
+          `${backendUrl}/payment/stripe-api-key`,
+        );
+        setStripeApiKey(data.stripeKey);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchStripeApiKey();
+  }, []);
+
+  // React may execute it multiple times. Instead memoize it
+  const stripePromise = useMemo(() => {
+    return stripeApiKey ? loadStripe(stripeApiKey) : null;
+  }, [stripeApiKey]);
+
+  console.log("stripe api key: ", stripeApiKey);
 
   // Initial Load: User, Seller, Products, Events, Guest Cart/Wishlist
   useEffect(() => {
@@ -102,11 +134,40 @@ function App() {
             }
           />
 
+          {/* Checkout Flow (Shipping & Payment share layout) */}
           <Route
-            path="/checkout"
             element={
               <UserProtectedRoute>
-                <Checkout />
+                <CheckoutLayout />
+              </UserProtectedRoute>
+            }
+          >
+            <Route path="/checkout" element={<Checkout />} />
+
+            <Route
+              path="/payment"
+              element={
+                stripePromise ? (
+                  <Elements stripe={stripePromise}>
+                    <Payment />
+                  </Elements>
+                ) : (
+                  <div className="flex items-center justify-center h-64">
+                    <p className="text-gray-500 text-lg">
+                      Loading payment gateway...
+                    </p>
+                  </div>
+                )
+              }
+            />
+          </Route>
+
+          {/* Standalone Success Page */}
+          <Route
+            path="/order/success"
+            element={
+              <UserProtectedRoute>
+                <OrderSuccess />
               </UserProtectedRoute>
             }
           />

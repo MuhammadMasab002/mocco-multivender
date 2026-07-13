@@ -4,9 +4,7 @@ import { PaymentProcess, SendStripeKey } from "../controllers/payment.controller
 
 const paymentRouter = express.Router();
 
-// paymentRouter.use(isUserAuthenticated);
-
 paymentRouter.post("/process", PaymentProcess);
-paymentRouter.get("/key", SendStripeKey);
+paymentRouter.get("/stripe-api-key", SendStripeKey);
 
 export default paymentRouter;
