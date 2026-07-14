@@ -13,6 +13,7 @@ import couponRouter from "./src/routes/coupon.route.js";
 import wishlistRouter from "./src/routes/wishlist.route.js";
 import cartRouter from "./src/routes/cart.route.js";
 import paymentRouter from "./src/routes/payment.route.js";
+import orderRouter from "./src/routes/order.route.js";
 
 const app = express();
 const isProduction =
@@ -79,6 +80,7 @@ app.use("/api/v1/coupon", couponRouter);
 app.use("/api/v1/wishlist", wishlistRouter);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/payment", paymentRouter);
+app.use("/api/v1/order", orderRouter);
 
 app.use(errorMiddleware);
 

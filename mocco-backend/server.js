@@ -1,5 +1,9 @@
-import app from "./app.js";
+// IMPORTANT: dotenv must be configured FIRST before importing any other
+// modules that may read process.env at load time (e.g. payment controller).
 import dotenv from "dotenv";
+dotenv.config({ path: "./.env" });
+
+import app from "./app.js";
 import connectDB from "./src/db/index.js";
 
 const port = process.env.PORT || 8000;
@@ -10,14 +14,6 @@ process.on("uncaughtException", (err) => {
   console.log("Shutting down the server due to uncaught exception");
   process.exit(1);
 });
-
-// config
-if (process.env.NODE_ENV !== "PRODUCTION") {
-  console.log("Running in development mode");
-  dotenv.config({ path: "./.env" });
-} else {
-  console.log("Running in production mode");
-}
 
 // start server after connecting to database
 let server;

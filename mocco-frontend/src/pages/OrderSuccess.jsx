@@ -1,17 +1,23 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { CheckCircle2, ShoppingBag } from "lucide-react";
+import React, { useEffect, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { CheckCircle2, ShoppingBag, Package } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { resetCheckout } from "../services/store/slices/checkoutSlice";
 
 const OrderSuccess = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+
+  // Extract order IDs from query parameters
+  const orderIdsQuery = searchParams.get("orderIds");
+  const orderIds = useMemo(() => {
+    return orderIdsQuery ? orderIdsQuery.split(",").filter(Boolean) : [];
+  }, [orderIdsQuery]);
 
   useEffect(() => {
-    // Clear checkout state upon successful order
+    // Clear checkout state upon successful order (in case it wasn't cleared)
     dispatch(resetCheckout());
-    // (Also clear cart here when integrated with backend)
   }, [dispatch]);
 
   return (
@@ -25,11 +31,38 @@ const OrderSuccess = () => {
           Order Placed Successfully!
         </h1>
 
-        <p className="text-gray-500 mb-8 text-sm">
+        <p className="text-gray-500 mb-6 text-sm">
           Thank you for your purchase. We've received your order and will begin
           processing it shortly. You will receive an order confirmation email
-          with details of your order.
+          with details.
         </p>
+
+        {/* Display multiple order IDs if grouped */}
+        {orderIds.length > 0 && (
+          <div className="bg-gray-50 rounded-xl p-4 mb-8 text-left border border-gray-100">
+            <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-gray-800">
+              <Package className="w-4 h-4 text-gray-500" />
+              Order Reference(s)
+            </div>
+            <ul className="space-y-2">
+              {orderIds.map((id, index) => (
+                <li
+                  key={index}
+                  className="text-xs bg-white border border-gray-200 px-3 py-2 rounded-lg font-mono text-gray-600 flex justify-between items-center"
+                >
+                  <span>Order #{index + 1}</span>
+                  <span className="font-semibold text-gray-900">{id}</span>
+                </li>
+              ))}
+            </ul>
+            {orderIds.length > 1 && (
+              <p className="text-xs text-gray-500 mt-3 leading-relaxed">
+                Note: Your cart contained items from multiple sellers, so we've
+                split them into separate orders for faster processing.
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="space-y-3">
           <button
