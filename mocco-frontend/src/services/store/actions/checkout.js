@@ -16,8 +16,9 @@ export const validateCoupon = (couponCode, subtotal, cartItems) => async (dispat
   try {
     dispatch(applyCouponRequest());
 
-    const { data } = await axios.get(
-      `${backendUrl}/coupon/validate/${couponCode}`,
+    const { data } = await axios.post(
+      `${backendUrl}/coupon/validate`,
+      { couponCode, subtotal, cartItems },
       { withCredentials: true }
     );
 

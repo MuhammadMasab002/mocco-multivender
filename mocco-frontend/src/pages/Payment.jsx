@@ -142,7 +142,7 @@ const Payment = () => {
       if (paymentMethod === "card") {
         const { data: processData } = await axios.post(
           `${backendUrl}/payment/process`,
-          { amount: Math.round(total * 100) },
+          { amount: Math.round(total) },
           config,
         );
 

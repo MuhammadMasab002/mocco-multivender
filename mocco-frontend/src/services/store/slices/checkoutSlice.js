@@ -116,19 +116,23 @@ const checkoutSlice = createSlice({
 
         }, 0);
 
-        if (eligibleSubtotal >= coupon.minAmount) {
+        const meetsMinAmount =
+          coupon.minAmount == null || eligibleSubtotal >= coupon.minAmount;
+        const meetsMaxAmount =
+          coupon.maxAmount == null || eligibleSubtotal <= coupon.maxAmount;
 
+        if (meetsMinAmount && meetsMaxAmount) {
           discount = (eligibleSubtotal * coupon.value) / 100;
-
-          if (coupon.maxAmount) {
-            discount = Math.min(discount, coupon.maxAmount);
-          }
-
         } else {
 
           // Coupon no longer valid
-          state.couponError =
-            `Coupon is valid only for orders above $${coupon.minAmount}`;
+          if (coupon.minAmount != null && eligibleSubtotal < coupon.minAmount) {
+            state.couponError = `Coupon is valid only for orders above $${coupon.minAmount}`;
+          } else if (coupon.maxAmount != null && eligibleSubtotal > coupon.maxAmount) {
+            state.couponError = `Coupon is valid only for orders up to $${coupon.maxAmount}`;
+          } else {
+            state.couponError = "Coupon is no longer valid for this order";
+          }
 
           state.appliedCoupon = null;
         }

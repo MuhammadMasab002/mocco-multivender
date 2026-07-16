@@ -17,7 +17,7 @@ const PaymentProcess = catchAsyncErrors(async (req, res, next) => {
 
         const paymentIntent = await stripe.paymentIntents.create({
             amount,
-            currency: "inr",
+            currency: "usd",
             metadata: {
                 company: "Mocco",
                 integration_check: "accept_a_payment",

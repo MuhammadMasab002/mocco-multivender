@@ -78,8 +78,6 @@ function App() {
     return stripeApiKey ? loadStripe(stripeApiKey) : null;
   }, [stripeApiKey]);
 
-  console.log("stripe api key: ", stripeApiKey);
-
   // Initial Load: User, Seller, Products, Events, Guest Cart/Wishlist
   useEffect(() => {
     dispatch(loadUser());

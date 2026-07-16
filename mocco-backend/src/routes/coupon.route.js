@@ -10,6 +10,7 @@ couponRouter.get("/all/:shopId", getCoupons);
 couponRouter.delete("/delete/:id", isSellerAuthenticated, deleteCoupon);
 
 // Checkout coupon validation — authenticated user only
-couponRouter.get("/validate/:couponCode", isUserAuthenticated, validateCoupon);
+// couponRouter.get("/validate/:couponCode", isUserAuthenticated, validateCoupon);
+couponRouter.post("/validate", isUserAuthenticated, validateCoupon);
 
 export default couponRouter;
