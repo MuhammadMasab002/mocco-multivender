@@ -16,6 +16,7 @@ import CheckoutLayout from "./layouts/CheckoutLayout.jsx";
 import Checkout from "./pages/CheckOut.jsx";
 import Payment from "./pages/Payment.jsx";
 import OrderSuccess from "./pages/OrderSuccess.jsx";
+import OrderDetailPage from "./pages/OrderDetailPage.jsx";
 import Cart from "./pages/Cart.jsx";
 import Products from "./pages/Products.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
@@ -166,6 +167,16 @@ function App() {
             element={
               <UserProtectedRoute>
                 <OrderSuccess />
+              </UserProtectedRoute>
+            }
+          />
+
+          {/* Order Detail — accessible to both users and sellers */}
+          <Route
+            path="/order/:orderId"
+            element={
+              <UserProtectedRoute>
+                <OrderDetailPage />
               </UserProtectedRoute>
             }
           />

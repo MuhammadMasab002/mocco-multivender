@@ -408,7 +408,7 @@ const MyProfile = () => {
     }
 
     if (activeTab === "orders") {
-      return <OrdersTab orders={orders} />;
+      return <OrdersTab />;
     }
 
     if (activeTab === "refunds") {
@@ -426,7 +426,7 @@ const MyProfile = () => {
     }
 
     if (activeTab === "track-orders") {
-      return <TrackOrdersTab orders={orders} />;
+      return <TrackOrdersTab />;
     }
 
     if (activeTab === "change-password") {

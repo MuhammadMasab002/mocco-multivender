@@ -92,7 +92,7 @@ const ShopDashboardContent = ({
   }
 
   if (activeView === "orders") {
-    return <OrdersTab orders={orders} />;
+    return <OrdersTab />;
   }
 
   if (activeView === "withdraw") {

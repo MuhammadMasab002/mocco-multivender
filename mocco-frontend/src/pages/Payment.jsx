@@ -217,7 +217,7 @@ const Payment = () => {
         await dispatch(clearCart());
         dispatch(resetCheckout());
 
-        navigate(`/order/success?orderIds=${orderIds}`);
+        navigate(`/order/success?order=${orderIds}`);
       } else {
         toast.error("Failed to create order. Please try again.");
       }

@@ -66,7 +66,7 @@ const OrderSuccess = () => {
 
         <div className="space-y-3">
           <button
-            onClick={() => navigate("/my-profile")}
+            onClick={() => navigate("/my-profile/?tab=orders")}
             className="w-full py-3.5 rounded-xl bg-gray-900 text-white font-semibold text-sm hover:bg-gray-800 transition-all cursor-pointer"
           >
             View My Orders
