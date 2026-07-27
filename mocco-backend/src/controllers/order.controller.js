@@ -90,7 +90,15 @@ const createOrder = catchAsyncErrors(async (req, res, next) => {
 const getMyOrders = catchAsyncErrors(async (req, res, next) => {
     try {
         const orders = await Order.find({ user: req.user._id })
-            .populate("items.productId", "name images price discount_price shop")
+            .populate({
+                path: "items.productId",
+                select: "name images price discount_price shop",
+                populate: {
+                    path: "shop",
+                    select: "name email",
+                    model: "Shop"
+                }
+            })
             .sort({ createdAt: -1 });
 
         res.status(200).json({
@@ -114,14 +122,22 @@ const getShopOrders = catchAsyncErrors(async (req, res, next) => {
 
         // Find orders where any item's productId is owned by this shop
         const orders = await Order.find()
-            .populate("items.productId", "name images price discount_price shop")
+            .populate({
+                path: "items.productId",
+                select: "name images price discount_price shop",
+                populate: {
+                    path: "shop",
+                    select: "name email",
+                    model: "Shop"
+                }
+            })
             .populate("user", "name email")
             .sort({ createdAt: -1 });
 
         // Filter to only orders that have at least one item belonging to this seller's shop
         const shopOrders = orders.filter(order =>
             order.items.some(item => {
-                const itemShop = item.productId?.shop?.toString();
+                const itemShop = item.productId?.shop?._id?.toString() || item.productId?.shop?.toString();
                 return itemShop === sellerId;
             })
         );
@@ -177,7 +193,15 @@ const updateOrderStatus = catchAsyncErrors(async (req, res, next) => {
         await order.save();
 
         await order.populate("user", "name email");
-        await order.populate("items.productId", "name images price discount_price shop");
+        await order.populate({
+            path: "items.productId",
+            select: "name images price discount_price shop",
+            populate: {
+                path: "shop",
+                select: "name email",
+                model: "Shop"
+            }
+        });
 
         res.status(200).json({
             success: true,

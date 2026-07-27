@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -25,6 +25,7 @@ import {
   addAddress,
   deleteAddress,
 } from "../services/store/actions/user";
+import { getMyOrders } from "../services/store/actions/order";
 import axios from "axios";
 import { clearWishlistState } from "../services/store/slices/wishlistSlice";
 import { clearCartState } from "../services/store/slices/cartSlice";
@@ -103,8 +104,11 @@ const MyProfile = () => {
     () => user?.avatar?.url || "",
   );
   const [avatarFile, setAvatarFile] = useState(null);
-  const [orders] = useState([]);
-  const [refundOrderId, setRefundOrderId] = useState("");
+  
+  const { orders } = useSelector((state) => state.order);
+
+  const queryOrderId = new URLSearchParams(location.search).get("orderId");
+  const [refundOrderId, setRefundOrderId] = useState(queryOrderId || "");
   const [refundReason, setRefundReason] = useState("");
   const [refundRequests, setRefundRequests] = useState([]);
   const [passwordForm, setPasswordForm] = useState({
@@ -133,6 +137,21 @@ const MyProfile = () => {
       user?.phoneNumber,
     ],
   );
+
+  // Fetch orders if not loaded yet (needed for Refunds tab dropdown)
+  useEffect(() => {
+    if (orders.length === 0) {
+      dispatch(getMyOrders());
+    }
+  }, [dispatch, orders.length]);
+
+  // Sync the refund order pre-selection whenever the orderId query param changes
+  // (e.g., navigating from Order Detail → Request Refund)
+  useEffect(() => {
+    if (queryOrderId) {
+      setRefundOrderId(queryOrderId);
+    }
+  }, [queryOrderId]);
 
   const handleTabChange = (tabId) => {
     navigate(
@@ -233,11 +252,11 @@ const MyProfile = () => {
       return;
     }
 
-    const selectedOrder = orders.find((order) => order.id === refundOrderId);
+    const selectedOrder = orders.find((order) => order._id === refundOrderId);
     if (!selectedOrder) return;
 
     const alreadyRequested = refundRequests.some(
-      (request) => request.orderId === selectedOrder.id,
+      (request) => request.orderId === selectedOrder._id,
     );
 
     if (alreadyRequested) {
@@ -247,9 +266,9 @@ const MyProfile = () => {
 
     const nextRefund = {
       id: Date.now(),
-      orderId: selectedOrder.id,
-      shop: selectedOrder.shop,
-      total: selectedOrder.total,
+      orderId: selectedOrder._id,
+      shop: selectedOrder.items?.[0]?.productId?.shop?.name || "Shop",
+      total: selectedOrder.totalAmount || 0,
       status: "pending",
       reason: refundReason,
       createdAt: new Date().toLocaleDateString(),

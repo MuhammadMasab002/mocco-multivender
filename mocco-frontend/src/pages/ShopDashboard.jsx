@@ -1,12 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
-import ShopDashboardHeader from "../components/shopDashboard/ShopDashboardHeader";
-import ShopDashboardSidebar from "../components/shopDashboard/ShopDashboardSidebar";
 import ShopDashboardContent from "../components/shopDashboard/ShopDashboardContent";
 import { dashboardItems } from "../components/shopDashboard/constants/dashboardItems";
-import { loadSeller } from "../services/store/actions/seller";
 import { getProducts } from "../services/store/actions/product";
 import { getEvents } from "../services/store/actions/event";
 import { deleteCoupon, getCoupons } from "../services/store/actions/coupon";
@@ -239,57 +235,38 @@ const ShopDashboard = () => {
   };
 
   return (
-    <section className="min-h-screen w-full bg-linear-to-b from-slate-100 via-slate-50 to-white text-slate-900">
-      <ShopDashboardHeader
-        activeView={activeView}
-        onTabChange={handleTabChange}
-        sellerId={seller?._id}
-      />
-
-      <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr]">
-        <ShopDashboardSidebar
-          items={dashboardItems}
-          activeView={activeView}
-          onTabChange={handleTabChange}
-          onLogout={handleLogout}
-        />
-
-        <main className="p-4 sm:p-6 lg:p-8 xl:p-10">
-          <ShopDashboardContent
-            activeView={activeView}
-            seller={seller}
-            sellerProducts={products}
-            productLoading={productLoading}
-            sellerEvents={sellerEvents}
-            sellerCoupons={sellerCoupons}
-            couponLoading={couponLoading}
-            onDeleteCoupon={handleDeleteCoupon}
-            orders={orders}
-            withdrawals={withdrawals}
-            availableBalance={availableBalance}
-            pendingOrders={pendingOrders}
-            averageOrderValue={averageOrderValue}
-            bankAccounts={bankAccounts}
-            selectedBankAccountId={selectedBankAccountId}
-            withdrawInput={withdrawInput}
-            withdrawAmount={withdrawAmount}
-            fee={fee}
-            userReceives={userReceives}
-            canSubmitWithdraw={canSubmitWithdraw}
-            showBankModal={showBankModal}
-            formatMoney={formatMoney}
-            pakistanBanks={pakistanBanks}
-            onOpenBankModal={() => setShowBankModal(true)}
-            onCloseBankModal={() => setShowBankModal(false)}
-            onSelectBankAccount={setSelectedBankAccountId}
-            onChangeWithdrawInput={setWithdrawInput}
-            onDeleteBankAccount={handleDeleteBankAccount}
-            onSubmitWithdrawRequest={handleSubmitWithdrawRequest}
-            onAddBankAccount={handleAddBankAccount}
-          />
-        </main>
-      </div>
-    </section>
+    <ShopDashboardContent
+      activeView={activeView}
+      seller={seller}
+      sellerProducts={products}
+      productLoading={productLoading}
+      sellerEvents={sellerEvents}
+      sellerCoupons={sellerCoupons}
+      couponLoading={couponLoading}
+      onDeleteCoupon={handleDeleteCoupon}
+      orders={orders}
+      withdrawals={withdrawals}
+      availableBalance={availableBalance}
+      pendingOrders={pendingOrders}
+      averageOrderValue={averageOrderValue}
+      bankAccounts={bankAccounts}
+      selectedBankAccountId={selectedBankAccountId}
+      withdrawInput={withdrawInput}
+      withdrawAmount={withdrawAmount}
+      fee={fee}
+      userReceives={userReceives}
+      canSubmitWithdraw={canSubmitWithdraw}
+      showBankModal={showBankModal}
+      formatMoney={formatMoney}
+      pakistanBanks={pakistanBanks}
+      onOpenBankModal={() => setShowBankModal(true)}
+      onCloseBankModal={() => setShowBankModal(false)}
+      onSelectBankAccount={setSelectedBankAccountId}
+      onChangeWithdrawInput={setWithdrawInput}
+      onDeleteBankAccount={handleDeleteBankAccount}
+      onSubmitWithdrawRequest={handleSubmitWithdrawRequest}
+      onAddBankAccount={handleAddBankAccount}
+    />
   );
 };
 

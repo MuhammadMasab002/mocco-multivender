@@ -39,8 +39,8 @@ const RefundsTab = ({
           >
             <option value="">Select order</option>
             {orders.map((order) => (
-              <option key={order.id} value={order.id}>
-                #{order.id} - ${order.total.toFixed(2)}
+              <option key={order._id} value={order._id}>
+                #{order._id} - ${Number(order.totalAmount || 0).toFixed(2)}
               </option>
             ))}
           </select>

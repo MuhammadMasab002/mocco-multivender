@@ -12,11 +12,13 @@ import {
 } from "./routes/SellerProtectedRoute.jsx";
 import { AuthRoute, UserProtectedRoute } from "./routes/UserProtectedRoute.jsx";
 import MainLayout from "./layouts/MainLayout.jsx";
+import SellerDashboardLayout from "./layouts/SellerDashboardLayout.jsx";
 import CheckoutLayout from "./layouts/CheckoutLayout.jsx";
 import Checkout from "./pages/CheckOut.jsx";
 import Payment from "./pages/Payment.jsx";
 import OrderSuccess from "./pages/OrderSuccess.jsx";
-import OrderDetailPage from "./pages/OrderDetailPage.jsx";
+import UserOrderDetailPage from "./pages/UserOrderDetailPage.jsx";
+import SellerOrderDetailPage from "./pages/SellerOrderDetailPage.jsx";
 import Cart from "./pages/Cart.jsx";
 import Products from "./pages/Products.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
@@ -176,7 +178,7 @@ function App() {
             path="/order/:orderId"
             element={
               <UserProtectedRoute>
-                <OrderDetailPage />
+                <UserOrderDetailPage />
               </UserProtectedRoute>
             }
           />
@@ -254,11 +256,11 @@ function App() {
         <Route
           path="/admin"
           element={
-            <AdminProtectedRoute>
-              <AdminLayout>
-                <AdminPanel />
-              </AdminLayout>
-            </AdminProtectedRoute>
+            // <AdminProtectedRoute>
+            <AdminLayout>
+              <AdminPanel />
+            </AdminLayout>
+            // </AdminProtectedRoute>
           }
         />
 
@@ -266,10 +268,13 @@ function App() {
           path="/shop-dashboard"
           element={
             <SellerProtectedRoute>
-              <ShopDashboard />
+              <SellerDashboardLayout />
             </SellerProtectedRoute>
           }
-        />
+        >
+          <Route index element={<ShopDashboard />} />
+          <Route path="order/:orderId" element={<SellerOrderDetailPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

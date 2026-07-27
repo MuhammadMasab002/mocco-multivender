@@ -75,7 +75,7 @@ const ShopOrdersTab = () => {
           <TableActionIcon
             key={`opreview-${i}`}
             type="preview"
-            action={() => navigate(`/order/${order._id}`)}
+            action={() => navigate(`/shop-dashboard/order/${order._id}`)}
           />,
         ];
       })}

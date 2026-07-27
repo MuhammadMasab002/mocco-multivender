@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  ArrowLeft,
   Package,
   MapPin,
   CreditCard,
@@ -14,7 +13,6 @@ import {
   Truck,
 } from "lucide-react";
 import {
-  getMyOrders,
   getShopOrders,
   updateOrderStatus,
 } from "../services/store/actions/order";
@@ -85,43 +83,26 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-// ─── Main Component ───────────────────────────────────────────────────────────
-const OrderDetailPage = () => {
+// ─── Seller Order Detail Page ────────────────────────────────────────────────
+const SellerOrderDetailPage = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // const { user } = useSelector((state) => state.user);
-  const { seller, isSellerAuthenticated } = useSelector(
-    (state) => state.seller,
+  const { seller } = useSelector((state) => state.seller);
+  const { shopOrders, shopOrdersLoading, updateStatusLoading } = useSelector(
+    (state) => state.order,
   );
-  const {
-    orders,
-    shopOrders,
-    ordersLoading,
-    shopOrdersLoading,
-    updateStatusLoading,
-  } = useSelector((state) => state.order);
 
-  // Decide which list to look in — seller or user
-  const isSeller = isSellerAuthenticated && !!seller;
-  const orderList = isSeller ? shopOrders : orders;
-  const listLoading = isSeller ? shopOrdersLoading : ordersLoading;
-
-  // Fetch the appropriate list if empty
+  // Fetch seller shop orders if empty
   useEffect(() => {
-    if (orderList.length === 0) {
-      if (isSeller) {
-        dispatch(getShopOrders());
-      } else {
-        dispatch(getMyOrders());
-      }
+    if (shopOrders.length === 0) {
+      dispatch(getShopOrders());
     }
-  }, [isSeller, orderList.length, dispatch]);
+  }, [shopOrders.length, dispatch]);
 
-  const order = orderList.find((o) => o._id === orderId);
+  const order = shopOrders.find((o) => o._id === orderId);
 
-  // ── Status update (seller only) ──────────────────────────────────────────────
   const [selectedStatus, setSelectedStatus] = useState("");
 
   useEffect(() => {
@@ -139,7 +120,7 @@ const OrderDetailPage = () => {
   };
 
   // ─── Loading skeleton ─────────────────────────────────────────────────────────
-  if (listLoading) {
+  if (shopOrdersLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-3 text-gray-500">
@@ -180,12 +161,6 @@ const OrderDetailPage = () => {
       <div className="max-w-5xl mx-auto space-y-6">
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4 text-gray-600" />
-          </button>
           <div>
             <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">
               Order Details
@@ -226,7 +201,7 @@ const OrderDetailPage = () => {
                       className="flex items-center gap-4 px-5 py-4"
                     >
                       {/* Thumbnail */}
-                      <div className="w-14 h-14 rounded-xl border border-gray-100 bg-gray-50 flex-shrink-0 overflow-hidden">
+                      <div className="w-14 h-14 rounded-xl border border-gray-100 bg-gray-50 shrink-0 overflow-hidden">
                         {img ? (
                           <img
                             src={img}
@@ -251,7 +226,7 @@ const OrderDetailPage = () => {
                       </div>
 
                       {/* Price */}
-                      <div className="text-right flex-shrink-0">
+                      <div className="text-right shrink-0">
                         <p className="text-sm font-bold text-gray-900">
                           ${(price * item.quantity).toFixed(2)}
                         </p>
@@ -296,92 +271,63 @@ const OrderDetailPage = () => {
             </section>
 
             {/* Seller: Status Update Panel */}
-            {isSeller && (
-              <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <Truck className="w-4 h-4 text-gray-500" />
-                  <h2 className="font-semibold text-gray-800 text-sm">
-                    Update Order Status
-                  </h2>
-                </div>
+            <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Truck className="w-4 h-4 text-gray-500" />
+                <h2 className="font-semibold text-gray-800 text-sm">
+                  Update Order Status
+                </h2>
+              </div>
 
-                {allowedNext.length === 0 ? (
-                  <p className="text-sm text-gray-400">
-                    This order is in a final state (
-                    <strong>{order.status}</strong>) and cannot be updated
-                    further.
-                  </p>
-                ) : (
-                  <div className="flex items-center gap-3 flex-wrap">
-                    {/* Dropdown */}
-                    <div className="relative flex-1 min-w-[200px]">
-                      <select
-                        value={selectedStatus}
-                        onChange={(e) => setSelectedStatus(e.target.value)}
-                        className="w-full appearance-none border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 bg-white pr-9 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition cursor-pointer"
-                      >
-                        <option value={order.status} disabled>
-                          Current: {order.status}
-                        </option>
-                        {allowedNext.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                    </div>
-
-                    {/* Update button */}
-                    <button
-                      onClick={handleStatusUpdate}
-                      disabled={
-                        updateStatusLoading || selectedStatus === order.status
-                      }
-                      className="px-5 py-2.5 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
+              {allowedNext.length === 0 ? (
+                <p className="text-sm text-gray-400">
+                  This order is in a final state (
+                  <strong>{order.status}</strong>) and cannot be updated
+                  further.
+                </p>
+              ) : (
+                <div className="flex items-center gap-3 flex-wrap">
+                  {/* Dropdown */}
+                  <div className="relative flex-1 min-w-50">
+                    <select
+                      value={selectedStatus}
+                      onChange={(e) => setSelectedStatus(e.target.value)}
+                      className="w-full appearance-none border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 bg-white pr-9 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition cursor-pointer"
                     >
-                      {updateStatusLoading ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />{" "}
-                          Updating…
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Update Status
-                        </>
-                      )}
-                    </button>
+                      <option value={order.status} disabled>
+                        Current: {order.status}
+                      </option>
+                      {allowedNext.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   </div>
-                )}
-              </section>
-            )}
-            {/* User: Read-only Status Panel */}
-            {isSeller && (
-              <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Truck className="w-4 h-4 text-gray-500" />
-                    <h2 className="font-semibold text-gray-800 text-sm">
-                      Order Status
-                    </h2>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Current status: <strong>{order.status}</strong>
-                  </p>
-                </div>
-                {/* Request Refund button for Delivered orders */}
-                {order.status === "Delivered" && (
+
+                  {/* Update button */}
                   <button
-                    onClick={() =>
-                      navigate(`/my-profile?tab=refunds&orderId=${order._id}`)
+                    onClick={handleStatusUpdate}
+                    disabled={
+                      updateStatusLoading || selectedStatus === order.status
                     }
-                    className="px-5 py-2.5 bg-red-50 text-red-600 text-sm font-semibold rounded-xl hover:bg-red-100 transition whitespace-nowrap cursor-pointer"
+                    className="px-5 py-2.5 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
                   >
-                    Request Refund
+                    {updateStatusLoading ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />{" "}
+                        Updating…
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Update Status
+                      </>
+                    )}
                   </button>
-                )}
-              </section>
-            )}
+                </div>
+              )}
+            </section>
           </div>
 
           {/* ── Right Column (Order Summary) ──────────────────────────────── */}
@@ -479,8 +425,8 @@ const OrderDetailPage = () => {
               </dl>
             </section>
 
-            {/* User info (seller view only) */}
-            {isSeller && order.user && (
+            {/* Customer Info (Seller View) */}
+            {order.user && (
               <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
                 <h2 className="font-semibold text-gray-800 text-sm mb-3">
                   Customer
@@ -493,20 +439,6 @@ const OrderDetailPage = () => {
                 </p>
               </section>
             )}
-            {/* Seller info (user view only) */}
-            {!isSeller && order.items?.[0]?.productId?.shop && (
-              <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-                <h2 className="font-semibold text-gray-800 text-sm mb-3">
-                  Seller
-                </h2>
-                <p className="text-sm font-medium text-gray-900">
-                  {order.items[0].productId.shop.name || "—"}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {order.items[0].productId.shop.email || "—"}
-                </p>
-              </section>
-            )}
           </div>
         </div>
       </div>
@@ -514,4 +446,4 @@ const OrderDetailPage = () => {
   );
 };
 
-export default OrderDetailPage;
+export default SellerOrderDetailPage;

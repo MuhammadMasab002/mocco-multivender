@@ -7,18 +7,13 @@ import {
   MapPin,
   CreditCard,
   Clock,
-  ChevronDown,
   Loader2,
-  CheckCircle2,
   XCircle,
   Truck,
 } from "lucide-react";
-import {
-  getMyOrders,
-  getShopOrders,
-  updateOrderStatus,
-} from "../services/store/actions/order";
-import toast from "react-hot-toast";
+import { getMyOrders } from "../services/store/actions/order";
+import { backendUrl } from "../components/myShop/utils";
+import axios from "axios";
 
 // ─── Status configuration ─────────────────────────────────────────────────────
 const STATUS_CONFIG = {
@@ -56,17 +51,6 @@ const STATUS_CONFIG = {
   },
 };
 
-const VALID_TRANSITIONS = {
-  Processing: ["Ready for Pickup", "Shipped", "Cancelled"],
-  "Ready for Pickup": ["Shipped", "Out for Delivery", "Cancelled"],
-  Shipped: ["Out for Delivery", "Delivered", "Cancelled"],
-  "Out for Delivery": ["Delivered", "Cancelled"],
-  Delivered: ["Returned"],
-  "Pending Payment": ["Processing", "Cancelled"],
-  Cancelled: [],
-  Returned: [],
-};
-
 const PAYMENT_STATUS_COLOR = {
   Paid: "text-emerald-600",
   Unpaid: "text-amber-600",
@@ -85,61 +69,50 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-// ─── Main Component ───────────────────────────────────────────────────────────
-const OrderDetailPage = () => {
+// ─── User Order Detail Page ──────────────────────────────────────────────────
+const UserOrderDetailPage = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // const { user } = useSelector((state) => state.user);
-  const { seller, isSellerAuthenticated } = useSelector(
-    (state) => state.seller,
-  );
-  const {
-    orders,
-    shopOrders,
-    ordersLoading,
-    shopOrdersLoading,
-    updateStatusLoading,
-  } = useSelector((state) => state.order);
+  const { orders, ordersLoading } = useSelector((state) => state.order);
+  const [fetchedShop, setFetchedShop] = useState(null);
 
-  // Decide which list to look in — seller or user
-  const isSeller = isSellerAuthenticated && !!seller;
-  const orderList = isSeller ? shopOrders : orders;
-  const listLoading = isSeller ? shopOrdersLoading : ordersLoading;
-
-  // Fetch the appropriate list if empty
+  // Always fetch user orders on mount to get fresh populated shop info
   useEffect(() => {
-    if (orderList.length === 0) {
-      if (isSeller) {
-        dispatch(getShopOrders());
-      } else {
-        dispatch(getMyOrders());
-      }
-    }
-  }, [isSeller, orderList.length, dispatch]);
+    dispatch(getMyOrders());
+  }, [dispatch]);
 
-  const order = orderList.find((o) => o._id === orderId);
+  const order = orders.find((o) => o._id === orderId);
 
-  // ── Status update (seller only) ──────────────────────────────────────────────
-  const [selectedStatus, setSelectedStatus] = useState("");
+  // Extract shop info if populated as object
+  const rawShop = order?.items?.[0]?.productId?.shop;
+  const populatedShop =
+    typeof rawShop === "object" && rawShop !== null && rawShop.name
+      ? rawShop
+      : null;
 
+  // Fallback: If shop is just a string ID, fetch shop info via API
   useEffect(() => {
-    if (order) setSelectedStatus(order.status);
-  }, [order]);
-
-  const allowedNext = order ? VALID_TRANSITIONS[order.status] || [] : [];
-
-  const handleStatusUpdate = async () => {
-    if (!selectedStatus || selectedStatus === order?.status) {
-      toast.error("Please choose a different status to update.");
-      return;
+    const shopId = typeof rawShop === "string" ? rawShop : rawShop?._id;
+    if (!populatedShop && shopId) {
+      axios
+        .get(`${backendUrl}/shop/info/${shopId}`)
+        .then((res) => {
+          if (res.data?.shop) {
+            setFetchedShop(res.data.shop);
+          }
+        })
+        .catch((err) => {
+          console.error("Error fetching shop info:", err);
+        });
     }
-    await dispatch(updateOrderStatus(orderId, selectedStatus));
-  };
+  }, [rawShop, populatedShop]);
+
+  const sellerInfo = populatedShop || fetchedShop;
 
   // ─── Loading skeleton ─────────────────────────────────────────────────────────
-  if (listLoading) {
+  if (ordersLoading && orders.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-3 text-gray-500">
@@ -159,8 +132,7 @@ const OrderDetailPage = () => {
             Order not found
           </h2>
           <p className="text-sm text-gray-500 mb-5">
-            This order doesn't exist or seller `{seller?.name || "you"}` don't
-            have access.
+            This order doesn't exist or you don't have access.
           </p>
           <button
             onClick={() => navigate(-1)}
@@ -226,7 +198,7 @@ const OrderDetailPage = () => {
                       className="flex items-center gap-4 px-5 py-4"
                     >
                       {/* Thumbnail */}
-                      <div className="w-14 h-14 rounded-xl border border-gray-100 bg-gray-50 flex-shrink-0 overflow-hidden">
+                      <div className="w-14 h-14 rounded-xl border border-gray-100 bg-gray-50 shrink-0 overflow-hidden">
                         {img ? (
                           <img
                             src={img}
@@ -251,7 +223,7 @@ const OrderDetailPage = () => {
                       </div>
 
                       {/* Price */}
-                      <div className="text-right flex-shrink-0">
+                      <div className="text-right shrink-0">
                         <p className="text-sm font-bold text-gray-900">
                           ${(price * item.quantity).toFixed(2)}
                         </p>
@@ -295,93 +267,32 @@ const OrderDetailPage = () => {
               )}
             </section>
 
-            {/* Seller: Status Update Panel */}
-            {isSeller && (
-              <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-                <div className="flex items-center gap-2 mb-4">
+            {/* Read-only Order Status Panel + Request Refund */}
+            <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
                   <Truck className="w-4 h-4 text-gray-500" />
                   <h2 className="font-semibold text-gray-800 text-sm">
-                    Update Order Status
+                    Order Status
                   </h2>
                 </div>
+                <p className="text-sm text-gray-600">
+                  Current status: <strong>{order.status}</strong>
+                </p>
+              </div>
 
-                {allowedNext.length === 0 ? (
-                  <p className="text-sm text-gray-400">
-                    This order is in a final state (
-                    <strong>{order.status}</strong>) and cannot be updated
-                    further.
-                  </p>
-                ) : (
-                  <div className="flex items-center gap-3 flex-wrap">
-                    {/* Dropdown */}
-                    <div className="relative flex-1 min-w-[200px]">
-                      <select
-                        value={selectedStatus}
-                        onChange={(e) => setSelectedStatus(e.target.value)}
-                        className="w-full appearance-none border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 bg-white pr-9 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition cursor-pointer"
-                      >
-                        <option value={order.status} disabled>
-                          Current: {order.status}
-                        </option>
-                        {allowedNext.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                    </div>
-
-                    {/* Update button */}
-                    <button
-                      onClick={handleStatusUpdate}
-                      disabled={
-                        updateStatusLoading || selectedStatus === order.status
-                      }
-                      className="px-5 py-2.5 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
-                    >
-                      {updateStatusLoading ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />{" "}
-                          Updating…
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Update Status
-                        </>
-                      )}
-                    </button>
-                  </div>
-                )}
-              </section>
-            )}
-            {/* User: Read-only Status Panel */}
-            {isSeller && (
-              <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Truck className="w-4 h-4 text-gray-500" />
-                    <h2 className="font-semibold text-gray-800 text-sm">
-                      Order Status
-                    </h2>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Current status: <strong>{order.status}</strong>
-                  </p>
-                </div>
-                {/* Request Refund button for Delivered orders */}
-                {order.status === "Delivered" && (
-                  <button
-                    onClick={() =>
-                      navigate(`/my-profile?tab=refunds&orderId=${order._id}`)
-                    }
-                    className="px-5 py-2.5 bg-red-50 text-red-600 text-sm font-semibold rounded-xl hover:bg-red-100 transition whitespace-nowrap cursor-pointer"
-                  >
-                    Request Refund
-                  </button>
-                )}
-              </section>
-            )}
+              {/* Request Refund button for Delivered orders */}
+              {order.status === "Delivered" && (
+                <button
+                  onClick={() =>
+                    navigate(`/my-profile?tab=refunds&orderId=${order._id}`)
+                  }
+                  className="px-5 py-2.5 bg-red-50 text-red-600 text-sm font-semibold rounded-xl hover:bg-red-100 transition whitespace-nowrap cursor-pointer"
+                >
+                  Request Refund
+                </button>
+              )}
+            </section>
           </div>
 
           {/* ── Right Column (Order Summary) ──────────────────────────────── */}
@@ -479,34 +390,18 @@ const OrderDetailPage = () => {
               </dl>
             </section>
 
-            {/* User info (seller view only) */}
-            {isSeller && order.user && (
-              <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-                <h2 className="font-semibold text-gray-800 text-sm mb-3">
-                  Customer
-                </h2>
-                <p className="text-sm font-medium text-gray-900">
-                  {order.user.name || "—"}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {order.user.email || "—"}
-                </p>
-              </section>
-            )}
-            {/* Seller info (user view only) */}
-            {!isSeller && order.items?.[0]?.productId?.shop && (
-              <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-                <h2 className="font-semibold text-gray-800 text-sm mb-3">
-                  Seller
-                </h2>
-                <p className="text-sm font-medium text-gray-900">
-                  {order.items[0].productId.shop.name || "—"}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {order.items[0].productId.shop.email || "—"}
-                </p>
-              </section>
-            )}
+            {/* Seller Info (User View) */}
+            <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+              <h2 className="font-semibold text-gray-800 text-sm mb-3">
+                Seller
+              </h2>
+              <p className="text-sm font-medium text-gray-900">
+                {sellerInfo?.name || "—"}
+              </p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {sellerInfo?.email || "—"}
+              </p>
+            </section>
           </div>
         </div>
       </div>
@@ -514,4 +409,4 @@ const OrderDetailPage = () => {
   );
 };
 
-export default OrderDetailPage;
+export default UserOrderDetailPage;
