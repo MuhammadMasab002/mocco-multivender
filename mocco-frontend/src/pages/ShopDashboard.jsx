@@ -138,26 +138,6 @@ const ShopDashboard = () => {
     withdrawAmount > 0 &&
     withdrawAmount <= availableBalance;
 
-  const handleLogout = async () => {
-    try {
-      const { data } = await axios.get(`${backendUrl}/shop/logout`, {
-        withCredentials: true,
-      });
-
-      if (data?.success) {
-        window.alert("Logged out successfully.");
-        dispatch(loadSeller());
-        navigate("/login", { replace: true });
-      }
-    } catch (error) {
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Unable to logout right now.";
-      window.alert(message);
-    }
-  };
-
   const handleAddBankAccount = (payload) => {
     const accountNumber = String(payload?.accountNumber || "").replace(
       /\s+/g,
@@ -221,17 +201,6 @@ const ShopDashboard = () => {
     ]);
 
     setWithdrawInput("");
-  };
-
-  const handleTabChange = (tabId) => {
-    navigate(
-      tabId === "dashboard"
-        ? "/shop-dashboard"
-        : `/shop-dashboard/?tab=${tabId}`,
-      {
-        replace: true,
-      },
-    );
   };
 
   return (

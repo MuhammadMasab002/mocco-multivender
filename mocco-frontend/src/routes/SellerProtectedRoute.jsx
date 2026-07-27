@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import { Navigate, Outlet, useParams } from "react-router-dom";
 import AppLoader from "../layouts/AppLoader";
+import Loader from "../layouts/Loader";
 
 export function SellerProtectedRoute({ children }) {
   const { sellerId } = useParams();
