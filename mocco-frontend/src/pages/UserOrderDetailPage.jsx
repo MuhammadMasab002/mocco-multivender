@@ -10,10 +10,13 @@ import {
   Loader2,
   XCircle,
   Truck,
+  Star,
+  MessageSquare,
 } from "lucide-react";
 import { getMyOrders } from "../services/store/actions/order";
 import { backendUrl } from "../components/myShop/utils";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 // ─── Status configuration ─────────────────────────────────────────────────────
 const STATUS_CONFIG = {
@@ -40,6 +43,14 @@ const STATUS_CONFIG = {
   Delivered: {
     color: "bg-emerald-100 text-emerald-800 border-emerald-200",
     dot: "bg-emerald-400",
+  },
+  "Processing Refund": {
+    color: "bg-pink-100 text-pink-800 border-pink-200",
+    dot: "bg-pink-400",
+  },
+  "Refund Success": {
+    color: "bg-teal-100 text-teal-800 border-teal-200",
+    dot: "bg-teal-400",
   },
   Cancelled: {
     color: "bg-red-100 text-red-800 border-red-200",
@@ -78,7 +89,7 @@ const UserOrderDetailPage = () => {
   const { orders, ordersLoading } = useSelector((state) => state.order);
   const [fetchedShop, setFetchedShop] = useState(null);
 
-  // Always fetch user orders on mount to get fresh populated shop info
+  // Always fetch user orders on mount to get fresh populated shop info & status
   useEffect(() => {
     dispatch(getMyOrders());
   }, [dispatch]);
@@ -110,6 +121,15 @@ const UserOrderDetailPage = () => {
   }, [rawShop, populatedShop]);
 
   const sellerInfo = populatedShop || fetchedShop;
+
+  // UI-only action handlers
+  const handleReviewClick = (productName) => {
+    toast.success(`Review feature for "${productName}" coming soon!`);
+  };
+
+  const handleSendMessageClick = () => {
+    toast("Messaging feature coming soon!", { icon: "💬" });
+  };
 
   // ─── Loading skeleton ─────────────────────────────────────────────────────────
   if (ordersLoading && orders.length === 0) {
@@ -217,9 +237,19 @@ const UserOrderDetailPage = () => {
                         <p className="text-sm font-semibold text-gray-900 truncate">
                           {name}
                         </p>
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          Qty: {item.quantity}
-                        </p>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-xs text-gray-400">
+                            Qty: {item.quantity}
+                          </span>
+                          {/* Write Review button (UI only) */}
+                          <button
+                            onClick={() => handleReviewClick(name)}
+                            className="inline-flex items-center gap-1 text-xs text-amber-600 font-medium hover:text-amber-700 transition cursor-pointer"
+                          >
+                            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                            Write Review
+                          </button>
+                        </div>
                       </div>
 
                       {/* Price */}
@@ -281,17 +311,35 @@ const UserOrderDetailPage = () => {
                 </p>
               </div>
 
-              {/* Request Refund button for Delivered orders */}
-              {order.status === "Delivered" && (
+              <div className="flex items-center gap-3 flex-wrap">
                 <button
-                  onClick={() =>
-                    navigate(`/my-profile?tab=refunds&orderId=${order._id}`)
-                  }
-                  className="px-5 py-2.5 bg-red-50 text-red-600 text-sm font-semibold rounded-xl hover:bg-red-100 transition whitespace-nowrap cursor-pointer"
+                  onClick={() => navigate(`/track-order/${order._id}`)}
+                  className="px-4 py-2 bg-gray-900 text-white text-xs font-semibold rounded-xl hover:bg-gray-800 transition whitespace-nowrap cursor-pointer flex items-center gap-1.5"
                 >
-                  Request Refund
+                  <Truck className="w-3.5 h-3.5" />
+                  Track Live Journey
                 </button>
-              )}
+
+                {/* Request Refund button strictly ONLY when order.status === "Delivered" */}
+                {order.status === "Delivered" ? (
+                  <button
+                    onClick={() =>
+                      navigate(`/my-profile?tab=refunds&orderId=${order._id}`)
+                    }
+                    className="px-5 py-2.5 bg-red-50 text-red-600 text-sm font-semibold rounded-xl hover:bg-red-100 transition whitespace-nowrap cursor-pointer"
+                  >
+                    Request Refund
+                  </button>
+                ) : order.status === "Processing Refund" ? (
+                  <span className="px-3.5 py-1.5 bg-pink-50 text-pink-700 text-xs font-semibold rounded-xl border border-pink-200">
+                    Refund Request Processing
+                  </span>
+                ) : order.status === "Refund Success" ? (
+                  <span className="px-3.5 py-1.5 bg-teal-50 text-teal-700 text-xs font-semibold rounded-xl border border-teal-200">
+                    ✓ Refund Approved
+                  </span>
+                ) : null}
+              </div>
             </section>
           </div>
 
@@ -390,7 +438,7 @@ const UserOrderDetailPage = () => {
               </dl>
             </section>
 
-            {/* Seller Info (User View) */}
+            {/* Seller Info (User View) + Send Message Button */}
             <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
               <h2 className="font-semibold text-gray-800 text-sm mb-3">
                 Seller
@@ -398,9 +446,18 @@ const UserOrderDetailPage = () => {
               <p className="text-sm font-medium text-gray-900">
                 {sellerInfo?.name || "—"}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-gray-500 mt-0.5 mb-4">
                 {sellerInfo?.email || "—"}
               </p>
+
+              {/* Send Message button (UI only) */}
+              <button
+                onClick={handleSendMessageClick}
+                className="w-full py-2.5 px-3 bg-gray-900 text-white rounded-xl text-xs font-semibold hover:bg-gray-800 transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                Send Message
+              </button>
             </section>
           </div>
         </div>

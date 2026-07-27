@@ -11,6 +11,8 @@ const STATUS_STYLES = {
   Shipped: "bg-purple-100 text-purple-800",
   "Out for Delivery": "bg-orange-100 text-orange-800",
   Delivered: "bg-emerald-100 text-emerald-800",
+  "Processing Refund": "bg-pink-100 text-pink-800",
+  "Refund Success": "bg-teal-100 text-teal-800",
   Cancelled: "bg-red-100 text-red-800",
   Returned: "bg-gray-100 text-gray-700",
 };
@@ -105,13 +107,19 @@ const TrackOrdersTab = () => {
                   </p>
                 </div>
 
-                <div className="col-span-2 md:col-span-4 pt-2 border-t border-gray-100">
+                <div className="col-span-2 md:col-span-4 pt-2 border-t border-gray-100 flex items-center justify-between">
+                  <button
+                    onClick={() => navigate(`/track-order/${order._id}`)}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 hover:text-red-700 transition cursor-pointer group"
+                  >
+                    View Full Details & Live Tracking
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </button>
                   <button
                     onClick={() => navigate(`/order/${order._id}`)}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-700 hover:text-gray-900 transition cursor-pointer group"
+                    className="text-xs font-medium text-gray-500 hover:text-gray-900 underline transition cursor-pointer"
                   >
-                    View Full Details
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    View Invoice
                   </button>
                 </div>
               </article>

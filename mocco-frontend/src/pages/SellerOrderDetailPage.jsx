@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
+  ArrowLeft,
   Package,
   MapPin,
   CreditCard,
@@ -44,6 +45,14 @@ const STATUS_CONFIG = {
     color: "bg-emerald-100 text-emerald-800 border-emerald-200",
     dot: "bg-emerald-400",
   },
+  "Processing Refund": {
+    color: "bg-pink-100 text-pink-800 border-pink-200",
+    dot: "bg-pink-400",
+  },
+  "Refund Success": {
+    color: "bg-teal-100 text-teal-800 border-teal-200",
+    dot: "bg-teal-400",
+  },
   Cancelled: {
     color: "bg-red-100 text-red-800 border-red-200",
     dot: "bg-red-400",
@@ -59,7 +68,9 @@ const VALID_TRANSITIONS = {
   "Ready for Pickup": ["Shipped", "Out for Delivery", "Cancelled"],
   Shipped: ["Out for Delivery", "Delivered", "Cancelled"],
   "Out for Delivery": ["Delivered", "Cancelled"],
-  Delivered: ["Returned"],
+  Delivered: ["Returned", "Processing Refund"],
+  "Processing Refund": ["Refund Success", "Delivered"],
+  "Refund Success": [],
   "Pending Payment": ["Processing", "Cancelled"],
   Cancelled: [],
   Returned: [],

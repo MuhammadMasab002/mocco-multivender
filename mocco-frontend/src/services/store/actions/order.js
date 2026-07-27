@@ -9,6 +9,12 @@ import {
   updateStatusRequest,
   updateStatusSuccess,
   updateStatusFail,
+  requestRefundRequest,
+  requestRefundSuccess,
+  requestRefundFail,
+  fetchRefundsRequest,
+  fetchRefundsSuccess,
+  fetchRefundsFail,
 } from "../slices/orderSlice";
 import toast from "react-hot-toast";
 
@@ -68,4 +74,44 @@ const updateOrderStatus = (orderId, status) => async (dispatch) => {
   }
 };
 
-export { getMyOrders, getShopOrders, updateOrderStatus };
+// ── POST /api/v1/order/refund (user) ─────────────────────────────────────────
+const requestRefund = ({ orderId, reason }) => async (dispatch) => {
+  try {
+    dispatch(requestRefundRequest());
+    const { data } = await axios.post(
+      `${backendUrl}/order/refund`,
+      { orderId, reason },
+      { withCredentials: true }
+    );
+    dispatch(requestRefundSuccess({ refund: data.refund, order: data.order }));
+    toast.success(data.message || "Refund request submitted!");
+    // Refresh user orders to get updated order status everywhere
+    dispatch(getMyOrders());
+    return data;
+  } catch (error) {
+    const message =
+      error?.response?.data?.message || "Failed to request refund";
+    dispatch(requestRefundFail(message));
+    toast.error(message);
+    throw error;
+  }
+};
+
+// ── GET /api/v1/order/my-refunds (user) ─────────────────────────────────────────
+const getMyRefunds = () => async (dispatch) => {
+  try {
+    dispatch(fetchRefundsRequest());
+    const { data } = await axios.get(`${backendUrl}/order/my-refunds`, {
+      withCredentials: true,
+    });
+    dispatch(fetchRefundsSuccess(data.refunds));
+    return data;
+  } catch (error) {
+    const message =
+      error?.response?.data?.message || "Failed to fetch refund requests";
+    dispatch(fetchRefundsFail(message));
+    toast.error(message);
+  }
+};
+
+export { getMyOrders, getShopOrders, updateOrderStatus, requestRefund, getMyRefunds };

@@ -11,7 +11,7 @@ const initialState = {
   shopOrdersLoading: false,
   shopOrdersError: null,
 
-  // Single order detail (shared for both user detail view and seller detail view)
+  // Single order detail
   currentOrder: null,
   currentOrderLoading: false,
   currentOrderError: null,
@@ -19,6 +19,12 @@ const initialState = {
   // Status update
   updateStatusLoading: false,
   updateStatusError: null,
+
+  // Refunds
+  refunds: [],
+  refundsLoading: false,
+  requestRefundLoading: false,
+  refundError: null,
 };
 
 const orderSlice = createSlice({
@@ -74,11 +80,47 @@ const orderSlice = createSlice({
       state.updateStatusError = action.payload;
     },
 
+    // ── Refund Reducers ────────────────────────────────
+    requestRefundRequest(state) {
+      state.requestRefundLoading = true;
+      state.refundError = null;
+    },
+    requestRefundSuccess(state, action) {
+      state.requestRefundLoading = false;
+      const { refund, order } = action.payload || {};
+      if (refund) {
+        state.refunds = [refund, ...state.refunds];
+      }
+      if (order) {
+        state.orders = state.orders.map((o) =>
+          o._id === order._id ? order : o
+        );
+      }
+    },
+    requestRefundFail(state, action) {
+      state.requestRefundLoading = false;
+      state.refundError = action.payload;
+    },
+
+    fetchRefundsRequest(state) {
+      state.refundsLoading = true;
+      state.refundError = null;
+    },
+    fetchRefundsSuccess(state, action) {
+      state.refundsLoading = false;
+      state.refunds = action.payload;
+    },
+    fetchRefundsFail(state, action) {
+      state.refundsLoading = false;
+      state.refundError = action.payload;
+    },
+
     // ── Clear errors ───────────────────────────────────
     clearOrderErrors(state) {
       state.ordersError = null;
       state.shopOrdersError = null;
       state.updateStatusError = null;
+      state.refundError = null;
     },
   },
 });
@@ -93,6 +135,12 @@ export const {
   updateStatusRequest,
   updateStatusSuccess,
   updateStatusFail,
+  requestRefundRequest,
+  requestRefundSuccess,
+  requestRefundFail,
+  fetchRefundsRequest,
+  fetchRefundsSuccess,
+  fetchRefundsFail,
   clearOrderErrors,
 } = orderSlice.actions;
 

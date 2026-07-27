@@ -13,6 +13,8 @@ const STATUS_BADGE = {
   Shipped: "bg-purple-100 text-purple-700",
   "Out for Delivery": "bg-orange-100 text-orange-700",
   Delivered: "bg-emerald-100 text-emerald-700",
+  "Processing Refund": "bg-pink-100 text-pink-700",
+  "Refund Success": "bg-teal-100 text-teal-700",
   Cancelled: "bg-red-100 text-red-700",
   Returned: "bg-gray-100 text-gray-600",
 };

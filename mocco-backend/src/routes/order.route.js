@@ -4,6 +4,8 @@ import {
     getMyOrders,
     getShopOrders,
     updateOrderStatus,
+    requestRefund,
+    getMyRefunds,
 } from "../controllers/order.controller.js";
 import isUserAuthenticated from "../middlewares/userAuth.js";
 import isSellerAuthenticated from "../middlewares/sellerAuth.js";
@@ -14,6 +16,8 @@ const orderRouter = express.Router();
 // User routes (require user auth)
 orderRouter.post("/create-order", isUserAuthenticated, createOrder);
 orderRouter.get("/my-orders", isUserAuthenticated, getMyOrders);
+orderRouter.post("/refund", isUserAuthenticated, requestRefund);
+orderRouter.get("/my-refunds", isUserAuthenticated, getMyRefunds);
 
 // Seller routes (require seller auth)
 orderRouter.get("/shop-orders", isSellerAuthenticated, getShopOrders);

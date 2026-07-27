@@ -18,6 +18,7 @@ import Checkout from "./pages/CheckOut.jsx";
 import Payment from "./pages/Payment.jsx";
 import OrderSuccess from "./pages/OrderSuccess.jsx";
 import UserOrderDetailPage from "./pages/UserOrderDetailPage.jsx";
+import TrackOrderDetailPage from "./pages/TrackOrderDetailPage.jsx";
 import SellerOrderDetailPage from "./pages/SellerOrderDetailPage.jsx";
 import Cart from "./pages/Cart.jsx";
 import Products from "./pages/Products.jsx";
@@ -173,12 +174,21 @@ function App() {
             }
           />
 
-          {/* Order Detail — accessible to both users and sellers */}
+          {/* Order Detail — accessible to users */}
           <Route
             path="/order/:orderId"
             element={
               <UserProtectedRoute>
                 <UserOrderDetailPage />
+              </UserProtectedRoute>
+            }
+          />
+          {/* Track Order Details — visual timeline and order journey */}
+          <Route
+            path="/track-order/:orderId"
+            element={
+              <UserProtectedRoute>
+                <TrackOrderDetailPage />
               </UserProtectedRoute>
             }
           />

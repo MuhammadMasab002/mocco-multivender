@@ -11,6 +11,8 @@ const STATUS_STYLES = {
   Shipped: "bg-purple-100 text-purple-800 border-purple-200",
   "Out for Delivery": "bg-orange-100 text-orange-800 border-orange-200",
   Delivered: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  "Processing Refund": "bg-pink-100 text-pink-800 border-pink-200",
+  "Refund Success": "bg-teal-100 text-teal-800 border-teal-200",
   Cancelled: "bg-red-100 text-red-800 border-red-200",
   Returned: "bg-gray-100 text-gray-700 border-gray-200",
 };

@@ -25,7 +25,11 @@ import {
   addAddress,
   deleteAddress,
 } from "../services/store/actions/user";
-import { getMyOrders } from "../services/store/actions/order";
+import {
+  getMyOrders,
+  requestRefund,
+  getMyRefunds,
+} from "../services/store/actions/order";
 import axios from "axios";
 import { clearWishlistState } from "../services/store/slices/wishlistSlice";
 import { clearCartState } from "../services/store/slices/cartSlice";
@@ -104,13 +108,14 @@ const MyProfile = () => {
     () => user?.avatar?.url || "",
   );
   const [avatarFile, setAvatarFile] = useState(null);
-  
-  const { orders } = useSelector((state) => state.order);
+
+  const { orders, refunds, refundsLoading, requestRefundLoading } = useSelector(
+    (state) => state.order,
+  );
 
   const queryOrderId = new URLSearchParams(location.search).get("orderId");
   const [refundOrderId, setRefundOrderId] = useState(queryOrderId || "");
   const [refundReason, setRefundReason] = useState("");
-  const [refundRequests, setRefundRequests] = useState([]);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -138,12 +143,11 @@ const MyProfile = () => {
     ],
   );
 
-  // Fetch orders if not loaded yet (needed for Refunds tab dropdown)
+  // Fetch orders and refunds on mount
   useEffect(() => {
-    if (orders.length === 0) {
-      dispatch(getMyOrders());
-    }
-  }, [dispatch, orders.length]);
+    dispatch(getMyOrders());
+    dispatch(getMyRefunds());
+  }, [dispatch]);
 
   // Sync the refund order pre-selection whenever the orderId query param changes
   // (e.g., navigating from Order Detail → Request Refund)
@@ -244,41 +248,26 @@ const MyProfile = () => {
     }
   };
 
-  const handleRefundSubmit = (e) => {
+  const handleRefundSubmit = async (e) => {
     e.preventDefault();
 
     if (!refundOrderId || !refundReason.trim()) {
-      alert("Please select an order and provide a refund reason.");
+      toast.error("Please select an order and provide a refund reason.");
       return;
     }
 
-    const selectedOrder = orders.find((order) => order._id === refundOrderId);
-    if (!selectedOrder) return;
-
-    const alreadyRequested = refundRequests.some(
-      (request) => request.orderId === selectedOrder._id,
-    );
-
-    if (alreadyRequested) {
-      alert("Refund request already submitted for this order.");
-      return;
+    try {
+      await dispatch(
+        requestRefund({
+          orderId: refundOrderId,
+          reason: refundReason.trim(),
+        }),
+      );
+      setRefundOrderId("");
+      setRefundReason("");
+    } catch (err) {
+      console.error("Refund error:", err);
     }
-
-    const nextRefund = {
-      id: Date.now(),
-      orderId: selectedOrder._id,
-      shop: selectedOrder.items?.[0]?.productId?.shop?.name || "Shop",
-      total: selectedOrder.totalAmount || 0,
-      status: "pending",
-      reason: refundReason,
-      createdAt: new Date().toLocaleDateString(),
-    };
-
-    const nextRefunds = [nextRefund, ...refundRequests];
-    setRefundRequests(nextRefunds);
-    setRefundOrderId("");
-    setRefundReason("");
-    toast.success("Refund request submitted.");
   };
 
   const handleAddressInputChange = (e) => {
@@ -434,7 +423,9 @@ const MyProfile = () => {
       return (
         <RefundsTab
           orders={orders}
-          refundRequests={refundRequests}
+          refunds={refunds}
+          refundsLoading={refundsLoading}
+          requestRefundLoading={requestRefundLoading}
           refundOrderId={refundOrderId}
           setRefundOrderId={setRefundOrderId}
           refundReason={refundReason}

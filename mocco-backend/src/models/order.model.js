@@ -35,6 +35,8 @@ const orderSchema = new Schema({
             "Shipped",
             "Out for Delivery",
             "Delivered",
+            "Processing Refund",
+            "Refund Success",
             "Cancelled",
             "Returned"
         ],

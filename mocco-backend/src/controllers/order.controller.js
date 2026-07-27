@@ -2,14 +2,17 @@ import catchAsyncErrors from "../middlewares/CatchAsyncErrors.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import Order from "../models/order.model.js";
 import Cart from "../models/cart.model.js";
+import Refund from "../models/refund.model.js";
 
-// ─── Valid status transitions (seller can only move forward, or cancel/return) ───
+// ─── Valid status transitions (seller can only move forward, or cancel/return/refund) ───
 const VALID_TRANSITIONS = {
     "Processing": ["Ready for Pickup", "Shipped", "Cancelled"],
     "Ready for Pickup": ["Shipped", "Out for Delivery", "Cancelled"],
     "Shipped": ["Out for Delivery", "Delivered", "Cancelled"],
     "Out for Delivery": ["Delivered", "Cancelled"],
-    "Delivered": ["Returned"],
+    "Delivered": ["Returned", "Processing Refund"],
+    "Processing Refund": ["Refund Success", "Delivered"],
+    "Refund Success": [],
     "Pending Payment": ["Processing", "Cancelled"],
     "Cancelled": [],
     "Returned": [],
@@ -215,4 +218,93 @@ const updateOrderStatus = catchAsyncErrors(async (req, res, next) => {
 });
 
 
-export { createOrder, getMyOrders, getShopOrders, updateOrderStatus };
+// ────────────────────────────────────────────────────────────────────────────────
+// POST /api/v1/order/refund (user auth)
+// Submits a refund request for a delivered order and sets status to "Processing Refund"
+// ────────────────────────────────────────────────────────────────────────────────
+const requestRefund = catchAsyncErrors(async (req, res, next) => {
+    try {
+        const { orderId, reason } = req.body;
+
+        if (!orderId || !reason?.trim()) {
+            return next(new ErrorHandler("Order ID and refund reason are required.", 400));
+        }
+
+        const order = await Order.findById(orderId).populate({
+            path: "items.productId",
+            select: "shop",
+        });
+
+        if (!order) {
+            return next(new ErrorHandler("Order not found.", 404));
+        }
+
+        if (order.user.toString() !== req.user._id.toString()) {
+            return next(new ErrorHandler("Unauthorized request for this order.", 403));
+        }
+
+        if (order.status !== "Delivered") {
+            return next(
+                new ErrorHandler(
+                    `Refund can only be requested for orders with status "Delivered". Current status: "${order.status}".`,
+                    400
+                )
+            );
+        }
+
+        const existingRefund = await Refund.findOne({ order: orderId });
+        if (existingRefund) {
+            return next(new ErrorHandler("A refund request has already been submitted for this order.", 400));
+        }
+
+        const shopId = order.items?.[0]?.productId?.shop || null;
+
+        const refund = await Refund.create({
+            order: orderId,
+            user: req.user._id,
+            shop: shopId,
+            reason: reason.trim(),
+            totalAmount: order.totalAmount,
+            status: "Processing",
+        });
+
+        // Update order status to "Processing Refund"
+        order.status = "Processing Refund";
+        await order.save();
+
+        res.status(201).json({
+            success: true,
+            message: "Refund request submitted successfully!",
+            refund,
+            order,
+        });
+    } catch (error) {
+        console.error("Error in requestRefund:", error);
+        return next(new ErrorHandler("Failed to request refund! " + error.message, 500));
+    }
+});
+
+
+// ────────────────────────────────────────────────────────────────────────────────
+// GET /api/v1/order/my-refunds (user auth)
+// Returns all refund requests for the logged-in user
+// ────────────────────────────────────────────────────────────────────────────────
+const getMyRefunds = catchAsyncErrors(async (req, res, next) => {
+    try {
+        const refunds = await Refund.find({ user: req.user._id })
+            .populate("shop", "name email")
+            .populate("order")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            refunds,
+        });
+    } catch (error) {
+        console.error("Error in getMyRefunds:", error);
+        return next(new ErrorHandler("Failed to fetch refund requests! " + error.message, 500));
+    }
+});
+
+
+export { createOrder, getMyOrders, getShopOrders, updateOrderStatus, requestRefund, getMyRefunds };
