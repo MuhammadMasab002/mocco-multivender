@@ -8,6 +8,7 @@ import CreateCouponTab from "./tabs/CreateCouponTab";
 import OrdersTab from "./tabs/OrdersTab";
 import WithdrawTab from "./tabs/WithdrawTab";
 import InboxTab from "./tabs/InboxTab";
+import RefundsTab from "./tabs/RefundsTab";
 
 const ShopDashboardContent = ({
   activeView,
@@ -91,8 +92,12 @@ const ShopDashboardContent = ({
     return <CreateCouponTab />;
   }
 
-  if (activeView === "orders") {
+  if (activeView === "all-orders") {
     return <OrdersTab />;
+  }
+
+  if (activeView === "refunds") {
+    return <RefundsTab />;
   }
 
   if (activeView === "withdraw") {

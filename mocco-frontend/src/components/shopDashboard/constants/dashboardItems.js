@@ -8,6 +8,7 @@ import {
     ShoppingBag,
     Tag,
     Ticket,
+    Undo2,
     Wallet,
 } from "lucide-react";
 
@@ -32,9 +33,10 @@ export const dashboardItems = [
         icon: CalendarDays,
         color: "sky",
     },
-    { id: "all-coupons", label: "All Coupons", icon: Ticket, color: "pink" },
-    { id: "create-coupon", label: "Create Coupon", icon: Gift, color: "indigo" },
-    { id: "orders", label: "Orders", icon: ShoppingBag, color: "teal" },
+    { id: "all-coupons", label: "All Coupons", icon: Gift, color: "pink" },
+    { id: "create-coupon", label: "Create Coupon", icon: Ticket, color: "indigo" },
+    { id: "all-orders", label: "All Orders", icon: ShoppingBag, color: "blue" },
+    { id: "refunds", label: "Refunds", icon: Undo2, color: "violet" },
     { id: "withdraw", label: "Withdraw Money", icon: Wallet, color: "amber" },
     { id: "inbox", label: "Shop Inbox", icon: Inbox, color: "slate" },
 ];

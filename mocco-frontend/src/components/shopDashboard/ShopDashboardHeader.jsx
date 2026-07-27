@@ -1,4 +1,4 @@
-import { Gift, Inbox, Package, ShoppingBag, Tag } from "lucide-react";
+import { Gift, Inbox, Package, ShoppingBag, Tag, Undo2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const TopRightIcon = ({
@@ -50,12 +50,18 @@ const topIcons = [
     title: "Orders",
     icon: ShoppingBag,
     colorClass: "text-blue-500",
-    tabId: "orders",
+    tabId: "all-orders",
+  },
+  {
+    title: "Refunds",
+    icon: Undo2,
+    colorClass: "text-violet-500",
+    tabId: "refunds",
   },
   {
     title: "Messages",
     icon: Inbox,
-    colorClass: "text-violet-500",
+    colorClass: "slate",
     tabId: "inbox",
   },
 ];

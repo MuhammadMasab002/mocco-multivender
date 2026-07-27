@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import ShopDashboardContent from "../components/shopDashboard/ShopDashboardContent";
 import { dashboardItems } from "../components/shopDashboard/constants/dashboardItems";
 import { getProducts } from "../services/store/actions/product";
 import { getEvents } from "../services/store/actions/event";
 import { deleteCoupon, getCoupons } from "../services/store/actions/coupon";
-
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const formatMoney = (amount = 0) => `$${Number(amount || 0).toFixed(2)}`;
 
@@ -30,13 +28,16 @@ const pakistanBanks = [
 ];
 
 const ShopDashboard = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
   const { seller } = useSelector((state) => state.seller);
-  const { products, isLoading: productLoading } = useSelector((state) => state.product);
+  const { products, isLoading: productLoading } = useSelector(
+    (state) => state.product,
+  );
   const { events } = useSelector((state) => state.event);
-  const { coupons, getLoading: couponLoading } = useSelector((state) => state.coupon);
+  const { coupons, getLoading: couponLoading } = useSelector(
+    (state) => state.coupon,
+  );
 
   // Fetch products, events, and coupons for the seller on mount
   useEffect(() => {
@@ -74,12 +75,15 @@ const ShopDashboard = () => {
       Array.isArray(coupons)
         ? coupons.map((coupon) => {
             const matchedProduct = products?.find(
-              (product) => String(product._id) === String(coupon.product?._id || coupon.product),
+              (product) =>
+                String(product._id) ===
+                String(coupon.product?._id || coupon.product),
             );
 
             return {
               ...coupon,
-              productName: matchedProduct?.name || coupon.product?.name || "Product",
+              productName:
+                matchedProduct?.name || coupon.product?.name || "Product",
             };
           })
         : [],
