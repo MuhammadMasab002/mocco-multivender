@@ -125,6 +125,9 @@ const ShopDashboardContent = ({
       />
     );
   }
+  if (activeView === "settings") {
+    return <div>Settings</div>;
+  }
 
   return <InboxTab />;
 };

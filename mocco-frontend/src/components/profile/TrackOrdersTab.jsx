@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getMyOrders } from "../../services/store/actions/order";
-import { Loader2, Package, ArrowRight } from "lucide-react";
+import { Loader2, Package, ArrowRight, Loader2Icon } from "lucide-react";
 
 const STATUS_STYLES = {
   "Pending Payment": "bg-yellow-100 text-yellow-800",
@@ -29,8 +29,8 @@ const TrackOrdersTab = () => {
   if (ordersLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
-        <Loader2 className="w-7 h-7 animate-spin" />
-        <p className="text-sm">Fetching your orders…</p>
+        <Loader2Icon className="w-7 h-7 animate-spin text-red-500" />
+        <p className="text-sm">Loading your orders…</p>
       </div>
     );
   }

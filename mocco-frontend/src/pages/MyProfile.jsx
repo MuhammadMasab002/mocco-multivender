@@ -36,6 +36,8 @@ import { clearCartState } from "../services/store/slices/cartSlice";
 import { initGuestWishlist } from "../services/store/actions/wishlist";
 import { initGuestCart } from "../services/store/actions/cart";
 import toast from "react-hot-toast";
+import { InboxIcon } from "lucide-react";
+import AppLoader from "../layouts/AppLoader";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -44,6 +46,8 @@ const tabs = [
   { id: "orders", label: "Orders", icon: AssignmentIcon },
   { id: "refunds", label: "Refunds", icon: KeyboardReturnIcon },
   { id: "track-orders", label: "Track Orders", icon: LocalShippingIcon },
+  // inbox
+  { id: "inbox", label: "Inbox", icon: InboxIcon },
   { id: "change-password", label: "Change Password", icon: LockIcon },
   { id: "address", label: "Address", icon: PlaceIcon },
   { id: "payment-method", label: "Payment Method", icon: CreditCardIcon },
@@ -129,8 +133,8 @@ const MyProfile = () => {
 
   const derivedProfile = useMemo(
     () => ({
-      name: profileForm.name || user?.name || "Guest User",
-      email: profileForm.email || user?.email || "example@email.com",
+      name: profileForm.name || user?.name,
+      email: profileForm.email || user?.email,
       phoneNumber: profileForm.phoneNumber || user?.phoneNumber || "",
     }),
     [
@@ -439,6 +443,10 @@ const MyProfile = () => {
       return <TrackOrdersTab />;
     }
 
+    if (activeTab === "inbox") {
+      return "inbox tab";
+    }
+
     if (activeTab === "change-password") {
       return (
         <ChangePasswordTab
@@ -497,6 +505,7 @@ const MyProfile = () => {
         <ProfileSidebar
           userName={derivedProfile.name}
           userEmail={derivedProfile.email}
+          avatarPreview={avatarPreview}
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={handleTabChange}

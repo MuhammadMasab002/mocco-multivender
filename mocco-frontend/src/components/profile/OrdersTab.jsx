@@ -37,7 +37,7 @@ const OrdersTab = () => {
   if (ordersLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
-        <Loader2 className="w-7 h-7 animate-spin" />
+        <Loader2 className="w-7 h-7 animate-spin text-red-500" />
         <p className="text-sm">Loading your orders…</p>
       </div>
     );

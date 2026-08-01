@@ -5,6 +5,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 const ProfileSidebar = ({
   userName,
   userEmail,
+  avatarPreview,
   tabs,
   activeTab,
   onTabChange,
@@ -31,16 +32,31 @@ const ProfileSidebar = ({
       {/* Desktop Sidebar Layout */}
       <aside className="hidden lg:block lg:sticky lg:top-20 h-fit bg-white/85 backdrop-blur border border-gray-200 rounded-3xl shadow-sm overflow-hidden">
         <div className="p-5 border-b border-gray-100 flex items-center gap-3 bg-linear-to-r from-gray-50 to-red-50/60">
-          <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-red-500 to-red-600 text-white flex items-center justify-center shadow-md ring-4 ring-white transform hover:scale-105 transition-transform">
-            <span className="text-lg font-bold">
-              {userName?.charAt(0) || "U"}
-            </span>
-          </div>
-          <div>
+          {avatarPreview ? (
+            <div className="rounded-2xl shadow-md ring-4 ring-white transform hover:scale-105 transition-transform">
+              <img
+                src={avatarPreview}
+                alt="Avatar"
+                className="w-14 h-14 rounded-2xl object-cover"
+              />
+            </div>
+          ) : (
+            <div className="rounded-2xl bg-linear-to-br from-red-400 to-red-600 shadow-md ring-4 ring-white transform hover:scale-105 transition-transform">
+              <span className="w-14 h-14 flex items-center justify-center text-white text-lg font-bold">
+                {userName?.charAt(0)}
+              </span>
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
             <h3 className="text-lg sm:text-xl text-gray-900 font-semibold leading-tight">
               {userName}
             </h3>
-            <p className="text-sm sm:text-base text-gray-500">{userEmail}</p>
+            <p
+              className="w-full text-sm sm:text-base text-gray-500 truncate"
+              title={userEmail}
+            >
+              {userEmail}
+            </p>
           </div>
         </div>
 

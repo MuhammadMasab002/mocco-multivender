@@ -3,32 +3,43 @@ import { LogOut } from "lucide-react";
 const colorTokens = {
   blue: "border-blue-100 bg-blue-50 text-blue-600",
   emerald: "border-emerald-100 bg-emerald-50 text-emerald-600",
-  violet: "border-violet-100 bg-violet-50 text-violet-600",
+  lime: "border-lime-100 bg-lime-50 text-lime-600",
   orange: "border-orange-100 bg-orange-50 text-orange-600",
   sky: "border-sky-100 bg-sky-50 text-sky-600",
   pink: "border-pink-100 bg-pink-50 text-pink-600",
   indigo: "border-indigo-100 bg-indigo-50 text-indigo-600",
-  teal: "border-teal-100 bg-teal-50 text-teal-600",
+  cyan: "border-cyan-100 bg-cyan-50 text-cyan-600",
+  red: "border-red-100 bg-red-50 text-red-600",
   amber: "border-amber-100 bg-amber-50 text-amber-600",
+  teal: "border-teal-100 bg-teal-50 text-teal-600",
+  purple: "border-purple-100 bg-purple-50 text-purple-600",
+
+  // Fallbacks
   slate: "border-slate-100 bg-slate-50 text-slate-600",
 };
 
 const dotTokens = {
   blue: "bg-blue-600",
   emerald: "bg-emerald-600",
-  violet: "bg-violet-600",
+  lime: "bg-lime-600",
   orange: "bg-orange-600",
   sky: "bg-sky-600",
   pink: "bg-pink-600",
   indigo: "bg-indigo-600",
-  teal: "bg-teal-600",
+  cyan: "bg-cyan-600",
+  red: "bg-red-600",
   amber: "bg-amber-600",
+  teal: "bg-teal-600",
+  purple: "bg-purple-600",
+
+  // Fallback
   slate: "bg-slate-600",
 };
 
 const SidebarItem = ({ item, active, onClick }) => {
   const IconComponent = item.icon;
   const activeColor = colorTokens[item.color] || colorTokens.slate;
+  const activeDot = dotTokens[item.color] || dotTokens.slate;
 
   return (
     <button
@@ -51,7 +62,7 @@ const SidebarItem = ({ item, active, onClick }) => {
 
       {active && (
         <span
-          className={`flex h-2.5 w-2.5 justify-self-end rounded-full transition-all ${dotTokens[item.color] || dotTokens.slate}`}
+          className={`flex h-2.5 w-2.5 justify-self-end rounded-full transition-all ${activeDot}`}
         />
       )}
     </button>
