@@ -246,5 +246,70 @@ const logoutShop = async (req, res, next) => {
     }
 };
 
+// update seller/shop info
+const updateSellerInfo = async (req, res, next) => {
+    try {
+        const {
+            name,
+            description,
+            shopAddress,
+            addresses,
+            address,
+            phoneNumber,
+            zipCode,
+        } = req.body || {};
 
-export { registerShop, activateShopEmail, loginShop, getSeller, getShopInfo, logoutShop };
+        const seller = await Shop.findById(req.seller._id);
+
+        if (!seller) {
+            return next(new ErrorHandler("Shop not found!", 404));
+        }
+
+        if (name) seller.name = name;
+        if (description !== undefined) seller.description = description;
+
+        const newAddress = shopAddress || addresses || address;
+        if (newAddress) seller.addresses = newAddress;
+
+        if (phoneNumber) seller.phoneNumber = phoneNumber;
+        if (zipCode) seller.zipCode = Number(zipCode);
+
+        // Check if an avatar file was uploaded via req.file or req.files
+        const file = req.file || (req.files && req.files[0]);
+        if (file) {
+            const fileName = file.filename;
+            seller.avatar = {
+                public_id: fileName || "shop-avatar",
+                url: fileName
+                    ? `/uploads/${fileName}`
+                    : seller.avatar?.url || "https://dummyimage.com/200x200/e2e8f0/64748b.png&text=Shop",
+            };
+        }
+
+        await seller.save();
+
+        res.status(200).json({
+            success: true,
+            shop: seller,
+            message: "Shop settings updated successfully!",
+        });
+    } catch (error) {
+        console.error("Error in updateSellerInfo:", error);
+        return next(
+            new ErrorHandler(
+                "Failed to update shop info! " + error.message,
+                500,
+            ),
+        );
+    }
+};
+
+export {
+    registerShop,
+    activateShopEmail,
+    loginShop,
+    getSeller,
+    getShopInfo,
+    logoutShop,
+    updateSellerInfo
+};

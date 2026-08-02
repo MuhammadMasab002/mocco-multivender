@@ -23,9 +23,7 @@ const MyShop = () => {
   const { events: storeEvents } = useSelector((state) => state.event);
 
   const [activeTab, setActiveTab] = useState("products");
-  const [isEditOpen, setIsEditOpen] = useState(false);
   const [shopView, setShopView] = useState(() => initialFormState({}));
-  const [editForm, setEditForm] = useState(() => initialFormState({}));
   const [isShopLoading, setIsShopLoading] = useState(true);
 
   const isOwner = seller?._id === sellerId;
@@ -45,7 +43,6 @@ const MyShop = () => {
         setIsShopLoading(true);
         if (isOwner) {
           setShopView(initialFormState(seller));
-          setEditForm(initialFormState(seller));
         } else {
           const { data } = await axios.get(
             `${backendUrl}/shop/info/${sellerId}`,
@@ -61,7 +58,10 @@ const MyShop = () => {
     if (sellerId) fetchShopInfo();
   }, [sellerId, isOwner, seller]);
 
-  const sellerProducts = Array.isArray(storeProducts) ? storeProducts : [];
+  const sellerProducts = useMemo(() => {
+    return Array.isArray(storeProducts) ? storeProducts : [];
+  }, [storeProducts]);
+
   const eventItems = Array.isArray(storeEvents) ? storeEvents : [];
 
   const reviewItems = useMemo(() => {
@@ -101,43 +101,8 @@ const MyShop = () => {
     }
   };
 
-  const openEditModal = () => {
-    setEditForm(displayShop);
-    setIsEditOpen(true);
-  };
-
-  const closeEditModal = () => setIsEditOpen(false);
-
-  const handleEditInput = (event) => {
-    const { name, value } = event.target;
-    setEditForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleAvatarChange = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const fileReader = new FileReader();
-    fileReader.onload = () => {
-      setEditForm((prev) => ({
-        ...prev,
-        avatarUrl: String(fileReader.result || prev.avatarUrl),
-      }));
-    };
-    fileReader.readAsDataURL(file);
-  };
-
-  const handleShopUpdate = (event) => {
-    event.preventDefault();
-
-    if (!editForm.name.trim() || !editForm.email.trim()) {
-      window.alert("Please provide at least shop name and email.");
-      return;
-    }
-
-    setShopView({ ...editForm });
-    setIsEditOpen(false);
-    window.alert("Shop profile updated on this dashboard.");
+  const handleEditClick = () => {
+    navigate("/shop-dashboard/?tab=settings");
   };
 
   if (isShopLoading) {
@@ -157,7 +122,7 @@ const MyShop = () => {
             displayShop={shopView}
             totalProducts={totalProducts}
             sellerCreatedAt={shopView?.createdAt}
-            onOpenEdit={openEditModal}
+            onEditClick={handleEditClick}
             onLogout={handleLogout}
             isOwner={isOwner}
           />
@@ -244,15 +209,6 @@ const MyShop = () => {
           </main>
         </div>
       </section>
-
-      <EditShopModal
-        isOpen={isEditOpen}
-        editForm={editForm}
-        onClose={closeEditModal}
-        onSubmit={handleShopUpdate}
-        onInputChange={handleEditInput}
-        onAvatarChange={handleAvatarChange}
-      />
     </>
   );
 };

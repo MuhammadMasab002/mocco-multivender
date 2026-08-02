@@ -31,7 +31,7 @@ const MyShopSidebar = ({
   displayShop,
   totalProducts,
   sellerCreatedAt,
-  onOpenEdit,
+  onEditClick,
   onLogout,
   isOwner,
 }) => {
@@ -87,7 +87,7 @@ const MyShopSidebar = ({
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1">
           <button
             type="button"
-            onClick={onOpenEdit}
+            onClick={onEditClick}
             className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-sky-200 bg-linear-to-b from-sky-50 to-sky-100 px-4 py-2.5 text-sm font-semibold text-sky-700 transition hover:from-sky-100 hover:to-sky-100"
           >
             <PencilLine size={16} />

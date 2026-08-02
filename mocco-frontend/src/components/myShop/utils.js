@@ -35,4 +35,6 @@ export const initialFormState = (shop) => ({
     zipCode: String(shop?.zipCode || ""),
     description: shop?.description || "",
     avatarUrl: resolveImageUrl(shop?.avatar?.url),
+    createdAt: shop?.createdAt || "",
+    updatedAt: shop?.updatedAt || "",
 });

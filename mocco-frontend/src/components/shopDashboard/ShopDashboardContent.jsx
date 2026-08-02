@@ -9,6 +9,7 @@ import OrdersTab from "./tabs/OrdersTab";
 import WithdrawTab from "./tabs/WithdrawTab";
 import InboxTab from "./tabs/InboxTab";
 import RefundsTab from "./tabs/RefundsTab";
+import ShopSettingsTab from "./tabs/ShopSettingsTab";
 
 const ShopDashboardContent = ({
   activeView,
@@ -125,8 +126,9 @@ const ShopDashboardContent = ({
       />
     );
   }
+
   if (activeView === "settings") {
-    return <div>Settings</div>;
+    return <ShopSettingsTab />;
   }
 
   return <InboxTab />;
