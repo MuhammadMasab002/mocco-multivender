@@ -14,6 +14,8 @@ import wishlistRouter from "./src/routes/wishlist.route.js";
 import cartRouter from "./src/routes/cart.route.js";
 import paymentRouter from "./src/routes/payment.route.js";
 import orderRouter from "./src/routes/order.route.js";
+import conversationRouter from "./src/routes/conversation.route.js";
+import messageRouter from "./src/routes/message.route.js";
 
 const app = express();
 const isProduction =
@@ -81,6 +83,8 @@ app.use("/api/v1/wishlist", wishlistRouter);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/payment", paymentRouter);
 app.use("/api/v1/order", orderRouter);
+app.use("/api/v1/conversation", conversationRouter);
+app.use("/api/v1/message", messageRouter);
 
 app.use(errorMiddleware);
 

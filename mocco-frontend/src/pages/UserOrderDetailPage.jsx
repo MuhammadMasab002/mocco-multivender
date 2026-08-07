@@ -14,6 +14,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { getMyOrders } from "../services/store/actions/order";
+import { createConversation } from "../services/store/actions/conversation";
 import { backendUrl } from "../components/myShop/utils";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -122,13 +123,57 @@ const UserOrderDetailPage = () => {
 
   const sellerInfo = populatedShop || fetchedShop;
 
+  const { user } = useSelector((state) => state.user);
+  const { seller: currentSeller } = useSelector((state) => state.seller);
+
   // UI-only action handlers
   const handleReviewClick = (productName) => {
     toast.success(`Review feature for "${productName}" coming soon!`);
   };
 
-  const handleSendMessageClick = () => {
-    toast("Messaging feature coming soon!", { icon: "💬" });
+  const handleSendMessageClick = async () => {
+    const targetShopId =
+      sellerInfo?._id ||
+      (typeof rawShop === "string" ? rawShop : rawShop?._id) ||
+      order?.cart?.[0]?.shopId;
+    const userId = user?._id;
+
+    if (!userId) {
+      toast.error("Please login to send messages.");
+      return;
+    }
+
+    if (!targetShopId) {
+      toast.error("Seller information is not available for this order.");
+      return;
+    }
+
+    toast.loading("Opening conversation...", { id: "conv-toast" });
+
+    const res = await dispatch(
+      createConversation({
+        userId,
+        sellerId: targetShopId,
+        groupTitle: `Order_${order?._id || Date.now()}`,
+      }),
+    );
+
+    if (res?.success && res?.conversation) {
+      toast.success("Conversation created successfully!", { id: "conv-toast" });
+      if (currentSeller?._id) {
+        navigate(
+          `/shop-dashboard/?tab=inbox&conversationId=${res.conversation._id}`,
+        );
+      } else {
+        navigate(
+          `/my-profile?tab=inbox&conversationId=${res.conversation._id}`,
+        );
+      }
+    } else {
+      toast.error(res?.message || "Failed to open conversation.", {
+        id: "conv-toast",
+      });
+    }
   };
 
   // ─── Loading skeleton ─────────────────────────────────────────────────────────

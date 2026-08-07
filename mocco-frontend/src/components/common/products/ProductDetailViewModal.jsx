@@ -20,6 +20,7 @@ const ProductDetailViewModal = ({
   onDecrease,
   onAddToCart,
   onNavigateToShop,
+  onSendMessage,
 }) => {
   return (
     <div
@@ -72,7 +73,9 @@ const ProductDetailViewModal = ({
                     variant="dark"
                     onClick={(e) => {
                       e.stopPropagation();
-                      alert("Message feature coming soon");
+                      if (onSendMessage) {
+                        onSendMessage(product?.shop);
+                      }
                     }}
                   />
                 </div>

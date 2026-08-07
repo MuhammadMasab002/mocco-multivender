@@ -8,23 +8,23 @@ import {
   MessageSquare,
   Search,
   Send,
-  User as UserIcon,
+  Store,
   X,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import {
-  getSellerConversations,
+  getUserConversations,
   getMessages,
   createMessage,
-} from "../../../services/store/actions/conversation";
-import { setActiveConversation } from "../../../services/store/slices/conversationSlice";
+} from "../../services/store/actions/conversation";
+import { setActiveConversation } from "../../services/store/slices/conversationSlice";
 
-const InboxTab = () => {
+const UserInboxTab = () => {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const targetConvId = searchParams.get("conversationId");
 
-  const { seller } = useSelector((state) => state.seller);
+  const { user } = useSelector((state) => state.user);
   const {
     conversations,
     activeConversation,
@@ -49,14 +49,14 @@ const InboxTab = () => {
     scrollToBottom();
   }, [messages]);
 
-  // Fetch seller conversations on mount
+  // Fetch user conversations on mount / user load
   useEffect(() => {
-    if (seller?._id) {
-      dispatch(getSellerConversations(seller._id));
+    if (user?._id) {
+      dispatch(getUserConversations(user._id));
     }
-  }, [dispatch, seller?._id]);
+  }, [dispatch, user?._id]);
 
-  // Handle target conversation ID from search params if present
+  // Handle target conversation ID from search params
   useEffect(() => {
     if (targetConvId && conversations.length > 0) {
       const found = conversations.find((c) => c._id === targetConvId);
@@ -93,14 +93,14 @@ const InboxTab = () => {
     e.preventDefault();
     if (!newMessageText.trim()) return;
 
-    if (!activeConversation?._id || !seller?._id) {
+    if (!activeConversation?._id || !user?._id) {
       toast.error("No active conversation selected!");
       return;
     }
 
     const payload = {
       conversationId: activeConversation._id,
-      sender: seller._id,
+      sender: user._id,
       text: newMessageText.trim(),
     };
 
@@ -116,11 +116,11 @@ const InboxTab = () => {
 
   // Filter conversations by search query
   const filteredConversations = conversations.filter((c) => {
-    const userName = c.user?.name || "Customer";
-    const userEmail = c.user?.email || "";
+    const shopName = c.seller?.name || "Shop / Seller";
+    const shopEmail = c.seller?.email || "";
     const q = searchQuery.toLowerCase();
     return (
-      userName.toLowerCase().includes(q) || userEmail.toLowerCase().includes(q)
+      shopName.toLowerCase().includes(q) || shopEmail.toLowerCase().includes(q)
     );
   });
 
@@ -133,17 +133,17 @@ const InboxTab = () => {
   };
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden min-h-[650px] flex flex-col">
-      {/* Tab Header Banner */}
+    <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden min-h-150 flex flex-col">
+      {/* Header Banner */}
       <div className="border-b border-slate-100 px-6 py-4 flex items-center justify-between bg-slate-50/50">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-teal-50 rounded-2xl border border-teal-100 text-teal-600">
+          <div className="p-2.5 bg-purple-50 rounded-2xl border border-purple-100 text-purple-600">
             <Inbox size={22} />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Shop Inbox</h2>
+            <h2 className="text-xl font-bold text-slate-900">User Messages</h2>
             <p className="text-xs text-slate-500">
-              Communicate directly with your buyers & customers
+              Chat directly with shop owners & sellers
             </p>
           </div>
         </div>
@@ -153,7 +153,7 @@ const InboxTab = () => {
         </div>
       </div>
 
-      {/* Inbox Body: Grid layout with list + chat area */}
+      {/* Main Grid Body */}
       <div className="grid grid-cols-1 lg:grid-cols-12 flex-1 relative">
         {/* Left Panel: Conversations List */}
         <div
@@ -172,14 +172,14 @@ const InboxTab = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search customers..."
-                className="w-full rounded-xl border border-slate-200 pl-9 pr-4 py-2 text-xs sm:text-sm text-slate-800 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition bg-white"
+                placeholder="Search shops & sellers..."
+                className="w-full rounded-xl border border-slate-200 pl-9 pr-4 py-2 text-xs sm:text-sm text-slate-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition bg-white"
               />
             </div>
           </div>
 
           {/* Conversations Scroll Area */}
-          <div className="flex-1 overflow-y-auto divide-y divide-slate-100 max-h-[550px]">
+          <div className="flex-1 overflow-y-auto divide-y divide-slate-100 max-h-125">
             {conversationsLoading ? (
               <div className="p-10 flex flex-col items-center justify-center text-slate-400 gap-2">
                 <Loader2 className="animate-spin" size={24} />
@@ -195,16 +195,15 @@ const InboxTab = () => {
                   No conversations found
                 </p>
                 <p className="text-xs mt-1">
-                  Customer inquiries will appear here when they message your
-                  shop.
+                  Start messaging a seller from your order details or shop page.
                 </p>
               </div>
             ) : (
               filteredConversations.map((conv) => {
                 const isActive = activeConversation?._id === conv._id;
-                const customerName = conv.user?.name || "Customer";
-                const customerAvatar =
-                  conv.user?.avatar?.url || conv.user?.avatar;
+                const shopName = conv.seller?.name || "Shop Seller";
+                const shopAvatar =
+                  conv.seller?.avatar?.url || conv.seller?.avatar;
 
                 return (
                   <button
@@ -217,15 +216,15 @@ const InboxTab = () => {
                     }`}
                   >
                     <div className="relative shrink-0">
-                      {customerAvatar ? (
+                      {shopAvatar ? (
                         <img
-                          src={customerAvatar}
-                          alt={customerName}
+                          src={shopAvatar}
+                          alt={shopName}
                           className="w-11 h-11 rounded-full object-cover border border-slate-200"
                         />
                       ) : (
-                        <div className="w-11 h-11 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm">
-                          {customerName.charAt(0).toUpperCase()}
+                        <div className="w-11 h-11 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">
+                          <Store size={18} />
                         </div>
                       )}
                     </div>
@@ -233,7 +232,7 @@ const InboxTab = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <h4 className="text-sm font-semibold text-slate-900 truncate">
-                          {customerName}
+                          {shopName}
                         </h4>
                         <span className="text-[11px] text-slate-400 shrink-0">
                           {formatTime(conv.updatedAt)}
@@ -258,29 +257,31 @@ const InboxTab = () => {
         >
           {activeConversation ? (
             <>
-              {/* Chat Header */}
+              {/* Chat Header with Close / Back Button */}
               <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
                 <div className="flex items-center gap-3">
-                  {/* Mobile Back Button */}
                   <button
                     onClick={handleCloseConversation}
                     className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition cursor-pointer"
                     title="Close conversation"
                   >
                     <ArrowLeft size={18} className="lg:hidden" />
-                    <X size={18} className="hidden lg:block" />
+                    <X
+                      size={18}
+                      className="hidden lg:block text-slate-500 hover:text-slate-800"
+                    />
                   </button>
 
                   <div className="relative">
-                    {activeConversation.user?.avatar?.url ? (
+                    {activeConversation.seller?.avatar?.url ? (
                       <img
-                        src={activeConversation.user.avatar.url}
-                        alt={activeConversation.user?.name}
+                        src={activeConversation.seller.avatar.url}
+                        alt={activeConversation.seller?.name}
                         className="w-10 h-10 rounded-full object-cover border border-slate-200"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center font-semibold text-sm">
-                        {(activeConversation.user?.name || "C")
+                      <div className="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-semibold text-sm">
+                        {(activeConversation.seller?.name || "S")
                           .charAt(0)
                           .toUpperCase()}
                       </div>
@@ -289,19 +290,15 @@ const InboxTab = () => {
 
                   <div>
                     <h3 className="text-sm font-bold text-slate-900">
-                      {activeConversation.user?.name || "Customer"}
+                      {activeConversation.seller?.name || "Shop / Seller"}
                     </h3>
                     <p className="text-xs text-slate-400">
-                      {activeConversation.user?.email || "Customer Inquiry"}
+                      {activeConversation.seller?.email || "Verified Seller"}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-200">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    Customer Active
-                  </span>
                   <button
                     onClick={handleCloseConversation}
                     className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition cursor-pointer"
@@ -312,7 +309,7 @@ const InboxTab = () => {
               </div>
 
               {/* Chat Messages Body */}
-              <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 max-h-[460px] bg-slate-50/20">
+              <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 max-h-105 bg-slate-50/20">
                 {messagesLoading ? (
                   <div className="h-64 flex flex-col items-center justify-center text-slate-400 gap-2">
                     <Loader2 className="animate-spin" size={24} />
@@ -325,26 +322,26 @@ const InboxTab = () => {
                       Start your conversation
                     </p>
                     <p className="text-xs text-slate-400 mt-1 max-w-xs">
-                      Send a message below to communicate directly with this
-                      customer.
+                      Send a message below to ask questions about products,
+                      orders, or shipping.
                     </p>
                   </div>
                 ) : (
                   messages.map((msg) => {
-                    const isSellerSender =
-                      String(msg.sender) === String(seller?._id);
+                    const isUserSender =
+                      String(msg.sender) === String(user?._id);
 
                     return (
                       <div
                         key={msg._id || msg.createdAt}
                         className={`flex flex-col ${
-                          isSellerSender ? "items-end" : "items-start"
+                          isUserSender ? "items-end" : "items-start"
                         }`}
                       >
                         <div
                           className={`max-w-xs sm:max-w-md px-4 py-3 rounded-2xl text-sm shadow-xs ${
-                            isSellerSender
-                              ? "bg-slate-900 text-white rounded-br-none"
+                            isUserSender
+                              ? "bg-purple-600 text-white rounded-br-none"
                               : "bg-white text-slate-800 border border-slate-200 rounded-bl-none"
                           }`}
                         >
@@ -371,14 +368,14 @@ const InboxTab = () => {
                   type="text"
                   value={newMessageText}
                   onChange={(e) => setNewMessageText(e.target.value)}
-                  placeholder="Write your message..."
-                  className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-100 transition"
+                  placeholder="Type your message..."
+                  className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition"
                 />
 
                 <button
                   type="submit"
                   disabled={sendLoading || !newMessageText.trim()}
-                  className="px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition cursor-pointer flex items-center gap-2 disabled:opacity-50 shrink-0"
+                  className="px-5 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold transition cursor-pointer flex items-center gap-2 disabled:opacity-50 shrink-0 shadow-sm"
                 >
                   {sendLoading ? (
                     <Loader2 size={18} className="animate-spin" />
@@ -400,8 +397,8 @@ const InboxTab = () => {
                 Select a Conversation
               </h3>
               <p className="text-xs text-slate-500 mt-1 max-w-sm">
-                Choose a customer from the left conversation list to read and
-                respond to messages.
+                Choose a seller from the left list to read messages or send new
+                inquiries.
               </p>
             </div>
           )}
@@ -411,4 +408,4 @@ const InboxTab = () => {
   );
 };
 
-export default InboxTab;
+export default UserInboxTab;

@@ -19,12 +19,13 @@ import {
   addToGuestCartAction,
 } from "../../../services/store/actions/cart.js";
 import ProductDetailViewModal from "./ProductDetailViewModal.jsx";
+import { createConversation } from "../../../services/store/actions/conversation.js";
 
 const ProductCard = ({ product, handleClick }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { isUserAuthenticated } = useSelector((state) => state.user);
+  const { isUserAuthenticated, user } = useSelector((state) => state.user);
   const { ids: wishlistIds } = useSelector((state) => state.wishlist);
 
   const [isWishlistLoading, setIsWishlistLoading] = useState(false);
@@ -130,6 +131,35 @@ const ProductCard = ({ product, handleClick }) => {
     e.stopPropagation();
     if (product?.shop?._id) {
       navigate(`/shop/${product.shop._id}`);
+    }
+  };
+
+  const handleSendMessageToSeller = async (shop) => {
+    if (!user?._id) {
+      toast.error("Please login to send a message!");
+      return;
+    }
+    const shopId = shop?._id || product?.shop?._id;
+    if (!shopId) {
+      toast.error("Seller information is unavailable.");
+      return;
+    }
+    toast.loading("Opening conversation...", { id: "conv-toast" });
+    const res = await dispatch(
+      createConversation({
+        userId: user._id,
+        sellerId: shopId,
+        groupTitle: `Product_${product?._id || Date.now()}`,
+      }),
+    );
+    if (res?.success && res?.conversation) {
+      toast.success("Conversation opened!", { id: "conv-toast" });
+      setProductDetailView(false);
+      navigate(`/my-profile?tab=inbox&conversationId=${res.conversation._id}`);
+    } else {
+      toast.error(res?.message || "Failed to open conversation.", {
+        id: "conv-toast",
+      });
     }
   };
 
@@ -249,6 +279,7 @@ const ProductCard = ({ product, handleClick }) => {
           onDecrease={handleDecrease}
           onAddToCart={handleAddToCart}
           onNavigateToShop={handleNavigateToShop}
+          onSendMessage={handleSendMessageToSeller}
         />
       )}
     </>

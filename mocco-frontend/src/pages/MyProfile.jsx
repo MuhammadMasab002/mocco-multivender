@@ -14,6 +14,7 @@ import ProfileTab from "../components/profile/ProfileTab";
 import OrdersTab from "../components/profile/OrdersTab";
 import RefundsTab from "../components/profile/RefundsTab";
 import TrackOrdersTab from "../components/profile/TrackOrdersTab";
+import UserInboxTab from "../components/profile/UserInboxTab";
 import ChangePasswordTab from "../components/profile/ChangePasswordTab";
 import AddressTab from "../components/profile/AddressTab";
 import PaymentMethodTab from "../components/profile/PaymentMethodTab";
@@ -86,6 +87,7 @@ const titleByTab = {
   orders: "Orders",
   refunds: "Refunds",
   "track-orders": "Track Orders",
+  inbox: "Inbox",
   "change-password": "Change Password",
   address: "Address",
   "payment-method": "Payment Method",
@@ -444,7 +446,7 @@ const MyProfile = () => {
     }
 
     if (activeTab === "inbox") {
-      return "inbox tab";
+      return <UserInboxTab />;
     }
 
     if (activeTab === "change-password") {

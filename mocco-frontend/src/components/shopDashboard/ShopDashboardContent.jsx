@@ -131,6 +131,11 @@ const ShopDashboardContent = ({
     return <ShopSettingsTab />;
   }
 
+  if (activeView === "inbox") {
+    return <InboxTab />;
+  }
+
+  // Fallback: render InboxTab
   return <InboxTab />;
 };
 

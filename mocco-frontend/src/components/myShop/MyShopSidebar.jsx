@@ -1,15 +1,20 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   CalendarClock,
   Hash,
   LogOut,
   Mail,
   MapPin,
+  MessageSquare,
   Package,
   PencilLine,
   Phone,
 } from "lucide-react";
 import { formatJoinedDate, toTitle } from "./utils";
+import { createConversation } from "../../services/store/actions/conversation";
 
 const InfoRow = ({ icon, label, value }) => {
   const IconComponent = icon;
@@ -35,6 +40,50 @@ const MyShopSidebar = ({
   onLogout,
   isOwner,
 }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.user);
+  const { seller: currentSeller } = useSelector((state) => state.seller);
+
+  const handleSendMessage = async () => {
+    if (!user?._id) {
+      toast.error("Please login to send message!");
+      return;
+    }
+
+    if (!displayShop?._id) {
+      toast.error("Shop information is unavailable.");
+      return;
+    }
+
+    toast.loading("Creating conversation...", { id: "conv-toast" });
+
+    const res = await dispatch(
+      createConversation({
+        userId: user._id,
+        sellerId: displayShop._id,
+        groupTitle: `Shop_${displayShop._id}`,
+      }),
+    );
+
+    if (res?.success && res?.conversation) {
+      toast.success("Conversation opened!", { id: "conv-toast" });
+      if (currentSeller?._id) {
+        navigate(
+          `/shop-dashboard/?tab=inbox&conversationId=${res.conversation._id}`,
+        );
+      } else {
+        navigate(
+          `/my-profile?tab=inbox&conversationId=${res.conversation._id}`,
+        );
+      }
+    } else {
+      toast.error(res?.message || "Failed to create conversation.", {
+        id: "conv-toast",
+      });
+    }
+  };
+
   return (
     <aside className="h-fit self-start rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_12px_36px_rgba(15,23,42,0.08)] sm:p-6 xl:sticky xl:top-20">
       <div className="flex flex-col items-center text-center">
@@ -79,11 +128,10 @@ const MyShopSidebar = ({
           icon={CalendarClock}
           label="Joined On"
           value={formatJoinedDate(sellerCreatedAt)}
-          // value={displayShop.createdAt?.slice(0,10)}
         />
       </div>
 
-      {isOwner && (
+      {isOwner ? (
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1">
           <button
             type="button"
@@ -101,6 +149,17 @@ const MyShopSidebar = ({
           >
             <LogOut size={16} />
             Log Out
+          </button>
+        </div>
+      ) : (
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={handleSendMessage}
+            className="w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-purple-600 hover:bg-purple-700 px-4 py-3 text-sm font-semibold text-white transition shadow-sm"
+          >
+            <MessageSquare size={16} />
+            Send Message to Seller
           </button>
         </div>
       )}
