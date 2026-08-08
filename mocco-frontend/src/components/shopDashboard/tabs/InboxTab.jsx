@@ -40,15 +40,6 @@ const InboxTab = () => {
 
   const messagesEndRef = useRef(null);
 
-  // Auto scroll to bottom when messages update
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
   // Fetch seller conversations on mount
   useEffect(() => {
     if (seller?._id) {
