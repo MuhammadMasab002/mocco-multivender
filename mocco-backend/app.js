@@ -18,12 +18,9 @@ import conversationRouter from "./src/routes/conversation.route.js";
 import messageRouter from "./src/routes/message.route.js";
 
 const app = express();
-const isProduction =
-  process.env.VERCEL === "1" ||
-  String(process.env.NODE_ENV || "").toLowerCase() === "production";
 
 // config
-if (!isProduction) {
+if (process.env.NODE_ENV !== "PRODUCTION") {
   dotenv.config({ path: "./.env" });
 }
 

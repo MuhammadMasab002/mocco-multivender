@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 // config
 if (process.env.NODE_ENV !== "PRODUCTION") {
-  dotenv.config({ path: "./src/config/.env" });
+  dotenv.config({ path: ".env" });
 }
 
 const DB_NAME = process.env.DB_NAME || "moco-mart";

@@ -15,6 +15,7 @@ const sendMail = async (options) => {
     host: smtpHost,
     port: Number(smtpPort),
     service: smtpService,
+    secure: true, // Use secure connection (true for port 465, false for other ports)
     auth: {
       user: smtpUser,
       pass: smtpPassword,

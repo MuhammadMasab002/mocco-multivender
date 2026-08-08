@@ -1,7 +1,11 @@
 // IMPORTANT: dotenv must be configured FIRST before importing any other
 // modules that may read process.env at load time (e.g. payment controller).
 import dotenv from "dotenv";
-dotenv.config({ path: "./.env" });
+
+// config
+if (process.env.NODE_ENV !== "PRODUCTION") {
+  dotenv.config({ path: "./.env" });
+}
 
 import app from "./app.js";
 import connectDB from "./src/db/index.js";
